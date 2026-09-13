@@ -110,6 +110,17 @@ What is still wanted from the artist — six more owl poses and three more skies
 
 ---
 
+## Builds
+
+Every push and pull request runs a **compile check** on a macOS runner
+(`.github/workflows/build.yml`) — no secrets, no Apple account. It also verifies that
+the shipped sprites still match what `tools/export_art.py` produces from `art-source/`,
+so the two cannot silently diverge.
+
+A **TestFlight upload** (`.github/workflows/testflight.yml`) runs from the Actions tab or
+on a `v*` tag. It needs four repository secrets and an Apple Developer account;
+`docs/RELEASE.md` is the runbook.
+
 ## Layout of the code
 
 ```
@@ -120,8 +131,9 @@ LittleOwl/
   Audio/      Session policy, microphone permission, capture, pitched playback
   Modes/      Echo
   Support/    Palette, generated textures, sound effects, the tap-target overlay
-  Resources/  Asset catalogue, painted art, placeholder sound effects
+  Resources/  Asset catalogue, painted art, placeholder sound effects, privacy manifest
 art-source/   Master artwork as delivered by the painter
+.github/      Build and TestFlight workflows
 Config/       Info.plist
 content/      Content packs (deliverable 3)
 docs/         Art brief, decisions, previews

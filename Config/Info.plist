@@ -21,6 +21,17 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 
+	<!-- Required for App Store validation when the Info.plist is hand-written. -->
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+
+	<!--
+	  No encryption beyond what iOS itself provides. Declared here so TestFlight stops
+	  asking the export-compliance question on every single build.
+	-->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 	<!-- Landscape only, iPad only. -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

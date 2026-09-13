@@ -1,0 +1,54 @@
+name: Build
+
+# The compile check. It runs on every push and pull request and needs no secrets,
+# no certificates and no Apple account — just a macOS runner with Xcode.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build for simulator
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show the toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # No signing: a simulator build proves the code compiles, which is the only
+      # thing this workflow is for. Signing belongs to the TestFlight workflow.
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project LittleOwl.xcodeproj \
+            -scheme LittleOwl \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Check the shipped art is what the export script produces
+        run: |
+          # The runner's Python is Homebrew-managed, so a system-wide pip install is
+          # refused (PEP 668). A throwaway venv is the supported way in.
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet --disable-pip-version-check Pillow numpy
+          # Compares pixels rather than bytes: a Pillow upgrade re-encodes the same
+          # image differently, and that is not a reason to fail the build.
+          .venv/bin/python tools/export_art.py --check
+
+      - name: Check the turn detector still behaves
+        run: python3 tools/simulate_turn_detection.py
