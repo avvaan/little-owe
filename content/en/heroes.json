@@ -1,0 +1,10 @@
+{
+  "_comment": "The cards a child taps to pick a story. `card` is an illustration filename in illustrations/; until the artist delivers one, Stories mode draws a placeholder in the hero's colour.",
+  "heroes": [
+    { "id": "fox",    "name": "Fern the Fox",    "card": "hero_fox.png",    "colour": "D98E63", "tags": ["forest", "clever"] },
+    { "id": "bunny",  "name": "Pip the Bunny",   "card": "hero_bunny.png",  "colour": "E8D7C8", "tags": ["meadow", "gentle"] },
+    { "id": "bear",   "name": "Bramble the Bear","card": "hero_bear.png",   "colour": "8B6742", "tags": ["forest", "kind"] },
+    { "id": "mouse",  "name": "Tilly the Mouse", "card": "hero_mouse.png",  "colour": "B9A38C", "tags": ["house", "brave"] },
+    { "id": "hedgehog","name": "Nub the Hedgehog","card": "hero_hedgehog.png","colour": "7A6A55", "tags": ["garden", "shy"] }
+  ]
+}

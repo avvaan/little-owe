@@ -1,0 +1,38 @@
+{
+  "_comment": "The owl's own stock lines, shared across every mode. Kept here rather than in code so a translator never has to open Swift, and so the owl never repeats itself the same way twice.",
+
+  "groups": {
+    "praise": [
+      { "id": "praise-1", "text": "Lovely!" },
+      { "id": "praise-2", "text": "That's it!" },
+      { "id": "praise-3", "text": "Oh, very good." },
+      { "id": "praise-4", "text": "Yes! Just like that." },
+      { "id": "praise-5", "text": "Hoo! Wonderful." }
+    ],
+
+    "_comment_kindTry": "Used when an answer is not on the accepted list. It never says wrong, never corrects, and always moves on — the task's own `reveal` line follows it.",
+    "kindTry": [
+      { "id": "try-1", "text": "Good try!" },
+      { "id": "try-2", "text": "Ooh, nearly!" },
+      { "id": "try-3", "text": "That's a good one too." }
+    ],
+
+    "_comment_nudge": "Said once when the child has been silent, before the owl moves on by itself.",
+    "nudge": [
+      { "id": "nudge-1", "text": "Let's try it together." },
+      { "id": "nudge-2", "text": "Listen again." }
+    ],
+
+    "_comment_unknownQuestion": "The Why mode's answer when nothing in the bank matches. The owl must never invent an answer.",
+    "unknownQuestion": [
+      { "id": "unknown-1", "text": "Ooh, that's a great one! Ask Mom or Dad, and tell me what they say." },
+      { "id": "unknown-2", "text": "What a good question. I don't know that one — ask a grown-up, and come back and tell me!" }
+    ],
+
+    "_comment_storyAgain": "Offered at the end of a story.",
+    "storyAgain": [
+      { "id": "again-1", "text": "Again?" },
+      { "id": "again-2", "text": "Shall we read it once more?" }
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "_comment": "Prayers and rhymes share one shape: an ordered list of lines the owl says and waits for the child to repeat. `kind` decides which parent-settings list a set appears in. A parent chooses which sets are loaded on the lamp.",
+  "_placeholder": "Every prayer set below is marked placeholder:true. They are traditional texts standing in until the real ones are supplied; replacing them is editing this file, nothing more.",
+
+  "sets": [
+    {
+      "id": "prayer-morning",
+      "kind": "prayer",
+      "title": "Morning",
+      "placeholder": true,
+      "source": "Traditional",
+      "tags": ["morning"],
+      "lines": [
+        { "id": "l1", "text": "Thank you for the world so sweet," },
+        { "id": "l2", "text": "Thank you for the food we eat," },
+        { "id": "l3", "text": "Thank you for the birds that sing," },
+        { "id": "l4", "text": "Thank you for everything." }
+      ]
+    },
+    {
+      "id": "prayer-evening",
+      "kind": "prayer",
+      "title": "Evening",
+      "placeholder": true,
+      "source": "Traditional",
+      "tags": ["evening", "bedtime"],
+      "lines": [
+        { "id": "l1", "text": "Now I lay me down to sleep," },
+        { "id": "l2", "text": "I pray the Lord my soul to keep." },
+        { "id": "l3", "text": "Watch over me all through the night," },
+        { "id": "l4", "text": "And wake me with the morning light." }
+      ]
+    },
+    {
+      "id": "prayer-meal",
+      "kind": "prayer",
+      "title": "Before meals",
+      "placeholder": true,
+      "source": "Traditional",
+      "tags": ["meal"],
+      "lines": [
+        { "id": "l1", "text": "For food and friends and everything," },
+        { "id": "l2", "text": "For all the good that each day brings," },
+        { "id": "l3", "text": "We give our thanks." }
+      ]
+    },
+
+    {
+      "id": "rhyme-twinkle",
+      "kind": "rhyme",
+      "title": "Twinkle, Twinkle, Little Star",
+      "source": "Jane Taylor, 1806 — public domain",
+      "tags": ["bedtime", "star"],
+      "lines": [
+        { "id": "l1", "text": "Twinkle, twinkle, little star," },
+        { "id": "l2", "text": "How I wonder what you are." },
+        { "id": "l3", "text": "Up above the world so high," },
+        { "id": "l4", "text": "Like a diamond in the sky." }
+      ]
+    },
+    {
+      "id": "rhyme-humpty",
+      "kind": "rhyme",
+      "title": "Humpty Dumpty",
+      "source": "Traditional — public domain",
+      "tags": ["silly"],
+      "lines": [
+        { "id": "l1", "text": "Humpty Dumpty sat on a wall," },
+        { "id": "l2", "text": "Humpty Dumpty had a great fall." },
+        { "id": "l3", "text": "All the king's horses and all the king's men," },
+        { "id": "l4", "text": "Couldn't put Humpty together again." }
+      ]
+    },
+    {
+      "id": "rhyme-diddle",
+      "kind": "rhyme",
+      "title": "Hey Diddle Diddle",
+      "source": "Traditional — public domain",
+      "tags": ["silly", "animals"],
+      "lines": [
+        { "id": "l1", "text": "Hey diddle diddle, the cat and the fiddle," },
+        { "id": "l2", "text": "The cow jumped over the moon." },
+        { "id": "l3", "text": "The little dog laughed to see such fun," },
+        { "id": "l4", "text": "And the dish ran away with the spoon." }
+      ]
+    },
+    {
+      "id": "rhyme-row",
+      "kind": "rhyme",
+      "title": "Row, Row, Row Your Boat",
+      "source": "Traditional — public domain",
+      "tags": ["silly", "water"],
+      "lines": [
+        { "id": "l1", "text": "Row, row, row your boat," },
+        { "id": "l2", "text": "Gently down the stream." },
+        { "id": "l3", "text": "Merrily, merrily, merrily, merrily," },
+        { "id": "l4", "text": "Life is but a dream." }
+      ]
+    }
+  ]
+}

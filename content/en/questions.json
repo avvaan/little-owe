@@ -1,0 +1,408 @@
+{
+  "_comment": "The Why bank. Recognition gives a rough transcript; QuestionMatcher scores it against each entry's keywords. `keywords` are the words that must mostly be present — pick nouns, not question words. `alternates` are whole phrasings that should also hit.",
+  "_rule": "The owl must never invent an answer. Nothing here is generated at runtime: if nothing matches, it says the unknownQuestion line from phrases.json and asks the child to check with a grown-up.",
+  "_gap": "The brief asks for 100 to 200 questions. Twenty-eight are here, enough to build and test the matcher. Adding more is writing, not engineering.",
+  "questions": [
+    {
+      "id": "sky-blue",
+      "text": "Why is the sky blue?",
+      "keywords": [
+        "sky",
+        "blue"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Sunlight looks white, but it is really every colour mixed together. When it bumps into the air, the blue part bounces around the most, so the whole sky looks blue."
+    },
+    {
+      "id": "rain-from",
+      "text": "Where does rain come from?",
+      "keywords": [
+        "rain",
+        "come"
+      ],
+      "alternates": [
+        "where does rain come from",
+        "how does rain happen",
+        "why does it rain",
+        "why is it raining",
+        "how does raining work"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "The sun warms water in the sea and it floats up as tiny drops you cannot see. Up high they bump together into clouds, and when a cloud gets heavy, the drops fall back down as rain."
+    },
+    {
+      "id": "cats-purr",
+      "text": "Why do cats purr?",
+      "keywords": [
+        "cat",
+        "purr"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Cats purr by wobbling their voice box very fast. They mostly do it when they feel safe and happy, but sometimes when they are poorly too, because purring helps them feel better.",
+      "alternates": [
+        "what is purring",
+        "why is the cat purring"
+      ]
+    },
+    {
+      "id": "why-sleep",
+      "text": "Why do we sleep?",
+      "keywords": [
+        "sleep"
+      ],
+      "alternates": [
+        "why do we sleep",
+        "why do people sleep",
+        "why do i have to sleep",
+        "why am i sleeping",
+        "why do i have to go to bed"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "While you sleep your body grows and mends itself, and your brain tidies up everything you learned that day. That is why everything feels easier in the morning."
+    },
+    {
+      "id": "moon-follow",
+      "text": "Why does the moon follow me?",
+      "keywords": [
+        "moon",
+        "follow"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "The moon is so far away that walking or driving does not change where it sits in the sky. Everything close by slides past you, but the moon stays put, so it looks like it is coming along.",
+      "alternates": [
+        "is the moon following me"
+      ]
+    },
+    {
+      "id": "stars-night",
+      "text": "Why do stars only come out at night?",
+      "keywords": [
+        "star",
+        "night"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "The stars are there all day too. The sun is so bright that it washes them out, the same way a torch disappears in daylight."
+    },
+    {
+      "id": "sun-hot",
+      "text": "Why is the sun hot?",
+      "keywords": [
+        "sun",
+        "hot"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "The sun is an enormous ball of burning gas, far bigger than the whole Earth. Even from very far away, we can feel its warmth on our faces.",
+      "alternates": [
+        "why is the sun so hot",
+        "how hot is the sun"
+      ]
+    },
+    {
+      "id": "grass-green",
+      "text": "Why is grass green?",
+      "keywords": [
+        "grass",
+        "green"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Plants are full of a green stuff called chlorophyll, which they use to catch sunlight and make their food. The green is what is left over for us to see."
+    },
+    {
+      "id": "birds-fly",
+      "text": "How do birds fly?",
+      "keywords": [
+        "bird",
+        "fly"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A bird's wings are curved on top, so air rushes over them faster than underneath, and that lifts the bird up. Their bones are hollow too, which makes them lovely and light.",
+      "alternates": [
+        "how do birds flying",
+        "how is a bird flying"
+      ]
+    },
+    {
+      "id": "fish-breathe",
+      "text": "How do fish breathe under water?",
+      "keywords": [
+        "fish",
+        "breathe"
+      ],
+      "alternates": [
+        "how do fish breathe",
+        "can fish breathe underwater"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Fish have gills instead of lungs. Water goes in through their mouths and out past the gills, which pick the air out of the water as it passes."
+    },
+    {
+      "id": "leaves-fall",
+      "text": "Why do leaves fall off trees?",
+      "keywords": [
+        "leaf",
+        "fall",
+        "tree"
+      ],
+      "alternates": [
+        "why do leaves fall",
+        "why do trees lose their leaves",
+        "why are the leaves falling"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "In autumn there is less sunlight, so trees stop feeding their leaves and have a long rest. The leaves change colour, let go, and the tree sleeps until spring."
+    },
+    {
+      "id": "snow-white",
+      "text": "Why is snow white?",
+      "keywords": [
+        "snow",
+        "white"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "Snow is made of countless tiny ice crystals, and each one bounces light in every direction. All those colours bouncing at once add up to white.",
+      "alternates": [
+        "why is it snowing",
+        "what is snowing"
+      ]
+    },
+    {
+      "id": "thunder-noise",
+      "text": "Why is thunder so loud?",
+      "keywords": [
+        "thunder",
+        "loud"
+      ],
+      "alternates": [
+        "what is thunder",
+        "why does thunder happen",
+        "what is thundering"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "Lightning heats the air around it so fast that the air jumps out of the way with an enormous bang. Thunder is the sound of that bang rolling across the sky."
+    },
+    {
+      "id": "rainbow",
+      "text": "How does a rainbow happen?",
+      "keywords": [
+        "rainbow"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "When sunlight shines through raindrops, each drop bends the light and splits it into all its colours. If the sun is behind you and the rain in front, you see them in a great arc."
+    },
+    {
+      "id": "why-yawn",
+      "text": "Why do we yawn?",
+      "keywords": [
+        "yawn"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Nobody is completely sure. Yawning seems to cool the brain a little and wake it up, and it is so catching that seeing somebody yawn can set you off too."
+    },
+    {
+      "id": "why-hiccup",
+      "text": "Why do we get hiccups?",
+      "keywords": [
+        "hiccup"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "There is a big muscle under your lungs that helps you breathe. Sometimes it twitches by surprise, your throat snaps shut, and that makes the hic sound."
+    },
+    {
+      "id": "why-sneeze",
+      "text": "Why do we sneeze?",
+      "keywords": [
+        "sneeze"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "A sneeze is your nose blowing out something that does not belong there, like dust or pepper. It comes out faster than a car drives."
+    },
+    {
+      "id": "heart-beat",
+      "text": "Why does my heart beat?",
+      "keywords": [
+        "heart",
+        "beat"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your heart is a muscle the size of your fist, squeezing over and over to push blood all around you. That blood carries food and air to every part of your body."
+    },
+    {
+      "id": "why-dream",
+      "text": "Why do we dream?",
+      "keywords": [
+        "dream"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "While you sleep, your brain sorts through the day and joins pieces together in funny new ways. Those mixed-up pieces are what dreams are made of.",
+      "alternates": [
+        "why am i dreaming",
+        "what is dreaming"
+      ]
+    },
+    {
+      "id": "dogs-smell",
+      "text": "Why do dogs smell everything?",
+      "keywords": [
+        "dog",
+        "smell"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A dog's nose is thousands of times better than yours. Sniffing is how a dog reads the news about who came past and when."
+    },
+    {
+      "id": "bees-honey",
+      "text": "How do bees make honey?",
+      "keywords": [
+        "bee",
+        "honey"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Bees drink sweet nectar from flowers and carry it home in a special stomach. In the hive they pass it along, fan it dry with their wings, and it thickens into honey.",
+      "alternates": [
+        "where does honey come from"
+      ]
+    },
+    {
+      "id": "spiders-web",
+      "text": "How do spiders make webs?",
+      "keywords": [
+        "spider",
+        "web"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A spider squeezes liquid silk out of little spouts at its back end, and the silk hardens in the air. Some threads are sticky for catching, and some are not, so the spider knows where to walk."
+    },
+    {
+      "id": "why-shadow",
+      "text": "Why do I have a shadow?",
+      "keywords": [
+        "shadow"
+      ],
+      "tags": [
+        "light"
+      ],
+      "answer": "Light travels in straight lines and cannot go through you, so it leaves a dark patch on the other side. That patch is your shadow, and it moves as the light moves.",
+      "alternates": [
+        "what is a shadow",
+        "where do shadows come from"
+      ]
+    },
+    {
+      "id": "why-echo",
+      "text": "What is an echo?",
+      "keywords": [
+        "echo"
+      ],
+      "tags": [
+        "sound"
+      ],
+      "answer": "Sound bounces, just like a ball. When it hits something big and hard and comes back to your ears a moment later, you hear it twice. That is an echo."
+    },
+    {
+      "id": "planes-stay-up",
+      "text": "Why don't planes fall down?",
+      "keywords": [
+        "plane",
+        "fall"
+      ],
+      "alternates": [
+        "how do planes fly",
+        "why do planes stay up",
+        "how is a plane flying",
+        "why is the plane flying"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "A plane's wings are shaped so air rushes over the top faster than underneath, and that pushes the whole plane upwards. As long as it keeps going forward, the air holds it up."
+    },
+    {
+      "id": "boats-float",
+      "text": "Why do boats float?",
+      "keywords": [
+        "boat",
+        "float"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "A boat pushes water out of the way, and the water pushes back just as hard. As long as the boat is lighter than the water it shoves aside, it floats, even a heavy metal one."
+    },
+    {
+      "id": "why-teeth-fall",
+      "text": "Why do my teeth fall out?",
+      "keywords": [
+        "teeth",
+        "fall"
+      ],
+      "alternates": [
+        "why do teeth fall out",
+        "why did my tooth fall out"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your first teeth are small, made for a small mouth. As your face grows, bigger ones push up underneath, and the little ones wobble and make room."
+    },
+    {
+      "id": "why-owls-awake",
+      "text": "Why are owls awake at night?",
+      "keywords": [
+        "owl",
+        "night"
+      ],
+      "alternates": [
+        "why do owls stay up at night",
+        "are owls awake at night"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Owls have enormous eyes for seeing in the dark and feathers so soft that they fly without a sound. The night is when the mice come out, so that is when owls go to work."
+    }
+  ]
+}

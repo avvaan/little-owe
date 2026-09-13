@@ -1,0 +1,259 @@
+{
+  "_comment": "A task the owl sets aloud. `accepted` is matched against what on-device recognition heard, loosely — see QuestionMatcher. `reveal` is what the owl says when the answer was not on the list: it offers an answer of its own and moves on. There is no wrong, no score and no streak.",
+  "_fallback": "`choices` exists for the no-recognition path: when SFSpeechRecognizer is unavailable the child taps one of these pictures instead of speaking. The first entry is the correct one and the mode shuffles them. They are picture names, not spoken answers — tapping the cow answers 'what sound does a cow make', so `choices` and `accepted` deliberately differ.",
+  "games": [
+    {
+      "id": "animal-m",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "animals"
+      ],
+      "prompt": "Can you name an animal that starts with M?",
+      "accepted": [
+        "monkey",
+        "mouse",
+        "moose",
+        "mole",
+        "mongoose",
+        "meerkat",
+        "manatee",
+        "magpie",
+        "mallard"
+      ],
+      "reveal": "I think it's a monkey!",
+      "choices": [
+        "monkey",
+        "rabbit",
+        "tiger"
+      ]
+    },
+    {
+      "id": "animal-b",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "animals"
+      ],
+      "prompt": "Name an animal that starts with B.",
+      "accepted": [
+        "bear",
+        "bee",
+        "bird",
+        "bat",
+        "badger",
+        "beaver",
+        "butterfly",
+        "bunny",
+        "buffalo"
+      ],
+      "reveal": "I was thinking of a bear!",
+      "choices": [
+        "bear",
+        "fox",
+        "owl"
+      ]
+    },
+    {
+      "id": "food-a",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "food"
+      ],
+      "prompt": "Something you can eat that starts with A?",
+      "accepted": [
+        "apple",
+        "apricot",
+        "avocado",
+        "almond",
+        "artichoke"
+      ],
+      "reveal": "An apple! Crunchy.",
+      "choices": [
+        "apple",
+        "bread",
+        "cheese"
+      ]
+    },
+    {
+      "id": "odd-fruit-chair",
+      "kind": "oddOneOut",
+      "tags": [
+        "sorting"
+      ],
+      "prompt": "Which one doesn't belong: apple, banana, chair?",
+      "accepted": [
+        "chair",
+        "the chair",
+        "a chair"
+      ],
+      "reveal": "The chair! You can't eat a chair.",
+      "choices": [
+        "chair",
+        "apple",
+        "banana"
+      ]
+    },
+    {
+      "id": "odd-animal-spoon",
+      "kind": "oddOneOut",
+      "tags": [
+        "sorting"
+      ],
+      "prompt": "Which one doesn't belong: cat, dog, spoon?",
+      "accepted": [
+        "spoon",
+        "the spoon",
+        "a spoon"
+      ],
+      "reveal": "The spoon! Spoons don't have tails.",
+      "choices": [
+        "spoon",
+        "cat",
+        "dog"
+      ]
+    },
+    {
+      "id": "odd-sky-shoe",
+      "kind": "oddOneOut",
+      "tags": [
+        "sorting"
+      ],
+      "prompt": "Which one doesn't belong: sun, moon, shoe?",
+      "accepted": [
+        "shoe",
+        "the shoe",
+        "a shoe",
+        "shoes"
+      ],
+      "reveal": "The shoe! The shoe stays on the ground.",
+      "choices": [
+        "shoe",
+        "sun",
+        "moon"
+      ]
+    },
+    {
+      "id": "sound-cow",
+      "kind": "animalSound",
+      "tags": [
+        "sounds",
+        "animals"
+      ],
+      "prompt": "What sound does a cow make?",
+      "accepted": [
+        "moo",
+        "mooo",
+        "moo moo",
+        "mu"
+      ],
+      "reveal": "Moooo!",
+      "choices": [
+        "cow",
+        "duck",
+        "cat"
+      ]
+    },
+    {
+      "id": "sound-duck",
+      "kind": "animalSound",
+      "tags": [
+        "sounds",
+        "animals"
+      ],
+      "prompt": "What sound does a duck make?",
+      "accepted": [
+        "quack",
+        "quack quack"
+      ],
+      "reveal": "Quack quack!",
+      "choices": [
+        "duck",
+        "sheep",
+        "dog"
+      ]
+    },
+    {
+      "id": "sound-owl",
+      "kind": "animalSound",
+      "tags": [
+        "sounds",
+        "animals"
+      ],
+      "prompt": "And what sound do I make?",
+      "accepted": [
+        "hoo",
+        "hoot",
+        "who",
+        "whoo",
+        "hoo hoo",
+        "twit twoo"
+      ],
+      "reveal": "Hoo! Hoo! That's me.",
+      "choices": [
+        "owl",
+        "frog",
+        "horse"
+      ]
+    },
+    {
+      "id": "colour-sky",
+      "kind": "nameOne",
+      "tags": [
+        "colours"
+      ],
+      "prompt": "What colour is the sky on a sunny day?",
+      "accepted": [
+        "blue",
+        "light blue",
+        "sky blue"
+      ],
+      "reveal": "Blue! Big and blue.",
+      "choices": [
+        "blue",
+        "green",
+        "red"
+      ]
+    },
+    {
+      "id": "colour-grass",
+      "kind": "nameOne",
+      "tags": [
+        "colours"
+      ],
+      "prompt": "What colour is the grass?",
+      "accepted": [
+        "green",
+        "dark green",
+        "light green"
+      ],
+      "reveal": "Green, like the meadow.",
+      "choices": [
+        "green",
+        "purple",
+        "orange"
+      ]
+    },
+    {
+      "id": "count-legs-cat",
+      "kind": "counting",
+      "tags": [
+        "counting",
+        "animals"
+      ],
+      "prompt": "How many legs does a cat have?",
+      "accepted": [
+        "four",
+        "4",
+        "four legs"
+      ],
+      "reveal": "Four! One, two, three, four.",
+      "choices": [
+        "four",
+        "two",
+        "six"
+      ]
+    }
+  ]
+}

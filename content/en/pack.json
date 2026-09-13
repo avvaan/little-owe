@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "language": "en",
+  "displayName": "English",
+  "_comment": "speechLocale picks the AVSpeechSynthesizer voice used until a real recording exists for a line. recognitionLocale is what SFSpeechRecognizer is asked for in Prayers, Word games and Why.",
+  "speechLocale": "en-US",
+  "recognitionLocale": "en-US",
+  "_comment2": "A second language is a sibling folder with its own pack.json and the same five files. Nothing in the code names 'en'.",
+  "files": {
+    "heroes": "heroes.json",
+    "stories": "stories.json",
+    "spokenSets": "spoken-sets.json",
+    "wordGames": "word-games.json",
+    "questions": "questions.json",
+    "phrases": "phrases.json"
+  }
+}
