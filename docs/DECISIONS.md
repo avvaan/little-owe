@@ -212,10 +212,87 @@ recording that has already been assembled.
 
 ---
 
+# The painted room (art integration)
+
+## Texture swapping, not a cut-up puppet
+
+The obvious way to animate a 2D character is to cut it into parts — head, eyelids, beak —
+and transform them. That is what the vector placeholder did, and it is why blinking was
+pixel-perfect there.
+
+It does not survive contact with this artwork. The owl is a watercolour painting with
+feather texture running continuously across every edge; cut the head off the body and the
+seam is visible at any rotation, because there is nothing painted behind the cut. So the
+rig swaps whole painted frames and moves the whole bird. That is how a paper puppet
+moves, and at this scale it reads correctly.
+
+The cost is that every frame must be registered to the base pose. `docs/ART_BRIEF.md`
+states that as the one rule that matters, because a frame that drifts a few pixels turns
+a blink into a twitch.
+
+## Missing frames degrade, they do not break
+
+`WatercolourOwlRig` looks for `owl_<state>.png` at launch and falls back to the base pose
+for anything absent. The app is complete and shippable with only `owl_base` present, and
+improves the moment more art lands — no code change, no feature flag, no branch.
+
+This is also why `setMouthOpenness` uses two thresholds with a gap between them rather
+than one cut-off: a single boundary makes the beak stutter between frames on every wobble
+of the audio envelope.
+
+## The window glass was split at export time
+
+The painting has a night sky baked into its glass, and the brief wants the window to
+follow the device clock. Rather than ask for the room to be repainted four times, the
+export separates the glass into a sky sprite and the wooden muntins that cross it, so a
+new sky drops in behind unchanged woodwork.
+
+The muntins are found by colour (they are the only strongly brown thing inside the glass)
+and cleaned with a morphological opening, which clears the speckle the pink clouds
+otherwise contribute. They are then painted *out* of the sky by growing the surrounding
+sky inwards — otherwise a swapped sky would show a ghost of the old cross.
+
+## The sprites are derived, never hand-edited
+
+`tools/export_art.py` is the only thing that writes `LittleOwl/Resources/Art/`. Source
+layers live in `art-source/` exactly as delivered. This costs about 16 MB in the
+repository and buys the ability to re-run the whole pipeline when the painter revises
+something, instead of hand-repeating a sequence of image-editor steps nobody wrote down.
+
+It also reads `RoomLayout.swift` for the window geometry, so the export and the app
+cannot disagree about where the glass is.
+
+## Painted props glow instead of squashing
+
+Only the blocks, the window glass and the owl are separate sprites. The book and the lamp
+are part of the room painting and cannot move at all — but the UX rule says every tap
+gets instant sound *and* motion. They answer with a soft bloom of warm light over the
+prop, which is motion the painting can actually do.
+
+## The ambient wash was turned down
+
+The vector room was flat, so a strong tint sold the time of day. The painting carries its
+own light — a lit lamp, a warm pool on the floor — and a heavy tint fights it. The wash
+is now gentle and the window does most of the work. A genuinely bright morning attic
+needs the room repainted; that is in the art brief as a nice-to-have.
+
+## The generated frames could not be fetched into this session
+
+The owl poses and the three extra skies were generated through Higgsfield, but this
+session's egress policy blocks its delivery CDN (`d8j0ntlcm91z4.cloudfront.net`), so they
+could not be downloaded, inspected or composited here. They are visible in the Higgsfield
+widget and have to come back into the repository by hand.
+
+Nothing in the app depends on them: the rig falls back to the base pose, which is why the
+missing-frames design above matters more than it looked at the time.
+
+---
+
 ## Open, and deliberately deferred
 
-- **Room art is placeholder vector shapes.** `docs/ART_BRIEF.md` specifies what has to
-  be delivered to replace it.
+- **Six owl poses and three skies are painted but not yet in the repository** (see the
+  egress note above). Until they land the owl breathes, leans, hops and glows, but does
+  not blink or move its beak.
 - **`content/` is empty.** The schema and loader are deliverable 3.
 - **There are no tests yet.** The units worth testing — `TimeOfDay` bucketing, the tap
   target padding maths, the idle clock, and now the turn detector — are pure and will

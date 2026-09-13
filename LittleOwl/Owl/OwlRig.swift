@@ -2,10 +2,9 @@ import SpriteKit
 
 /// The seam between the owl's behaviour and the owl's artwork.
 ///
-/// `PlaceholderOwlRig` draws vector shapes today. When the artist delivers, a
-/// `RiveOwlRig` implements the same four members by poking inputs on a Rive state
-/// machine, and no behaviour code changes. Nothing above this protocol may know how
-/// the owl is drawn.
+/// `WatercolourOwlRig` swaps painted frames today. A `RiveOwlRig` would implement the
+/// same four members by poking inputs on a Rive state machine, and no behaviour code
+/// would change. Nothing above this protocol may know how the owl is drawn.
 protocol OwlRig: AnyObject {
 
     /// Added to the scene by `OwlNode`. Laid out so that (0, 0) is between the owl's feet.
