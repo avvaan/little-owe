@@ -276,6 +276,36 @@ own light — a lit lamp, a warm pool on the floor — and a heavy tint fights i
 is now gentle and the window does most of the work. A genuinely bright morning attic
 needs the room repainted; that is in the art brief as a nice-to-have.
 
+## Face patch for fast frames, whole frame for slow ones
+
+The generated expression frames register to the base within a pixel — measured, not
+assumed — but their bodies differ by one to three percent of texture. Whether that
+matters depends entirely on how fast the frame changes.
+
+A blink is 130 ms. Anything moving in the body during it reads as a twitch, so for
+blink, happy and the two beak positions the export takes **only the face** — eyes, beak
+and facial disc, soft-edged — and lays it on the original painted body. The body is then
+byte-identical across those frames and there is nothing to shimmer.
+
+Listening and sleepy raise and droop the ear tufts, which move outside the base
+silhouette, so a face patch cannot express them at all. They use the **whole frame**, and
+the rig cross-fades into them over 220 ms. A slow fade hides a one-percent texture
+difference completely; cutting to it would not.
+
+That split is why `Frame.isWholeBody` exists in the rig and why `show` fades for some
+frames and cuts for others.
+
+## The muntins are found by colour in the painting, by geometry in the generated skies
+
+In the room painting the muntins are the only strongly brown thing inside the glass, so
+colour finds them exactly. In a generated sky a sunset horizon reads as brown to any
+wood detector, and eating the clouds would be far worse than painting out a slightly
+wide cross — so those use a fixed geometric cross instead.
+
+It is safe to be generous there: the generated bars measure 5.6% of the glass diameter
+and the painted ones that go back on top are 5.9%, so the painted-out cross ends up
+completely hidden.
+
 ## The generated frames could not be fetched into this session
 
 The owl poses and the three extra skies were generated through Higgsfield, but this
@@ -290,9 +320,8 @@ missing-frames design above matters more than it looked at the time.
 
 ## Open, and deliberately deferred
 
-- **Six owl poses and three skies are painted but not yet in the repository** (see the
-  egress note above). Until they land the owl breathes, leans, hops and glows, but does
-  not blink or move its beak.
+- **The room is painted for night only.** The window follows the clock, but a bright
+  morning attic would need the room itself repainted; the app tints it gently instead.
 - **`content/` is empty.** The schema and loader are deliverable 3.
 - **There are no tests yet.** The units worth testing — `TimeOfDay` bucketing, the tap
   target padding maths, the idle clock, and now the turn detector — are pure and will

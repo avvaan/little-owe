@@ -30,8 +30,8 @@ final class WindowNode: SKNode {
     /// Cross-fades to a new sky. Always animated in normal play — a hard cut at 17:00
     /// would read as a glitch.
     ///
-    /// Only `night` is painted today; the others fall back to it until the artwork
-    /// arrives, so the window is never empty.
+    /// All four skies are painted. The fall back to night is kept for the case where a
+    /// sky is ever removed from the bundle: the window is never empty.
     func setTime(_ newTime: TimeOfDay, animated: Bool = true) {
         time = newTime
 

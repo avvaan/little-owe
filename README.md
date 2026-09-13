@@ -4,8 +4,9 @@ An offline talking-companion app for iPad, for children aged 3–6. A cozy attic
 with a small owl who lives there: the child talks to the owl, and the owl talks back.
 A digital toy, not a chatbot.
 
-**Status: deliverable 2 of 8, now on painted artwork.** The attic room, the owl, the
-time-of-day window, and Echo — the owl repeating what the child says in a sillier voice.
+**Status: deliverable 2 of 8, fully on painted artwork.** The attic room, an owl that
+blinks and moves its beak, a window that follows the clock through four painted skies,
+and Echo — the owl repeating what the child says in a sillier voice.
 
 ---
 
@@ -105,8 +106,8 @@ python3 tools/compose_room.py --grid    # plus the measuring grid and every tap 
 
 ![The attic room](docs/preview/room-night.png)
 
-What is still wanted from the artist — six more owl poses and three more skies — is in
-`docs/ART_BRIEF.md`. Each drops in without a code change.
+The owl has seven painted frames and the window has four skies. How each is derived,
+and what a replacement frame has to match, is in `docs/ART_BRIEF.md`.
 
 ---
 

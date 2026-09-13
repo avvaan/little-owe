@@ -30,6 +30,11 @@ final class WatercolourOwlRig: OwlRig {
         case listen    = "owl_listen"
         case talkHalf  = "owl_talk_half"
         case talkWide  = "owl_talk_wide"
+
+        /// Frames that replace the whole bird rather than just its face, because the
+        /// ear tufts move outside the base silhouette. They change the body by a
+        /// percent or two of texture, so they are cross-faded rather than cut to.
+        var isWholeBody: Bool { self == .listen || self == .sleepy }
     }
 
     private var textures: [Frame: SKTexture] = [:]
@@ -48,6 +53,9 @@ final class WatercolourOwlRig: OwlRig {
     /// Everything that breathes, hops and leans. The ground shadow stays outside it.
     private let body = SKNode()
     private let sprite: SKSpriteNode
+
+    /// Sits exactly on top of `sprite` and is only ever visible mid-cross-fade.
+    private let overlay = SKSpriteNode()
 
     private var state: OwlState = .idle
     private var currentFrame: Frame = .base
@@ -322,9 +330,31 @@ final class WatercolourOwlRig: OwlRig {
 
     // MARK: Internals
 
+    /// Blink and the beak frames are cut to instantly — a fade would smear a 130 ms
+    /// blink into mush. Whole-body frames are cross-faded, because cutting to a body
+    /// that differs by a percent of texture reads as a twitch.
     private func show(_ frame: Frame) {
+        let fade = frame.isWholeBody || currentFrame.isWholeBody
         currentFrame = frame
-        sprite.texture = texture(frame)
+        let wanted = texture(frame)
+
+        overlay.removeAllActions()
+        guard fade, wanted !== sprite.texture else {
+            overlay.alpha = 0
+            sprite.texture = wanted
+            return
+        }
+
+        overlay.texture = wanted
+        overlay.alpha = 0
+        overlay.run(.sequence([
+            .fadeIn(withDuration: 0.22),
+            .run { [weak self] in
+                guard let self else { return }
+                self.sprite.texture = wanted
+                self.overlay.alpha = 0
+            }
+        ]))
     }
 
     private func stopEverything() {
@@ -357,8 +387,14 @@ final class WatercolourOwlRig: OwlRig {
         let aspect = sprite.size.width / sprite.size.height
         sprite.size = CGSize(width: RoomLayout.owlHeight * aspect, height: RoomLayout.owlHeight)
 
+        overlay.anchorPoint = sprite.anchorPoint
+        overlay.size = sprite.size
+        overlay.alpha = 0
+        overlay.zPosition = 1
+
         body.name = Self.bodyNodeName
         body.addChild(sprite)
+        body.addChild(overlay)
         node.addChild(body)
     }
 
