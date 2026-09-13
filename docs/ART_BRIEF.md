@@ -9,66 +9,38 @@ no teeth. The owl is a friend who lives in the attic, not a mascot.
 
 ---
 
-## 1. The owl — state frames
+## 1. The owl — delivered
 
-**The base artwork has arrived** (`art-source/layer_owl.png`) and is in the app. What is
-still missing is the other poses.
+The base painting and six expression frames are all in and working:
+`owl_base`, `owl_blink`, `owl_sleepy`, `owl_happy`, `owl_listen`, `owl_talk_half`,
+`owl_talk_wide`. Sources are in `art-source/`, sprites are derived by
+`tools/export_art.py`.
 
-`WatercolourOwlRig` looks for these files in the bundle at launch and falls back to the
-base pose for anything absent, so each one can be added on its own and needs **no code
-change** — drop the file into `art-source/`, add a line to `tools/export_art.py`, re-run
-it. The owl gets livelier with each one.
+### How a frame is used, and what that asks of new ones
 
-| File | Pose | What it unlocks |
+The expression frames land within a pixel of the base, but their bodies still differ
+from the painting by a percent or two of texture. So the export treats them two ways:
+
+| Frames | Treatment | Why |
 |---|---|---|
-| `owl_base.png` | Eyes open, beak closed. **Shipped.** | idle, the fallback for everything below |
-| `owl_blink.png` | Eyes fully closed, lids as soft downward arcs | blinking, and the thinking pose |
-| `owl_sleepy.png` | Eyes closed, lids heavy, tufts sagging | the sleepy idle |
-| `owl_happy.png` | Eyes closed into upward crescents, cheeks lifted | praise |
-| `owl_listen.png` | Eyes wider, pupils larger, ear tufts perked up | listening, while the microphone is live |
-| `owl_talk_half.png` | Beak slightly open, eyes as in base | lip sync, quieter syllables |
-| `owl_talk_wide.png` | Beak wide open, eyes as in base | lip sync, loud syllables; also the yawn |
+| blink, happy, talk_half, talk_wide | **Face only.** The eyes, beak and facial disc are cut out and laid onto the original painted body with a soft edge. | These alternate fast — a blink is 130 ms. Anything that moves in the body would read as a twitch, so the body is left byte-identical. |
+| listen, sleepy | **Whole frame.** | Their ear tufts move outside the base silhouette, so a face patch cannot express them. They are sustained states and the rig cross-fades into them over 220 ms, which hides the small body difference. |
 
-### The one rule that matters
+If you replace or add a frame, the rule that matters is the same as before: **register
+it to `owl_base`** — same owl, same size, same place in the canvas, only the named
+feature different. The face patch is taken from a fixed box, so a frame that drifts puts
+somebody else's eyes on this owl's head.
 
-**Every frame must be registered to `owl_base`**: the same owl at the same size in the
-same place in the canvas, with only the named feature different. The rig swaps the whole
-texture at up to 8 frames a second, so anything that shifts between frames — the body a
-few pixels left, the feet a little lower, the wings a shade darker — reads as the owl
-twitching rather than blinking.
+## 2. The room — delivered
 
-If a frame drifts, it is usually cheaper to paint the difference onto a copy of the base
-than to re-generate it.
+The painting, the blocks, and all four window skies (`morning`, `day`, `evening`,
+`night`) are in. The export cuts the glass out of each generated window, paints the
+muntins out of the sky, and puts the room's own woodwork back on top — so all four skies
+sit behind the identical painted frame.
 
-Deliver as PNG with alpha, trimmed the same way as the base, at least 744 px tall.
-
----
-
-## 2. The room
-
-**Delivered and in the app** (`art-source/owl_bg_empty.png`). The shelf, book, lamp,
-table, stump and rug are all painted into it; only the blocks, the window glass and the
-owl are separate. `tools/export_art.py` does the slicing.
-
-### Still wanted: the room at other times of day
-
-The window follows the device clock, and today only the night sky is painted. Three more
-skies would complete it:
-
-| File | Sky through the glass |
-|---|---|
-| `window_sky_morning.png` | Peach and pale gold low down, a soft rising sun glow |
-| `window_sky_day.png` | Clear blue with white cumulus |
-| `window_sky_evening.png` | Orange and rose fading to violet, the first faint stars |
-| `window_sky_night.png` | **Shipped** — moon, stars, dusk clouds below |
-
-Same framing as the reference crop: the identical round window, identical wooden
-muntins, identical position. The export splits the muntins off automatically, so paint
-the full window and let the tool cut it.
-
-Beyond that, the room itself is lit for night — a lit lamp, a warm floor. The app tints
-it gently for the time of day, but a genuinely bright morning attic would need the room
-repainted. That is a nice-to-have, not a blocker.
+The room itself is still lit for night: a lit lamp, a warm pool on the floor. The app
+tints it gently for the time of day, but a genuinely bright morning attic would need the
+room repainted. Nice-to-have, not a blocker.
 
 ## 3. Voice — not art, but the same hand-off
 
