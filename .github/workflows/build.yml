@@ -1,0 +1,58 @@
+name: Build
+
+# The compile check. It runs on every push and pull request and needs no secrets,
+# no certificates and no Apple account — just a macOS runner with Xcode.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build for simulator
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show the toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # No signing: a simulator build proves the code compiles, which is the only
+      # thing this workflow is for. Signing belongs to the TestFlight workflow.
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project LittleOwl.xcodeproj \
+            -scheme LittleOwl \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath .build \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Check the shipped art is what the export script produces
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check Pillow numpy
+          before=$(find LittleOwl/Resources/Art -type f | sort | xargs shasum -a 256)
+          python3 tools/export_art.py > /dev/null
+          after=$(find LittleOwl/Resources/Art -type f | sort | xargs shasum -a 256)
+          if [ "$before" != "$after" ]; then
+            echo "::error::LittleOwl/Resources/Art is out of step with art-source/."
+            echo "Run: python3 tools/export_art.py  and commit the result."
+            diff <(echo "$before") <(echo "$after") || true
+            exit 1
+          fi
+          echo "Art is in step with its source."
+
+      - name: Check the turn detector still behaves
+        run: python3 tools/simulate_turn_detection.py

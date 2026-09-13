@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Little Owl collects nothing. There is no networking code in the app, no
+	  analytics, no crash reporting and no third-party SDKs, so every list below is
+	  empty and must stay that way.
+
+	  The microphone is used only while the child is talking to the owl. The recording
+	  is held in one in-memory buffer and released when playback ends; it is never
+	  written to disk and never leaves the device. That is not "collection" under
+	  Apple's definition, which is why NSPrivacyCollectedDataTypes is empty.
+	-->
+	<key>NSPrivacyTracking</key>
+	<false/>
+
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+
+	<!--
+	  Required-reason APIs. None are used yet. Parent settings (deliverable 7) will
+	  add UserDefaults, which needs:
+	      NSPrivacyAccessedAPICategoryUserDefaults  with reason  CA92.1
+	  Add it when that code lands, not before.
+	-->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>
