@@ -20,6 +20,14 @@ final class OwlVoice: NSObject {
     /// Main queue, once, when the line has finished — or been stopped.
     var onFinished: (() -> Void)?
 
+    /// Which character range of the line is being said, on the main queue. Stories use
+    /// it to light up the caption word by word.
+    ///
+    /// The synthesiser reports this exactly. A recording carries no word timings, so
+    /// the ranges are estimated from the line's duration, weighted by word length —
+    /// close enough to follow with a finger, and honestly approximate.
+    var onWordRange: ((NSRange) -> Void)?
+
     private(set) var isSpeaking = false
 
     /// True when the last line spoken had no recording. Parent settings will use this
@@ -33,6 +41,7 @@ final class OwlVoice: NSObject {
     private let player = VoicePlayer()
     private let synthesiser = AVSpeechSynthesizer()
     private var mouthReset: DispatchWorkItem?
+    private var wordSchedule: [DispatchWorkItem] = []
 
     init(pack: ContentPack, bundle: Bundle = .main) {
         self.language = pack.language
@@ -55,10 +64,14 @@ final class OwlVoice: NSObject {
         stop()
         isSpeaking = true
 
-        if let url = ContentLoader.audioURL(for: line, language: language, in: bundle),
-           player.play(contentsOf: url) {
-            isUsingSynthesiser = false
-            return
+        if let url = ContentLoader.audioURL(for: line, language: language, in: bundle) {
+            player.onStarted = { [weak self] duration in
+                self?.scheduleEstimatedWordRanges(for: line.text, over: duration)
+            }
+            if player.play(contentsOf: url) {
+                isUsingSynthesiser = false
+                return
+            }
         }
 
         isUsingSynthesiser = true
@@ -75,6 +88,8 @@ final class OwlVoice: NSObject {
     func stop() {
         mouthReset?.cancel()
         mouthReset = nil
+        wordSchedule.forEach { $0.cancel() }
+        wordSchedule.removeAll()
 
         player.stop()
         if synthesiser.isSpeaking {
@@ -91,8 +106,41 @@ final class OwlVoice: NSObject {
         guard isSpeaking else { return }
         isSpeaking = false
         mouthReset?.cancel()
+        wordSchedule.forEach { $0.cancel() }
+        wordSchedule.removeAll()
         onMouth?(0)
         onFinished?()
+    }
+
+    /// Spreads the line's words across a recording's duration, giving each a share
+    /// proportional to its length. A long word takes longer to say than a short one,
+    /// which is most of what makes an estimate look right.
+    private func scheduleEstimatedWordRanges(for text: String, over duration: TimeInterval) {
+        guard duration > 0, onWordRange != nil else { return }
+
+        let words = OwlVoice.wordRanges(in: text)
+        let total = words.reduce(0) { $0 + max($1.length, 1) }
+        guard total > 0 else { return }
+
+        var elapsed: TimeInterval = 0
+        for range in words {
+            let at = elapsed
+            let item = DispatchWorkItem { [weak self] in self?.onWordRange?(range) }
+            wordSchedule.append(item)
+            DispatchQueue.main.asyncAfter(deadline: .now() + at, execute: item)
+            elapsed += duration * Double(max(range.length, 1)) / Double(total)
+        }
+    }
+
+    /// Character ranges of the words in a line, in order.
+    static func wordRanges(in text: String) -> [NSRange] {
+        var ranges: [NSRange] = []
+        let ns = text as NSString
+        ns.enumerateSubstrings(in: NSRange(location: 0, length: ns.length),
+                               options: [.byWords, .substringNotRequired]) { _, range, _, _ in
+            ranges.append(range)
+        }
+        return ranges
     }
 }
 
@@ -106,6 +154,7 @@ extension OwlVoice: AVSpeechSynthesizerDelegate {
         // One pulse per word, held roughly as long as the word takes to say. A real
         // envelope this is not; a mouth that moves when words come out, it is.
         onMouth?(0.78)
+        onWordRange?(characterRange)
 
         mouthReset?.cancel()
         let hold = max(0.08, Double(characterRange.length) * 0.012)
