@@ -6,17 +6,41 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5C000000000000000000002C /* content in Resources */ = {isa = PBXBuildFile; fileRef = 5C000000000000000000002B /* content */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5C000000000000000000002A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5C0000000000000000000002;
+			remoteInfo = LittleOwl;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		5C0000000000000000000003 /* LittleOwl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LittleOwl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C0000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5C0000000000000000000022 /* LittleOwlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LittleOwlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C000000000000000000002B /* content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = content; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5C0000000000000000000006 /* LittleOwl */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LittleOwl; sourceTree = "<group>"; };
+		5C0000000000000000000020 /* LittleOwlTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LittleOwlTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5C0000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5C0000000000000000000024 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -30,6 +54,8 @@
 			isa = PBXGroup;
 			children = (
 				5C0000000000000000000006 /* LittleOwl */,
+				5C0000000000000000000020 /* LittleOwlTests */,
+				5C000000000000000000002B /* content */,
 				5C0000000000000000000010 /* Config */,
 				5C0000000000000000000005 /* Products */,
 			);
@@ -39,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				5C0000000000000000000003 /* LittleOwl.app */,
+				5C0000000000000000000022 /* LittleOwlTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +103,29 @@
 			productReference = 5C0000000000000000000003 /* LittleOwl.app */;
 			productType = "com.apple.product-type.application";
 		};
+		5C0000000000000000000021 /* LittleOwlTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5C0000000000000000000026 /* Build configuration list for PBXNativeTarget "LittleOwlTests" */;
+			buildPhases = (
+				5C0000000000000000000023 /* Sources */,
+				5C0000000000000000000024 /* Frameworks */,
+				5C0000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5C0000000000000000000029 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5C0000000000000000000020 /* LittleOwlTests */,
+			);
+			name = LittleOwlTests;
+			packageProductDependencies = (
+			);
+			productName = LittleOwlTests;
+			productReference = 5C0000000000000000000022 /* LittleOwlTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -88,6 +138,10 @@
 				TargetAttributes = {
 					5C0000000000000000000002 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					5C0000000000000000000021 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 5C0000000000000000000002;
 					};
 				};
 			};
@@ -106,12 +160,21 @@
 			projectRoot = "";
 			targets = (
 				5C0000000000000000000002 /* LittleOwl */,
+				5C0000000000000000000021 /* LittleOwlTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5C0000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C000000000000000000002C /* content in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5C0000000000000000000025 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -128,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5C0000000000000000000023 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5C0000000000000000000029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5C0000000000000000000002 /* LittleOwl */;
+			targetProxy = 5C000000000000000000002A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5C000000000000000000000C /* Debug */ = {
@@ -232,6 +310,40 @@
 			};
 			name = Release;
 		};
+		5C0000000000000000000027 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.littleowl.LittleOwlTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LittleOwl.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LittleOwl";
+			};
+			name = Debug;
+		};
+		5C0000000000000000000028 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.littleowl.LittleOwlTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LittleOwl.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LittleOwl";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -249,6 +361,15 @@
 			buildConfigurations = (
 				5C000000000000000000000E /* Debug */,
 				5C000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5C0000000000000000000026 /* Build configuration list for PBXNativeTarget "LittleOwlTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5C0000000000000000000027 /* Debug */,
+				5C0000000000000000000028 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

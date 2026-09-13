@@ -1,12 +1,16 @@
 import AVFoundation
 
-/// Plays the child's own voice back, pitched up and slightly quicker.
+/// Plays a buffer or a file through the speaker, optionally shifted in pitch, and
+/// reports the envelope of what is actually coming out.
 ///
-/// `AVAudioUnitTimePitch` does both jobs independently: `pitch` in cents without
-/// changing speed, `rate` as speed without changing pitch. Feeding it +600 cents and
-/// 1.08× gives the brief's "higher and a little faster" rather than the chipmunk
-/// artefact you get from simply playing a recording fast.
-final class EchoPlayer {
+/// Two callers with the same needs: Echo replays the child's own voice pitched up, and
+/// the owl's voice plays the recorded content lines straight. Both want the real output
+/// envelope to drive the beak, so they share this rather than each growing an engine.
+///
+/// `AVAudioUnitTimePitch` does the two jobs independently: `pitch` in cents without
+/// changing speed, `rate` as speed without changing pitch. At the defaults it is a
+/// pass-through.
+final class VoicePlayer {
 
     /// Smoothed 0...1 envelope of what is actually coming out of the speaker, on the
     /// main queue. This is what drives the owl's beak.
@@ -15,11 +19,11 @@ final class EchoPlayer {
     /// Main queue, once, when the last sample has been heard.
     var onFinished: (() -> Void)?
 
-    /// +6 semitones.
-    var pitchCents: Float = 600
+    /// Cents. Echo sets +600 — six semitones. Zero leaves the voice alone.
+    var pitchCents: Float = 0
 
-    /// Just enough to feel playful without eating the words.
-    var rate: Float = 1.08
+    /// Playback speed without changing pitch. Echo sets 1.08.
+    var rate: Float = 1
 
     private(set) var isPlaying = false
 
@@ -32,6 +36,19 @@ final class EchoPlayer {
     init() {
         engine.attach(player)
         engine.attach(timePitch)
+    }
+
+    /// Reads a file into memory and plays it. Used for the owl's recorded content lines,
+    /// which are short enough that streaming would buy nothing.
+    @discardableResult
+    func play(contentsOf url: URL) -> Bool {
+        guard let file = try? AVAudioFile(forReading: url),
+              let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat,
+                                            frameCapacity: AVAudioFrameCount(file.length)),
+              (try? file.read(into: buffer)) != nil,
+              buffer.frameLength > 0 else { return false }
+        play(buffer)
+        return true
     }
 
     func play(_ buffer: AVAudioPCMBuffer) {

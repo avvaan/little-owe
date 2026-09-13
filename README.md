@@ -4,9 +4,9 @@ An offline talking-companion app for iPad, for children aged 3–6. A cozy attic
 with a small owl who lives there: the child talks to the owl, and the owl talks back.
 A digital toy, not a chatbot.
 
-**Status: deliverable 2 of 8, fully on painted artwork.** The attic room, an owl that
-blinks and moves its beak, a window that follows the clock through four painted skies,
-and Echo — the owl repeating what the child says in a sillier voice.
+**Status: deliverable 3 of 8.** The attic room, an owl that blinks and moves its beak, a
+window that follows the clock through four painted skies, Echo — and the content packs
+every remaining mode will be built on.
 
 ---
 
@@ -111,12 +111,28 @@ and what a replacement frame has to match, is in `docs/ART_BRIEF.md`.
 
 ---
 
+## Content
+
+Everything the owl says lives in `content/<language>/` as JSON, not in Swift, and
+**nothing in the code names a language** — adding one is copying the folder and
+translating it. Audio is matched by convention rather than by filename fields, so a
+voice actor's delivery drops in without anybody editing JSON, and a line with no
+recording falls back to the synthesiser **per line**, which is what makes a
+half-recorded pack usable.
+
+`content/README.md` is the format, the naming convention, and what is deliberately still
+thin.
+
 ## Builds
 
-Every push and pull request runs a **compile check** on a macOS runner
+Every push and pull request runs a **compile check and the unit tests** on a macOS runner
 (`.github/workflows/build.yml`) — no secrets, no Apple account. It also verifies that
 the shipped sprites still match what `tools/export_art.py` produces from `art-source/`,
 so the two cannot silently diverge.
+
+The tests cover the parts a wrong answer would quietly ruin: the content schema and the
+shipped pack's self-consistency, the fuzzy matching that decides whether a
+three-year-old's mumble counted, time-of-day bucketing, and the tap-target arithmetic.
 
 A **TestFlight upload** (`.github/workflows/testflight.yml`) runs from the Actions tab or
 on a `v*` tag. It needs four repository secrets and an Apple Developer account;
@@ -129,8 +145,11 @@ LittleOwl/
   App/        SwiftUI entry point and the SpriteView host
   Room/       Scene, layout constants, props, the window, the time-of-day clock
   Owl/        Owl behaviour (OwlNode), the rig seam (OwlRig), the painted rig
-  Audio/      Session policy, microphone permission, capture, pitched playback
+  Audio/      Session policy, microphone permission, capture, playback, the owl's voice
+  Content/    Content pack models, loader, and speech matching
   Modes/      Echo
+LittleOwlTests/ Unit tests
+content/      Content packs, one folder per language
   Support/    Palette, generated textures, sound effects, the tap-target overlay
   Resources/  Asset catalogue, painted art, placeholder sound effects, privacy manifest
 art-source/   Master artwork as delivered by the painter
@@ -169,8 +188,8 @@ code:
 ## Deliverables
 
 1. ~~Project skeleton, room, owl idle, time-of-day window~~
-2. **Echo mode** ← you are here
-3. Content pack schema and loader
+2. ~~Echo mode~~
+3. **Content pack schema and loader** ← you are here
 4. Stories
 5. Prayers and rhymes, with on-device recognition and the no-recognition fallback
 6. Word games and "Why?"

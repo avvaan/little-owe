@@ -48,7 +48,12 @@ final class EchoMode {
 
     private let owl: OwlNode
     private let recorder = VoiceRecorder()
-    private let player = EchoPlayer()
+    private let player: VoicePlayer = {
+        let player = VoicePlayer()
+        player.pitchCents = 600     // +6 semitones
+        player.rate = 1.08          // playful without eating the words
+        return player
+    }()
 
     private var giggleAfterSpeaking = false
     private var scheduled: [DispatchWorkItem] = []

@@ -1,7 +1,7 @@
 name: Build
 
-# The compile check. It runs on every push and pull request and needs no secrets,
-# no certificates and no Apple account — just a macOS runner with Xcode.
+# The compile check and the unit tests. Runs on every push and pull request and needs
+# no secrets, no certificates and no Apple account — just a macOS runner with Xcode.
 on:
   push:
     branches: [main]
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build for simulator
+    name: Build and test
     runs-on: macos-15
     timeout-minutes: 25
 
@@ -26,19 +26,51 @@ jobs:
           xcodebuild -version
           swift --version
 
-      # No signing: a simulator build proves the code compiles, which is the only
+      # Named simulators come and go between Xcode releases, so ask the runner what it
+      # actually has rather than hard-coding a device that will vanish.
+      - name: Pick an iPad simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          devices = json.load(sys.stdin)['devices']
+          for runtime in sorted(devices, reverse=True):
+              if 'iOS' not in runtime:
+                  continue
+              for device in devices[runtime]:
+                  if device.get('isAvailable') and 'iPad' in device['name']:
+                      print(device['udid'] + ' ' + device['name'])
+                      sys.exit()
+          ")
+          if [ -z "$UDID" ]; then
+            echo '::error::No iPad simulator on this runner'
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "Using ${UDID#* } (${UDID%% *})"
+          echo "udid=${UDID%% *}" >> "$GITHUB_OUTPUT"
+
+      # No signing: this proves the code compiles and the tests pass, which is the only
       # thing this workflow is for. Signing belongs to the TestFlight workflow.
-      - name: Build
+      - name: Build and test
         run: |
           set -o pipefail
-          xcodebuild build \
+          xcodebuild test \
             -project LittleOwl.xcodeproj \
             -scheme LittleOwl \
             -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath .build \
-            CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO
+            -resultBundlePath .build/TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Keep the test results when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: .build/TestResults.xcresult
+          retention-days: 7
 
       - name: Check the shipped art is what the export script produces
         run: |
