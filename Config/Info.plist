@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Little Owl</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+
+	<!-- Landscape only, iPad only. -->
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+
+	<!-- Nothing to read, nothing to dismiss: no status bar, no home indicator. -->
+	<key>UIStatusBarHidden</key>
+	<true/>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+
+	<!-- Generated launch screen: a plain background, no text a child would have to read. -->
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+
+	<!--
+	  Shown on the very first tap of the owl, and never before. Written for the parent
+	  standing next to the child, not for the child.
+	-->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Little Owl uses the microphone only while your child is talking to the owl, so the owl can repeat what they said in a funny voice. Nothing is recorded, saved or sent anywhere — the sound is kept in memory for a few seconds and then deleted.</string>
+
+	<!--
+	  Deliberately absent, and they must stay absent:
+	    * NSAppTransportSecurity      - the app makes no network calls of any kind
+	    * any third-party SDK keys    - there are no third-party SDKs
+	    * NSUserTrackingUsageDescription - nothing is tracked
+	  NSSpeechRecognitionUsageDescription arrives with Prayers (deliverable 5).
+	-->
+</dict>
+</plist>
