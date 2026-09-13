@@ -20,3 +20,6 @@ xcuserdata/
 # Secrets / signing — nothing in this repo should ever need these
 *.mobileprovision
 *.p12
+
+# Throwaway venv the art check builds in CI
+.venv/

@@ -15,14 +15,24 @@ What it does:
     out of the sky by flood-filling from the surrounding sky, so a swapped sky never
     shows a ghost of the old cross.
 
-    python3 tools/export_art.py
+    python3 tools/export_art.py            # write the sprites
+    python3 tools/export_art.py --check    # verify the committed sprites match
+
+`--check` exports to a temporary directory and compares pixels, not bytes: different
+Pillow versions encode the same image to different bytes, so a byte comparison would
+fail on a library upgrade rather than on a real change. Sizes must match exactly and
+the mean absolute pixel difference must stay under one level, which catches a moved
+sprite or a wrong scale while tolerating encoder jitter.
 
 Writes to LittleOwl/Resources/Art/. Needs Pillow and numpy.
 """
 
+import argparse
 import os
 import re
+import shutil
 import sys
+import tempfile
 
 try:
     from PIL import Image
@@ -32,8 +42,11 @@ except ImportError:
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "art-source")
-OUT = os.path.join(ROOT, "LittleOwl", "Resources", "Art")
+SHIPPED = os.path.join(ROOT, "LittleOwl", "Resources", "Art")
 LAYOUT = os.path.join(ROOT, "LittleOwl", "Room", "RoomLayout.swift")
+
+# Where this run writes. `--check` redirects it to a temporary directory.
+OUT = SHIPPED
 
 
 def layout_value(name):
@@ -149,10 +162,8 @@ def export_window(room):
         print(f"  {f:<24} {size}x{size}  {os.path.getsize(os.path.join(OUT, f))//1024}KB")
 
 
-if __name__ == "__main__":
+def export_all():
     os.makedirs(OUT, exist_ok=True)
-    print("exporting to LittleOwl/Resources/Art/")
-
     room = Image.open(os.path.join(SRC, "owl_bg_empty.png")).convert("RGB")
     room.save(os.path.join(OUT, "room_bg.jpg"), quality=92, optimize=True, progressive=True)
     print(f"  {'room_bg.jpg':<24} {room.width}x{room.height}  "
@@ -163,3 +174,60 @@ if __name__ == "__main__":
         export_cutout(f"layer_block_{letter.upper()}.png", f"block_{letter}.png",
                       layout_value("blockHeight"))
     export_window(room)
+
+
+def compare(fresh_dir):
+    """Pixel comparison against the committed sprites. Returns a list of complaints."""
+    problems = []
+    fresh = sorted(os.listdir(fresh_dir))
+    shipped = sorted(f for f in os.listdir(SHIPPED) if not f.startswith("."))
+
+    for name in set(fresh) | set(shipped):
+        if name not in shipped:
+            problems.append(f"{name}: produced by the export but not committed")
+            continue
+        if name not in fresh:
+            problems.append(f"{name}: committed but the export does not produce it")
+            continue
+
+        a = Image.open(os.path.join(fresh_dir, name))
+        b = Image.open(os.path.join(SHIPPED, name))
+        if a.size != b.size:
+            problems.append(f"{name}: size {b.size} committed, {a.size} from source")
+            continue
+        if a.mode != b.mode:
+            problems.append(f"{name}: mode {b.mode} committed, {a.mode} from source")
+            continue
+
+        delta = np.abs(np.asarray(a, float) - np.asarray(b, float)).mean()
+        if delta >= 1.0:
+            problems.append(f"{name}: mean pixel difference {delta:.2f}")
+    return problems
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true",
+                    help="verify the committed sprites instead of overwriting them")
+    args = ap.parse_args()
+
+    if args.check:
+        tmp = tempfile.mkdtemp(prefix="littleowl-art-")
+        try:
+            OUT = tmp
+            export_all()
+            problems = compare(tmp)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+        if problems:
+            print("LittleOwl/Resources/Art is out of step with art-source/:")
+            for p in problems:
+                print(f"  {p}")
+            print("\nRun: python3 tools/export_art.py   and commit the result.")
+            sys.exit(1)
+        print("Art is in step with its source.")
+        sys.exit(0)
+
+    print("exporting to LittleOwl/Resources/Art/")
+    export_all()

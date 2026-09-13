@@ -42,17 +42,13 @@ jobs:
 
       - name: Check the shipped art is what the export script produces
         run: |
-          python3 -m pip install --quiet --disable-pip-version-check Pillow numpy
-          before=$(find LittleOwl/Resources/Art -type f | sort | xargs shasum -a 256)
-          python3 tools/export_art.py > /dev/null
-          after=$(find LittleOwl/Resources/Art -type f | sort | xargs shasum -a 256)
-          if [ "$before" != "$after" ]; then
-            echo "::error::LittleOwl/Resources/Art is out of step with art-source/."
-            echo "Run: python3 tools/export_art.py  and commit the result."
-            diff <(echo "$before") <(echo "$after") || true
-            exit 1
-          fi
-          echo "Art is in step with its source."
+          # The runner's Python is Homebrew-managed, so a system-wide pip install is
+          # refused (PEP 668). A throwaway venv is the supported way in.
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet --disable-pip-version-check Pillow numpy
+          # Compares pixels rather than bytes: a Pillow upgrade re-encodes the same
+          # image differently, and that is not a reason to fail the build.
+          .venv/bin/python tools/export_art.py --check
 
       - name: Check the turn detector still behaves
         run: python3 tools/simulate_turn_detection.py
