@@ -23,9 +23,19 @@ struct RoomHostView: View {
             .statusBarHidden()
             .persistentSystemOverlays(.hidden)
             .onChange(of: scenePhase) { _, phase in
-                // Hours can pass while backgrounded; the window must not still show
-                // last night's moon.
-                if phase == .active { scene.refreshTimeOfDay() }
+                switch phase {
+                case .active:
+                    // Hours can pass while backgrounded; the window must not still show
+                    // last night's moon.
+                    scene.refreshTimeOfDay()
+                case .background:
+                    scene.handleAppBackgrounded()
+                default:
+                    // Deliberately not `.inactive`: the microphone permission alert puts
+                    // the app there, and cancelling Echo underneath it would throw away
+                    // the very tap that asked for permission.
+                    break
+                }
             }
     }
 }

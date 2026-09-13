@@ -75,7 +75,32 @@ final class OwlNode: SKNode, Tappable {
     func acknowledgeTap() {
         SoundKit.shared.play(.tap, volumeScale: 0.9)
         wake()
-        transition(to: .happy)
+        // A nudge, not a bounce: the tap has to be answered instantly, but the owl may
+        // be about to start listening, and a full happy bounce would stamp on that.
+        // Praise uses `.happy` explicitly.
+        play(.nudge)
+    }
+
+    // MARK: Mouth
+
+    /// Opens and closes the beak on a fixed rhythm for the length of a sound that is
+    /// played outside the audio engine — the giggles, which come from `SoundKit` and so
+    /// produce no envelope to follow.
+    func wiggleMouth(for duration: TimeInterval, pulsesPerSecond: Double = 8) {
+        guard duration > 0 else { return }
+        stopMouthWiggle()
+        run(.sequence([
+            .customAction(withDuration: duration) { [weak self] _, elapsed in
+                let phase = Double(elapsed) * pulsesPerSecond * .pi
+                self?.setMouthOpenness(CGFloat(abs(sin(phase))) * 0.8)
+            },
+            .run { [weak self] in self?.setMouthOpenness(0) }
+        ]), withKey: Key.mouth)
+    }
+
+    func stopMouthWiggle() {
+        removeAction(forKey: Key.mouth)
+        setMouthOpenness(0)
     }
 
     // MARK: Idle clock
@@ -218,5 +243,6 @@ final class OwlNode: SKNode, Tappable {
         static let travel = "owl.travel"
         static let steps  = "owl.steps"
         static let bob    = "owl.bob"
+        static let mouth  = "owl.mouth"
     }
 }

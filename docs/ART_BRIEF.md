@@ -108,7 +108,25 @@ Notes:
 - Any UI: there is none. No buttons, no menus, no icons for the child.
 - Loading or splash artwork beyond the app icon.
 
-## 4. App icon
+## 4. Voice — not art, but the same hand-off
+
+Three assets belong to the voice actor rather than the illustrator, and Echo already
+uses generated stand-ins for all three. Mono WAV, 44.1 kHz, 16-bit, no music bed.
+
+| Asset | Length | Notes |
+|---|---|---|
+| `giggle_a.wav` | 0.4–0.7 s | A short, warm giggle that **rises** in pitch. |
+| `giggle_b.wav` | 0.4–0.7 s | The same giggle **falling**. Echo alternates the two so the owl never sounds like a sample. |
+| `hum.wav` | 2.0 s exactly | A soft thinking hum, played on a loop. **Must loop seamlessly** — start and end at the same point in the phrase, with no fade at either end, or the join will click. |
+
+Keep all three well below the owl's speaking level: they play under the room, not over
+it. Nothing sudden, nothing sharp — a child may be holding the iPad at arm's length in a
+quiet bedroom.
+
+`tools/make_placeholder_sfx.py` generates the current stand-ins and documents the
+intended character of each.
+
+## 5. App icon
 
 1024 × 1024, no transparency, no rounded corners (the system rounds it). The owl's face,
 warm background, readable at 60 points. Kids-category apps are browsed by parents on

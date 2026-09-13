@@ -17,6 +17,10 @@ final class RoomScene: SKScene {
 
     private var timeWatcher = TimeOfDayWatcher()
 
+    /// Echo is the owl's own mode: it needs no content and the owl never leaves its
+    /// perch for it, so unlike the props it does not set `activeMode`.
+    private lazy var echo = EchoMode(owl: owl)
+
     /// Most specific target first: with padded tap targets the boxes overlap, and a
     /// smaller box always means a more deliberate aim.
     private var tappables: [any Tappable] = []
@@ -24,6 +28,11 @@ final class RoomScene: SKScene {
     /// Which prop the owl is currently attending to. Modes replace this in later
     /// deliverables; today it only decides whether tapping the owl sends it home.
     private(set) var activeMode: RoomObjectID?
+
+    /// Set once the microphone turns out to be unavailable — denied, or the engine
+    /// would not start. The child is never told; parent settings (deliverable 7) read
+    /// this to explain the quiet owl.
+    private(set) var isMicrophoneUnavailable = false
 
     /// Hook for the mode layer. Left unset, the scene falls back to the placeholder
     /// behaviour below so the room is explorable on its own.
@@ -35,8 +44,10 @@ final class RoomScene: SKScene {
         backgroundColor = Palette.roofNear
         scaleMode = .aspectFill
 
-        SoundKit.shared.configureSession()
-        SoundKit.shared.preload(SoundKit.Effect.allCases.map(\.rawValue))
+        AudioSession.shared.configure()
+        AudioSession.shared.onAudioLost = { [weak self] in self?.echo.cancel() }
+        echo.onMicrophoneUnavailable = { [weak self] in self?.isMicrophoneUnavailable = true }
+        SoundKit.shared.preload()
 
         buildRoom()
         applyTimeOfDay(timeWatcher.current, animated: false)
@@ -103,14 +114,18 @@ final class RoomScene: SKScene {
     /// The single seam between "a child touched something" and "a mode runs".
     private func handle(_ id: RoomObjectID) {
         if id == .owl {
+            // While a prop mode is running, the owl is the way back to the room.
+            // Otherwise it is Echo, which is always available.
             if activeMode != nil {
                 endActiveMode()
+            } else {
+                echo.handleOwlTap()
             }
-            // Echo mode attaches here in deliverable 2.
             return
         }
 
         guard activeMode != id else { return }
+        echo.cancel()
         activeMode = id
 
         if let onModeRequested {
@@ -127,8 +142,18 @@ final class RoomScene: SKScene {
 
     private func endActiveMode() {
         activeMode = nil
+        echo.cancel()
         owl.transition(to: .idle)
         owl.returnHome()
+    }
+
+    // MARK: App lifecycle
+
+    /// Called by the SwiftUI host when the app leaves the foreground. Anything holding
+    /// the microphone has to let go, and the recording has to be released.
+    func handleAppBackgrounded() {
+        echo.cancel()
+        SoundKit.shared.stopAllLoops()
     }
 
     // MARK: Time of day

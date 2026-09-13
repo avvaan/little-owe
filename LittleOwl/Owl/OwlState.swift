@@ -39,4 +39,7 @@ enum OwlAccent {
     case blink
     case headTilt
     case yawn
+    /// A quick squash. The instant answer to being touched, small enough that it does
+    /// not disturb whatever the owl was already doing.
+    case nudge
 }

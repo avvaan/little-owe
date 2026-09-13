@@ -70,6 +70,66 @@ def hop():
     return render(0.14, voice, peak=0.22)
 
 
+def giggle(rising):
+    """Four quick pitched bursts. A stand-in for the voice actor's real giggle —
+    it reads as playful without being shrill, which is what the timing needs."""
+    import math
+    bursts = 4
+    burst = 0.105
+    gap = 0.018
+    duration = bursts * (burst + gap)
+    base = 780.0
+
+    def voice(t):
+        index = int(t // (burst + gap))
+        if index >= bursts:
+            return 0.0
+        local = t - index * (burst + gap)
+        if local > burst:
+            return 0.0
+        step = index if rising else (bursts - 1 - index)
+        freq = base * (1.0 + 0.085 * step)
+        # Each burst has its own little arc, and a vibrato on top.
+        shape = math.sin(math.pi * local / burst) ** 1.2
+        vibrato = 1.0 + 0.035 * math.sin(2 * math.pi * 14 * local)
+        return shape * (math.sin(2 * math.pi * freq * vibrato * local)
+                        + 0.32 * math.sin(2 * math.pi * freq * 2 * vibrato * local)
+                        + 0.12 * math.sin(2 * math.pi * freq * 3 * vibrato * local))
+
+    # No global envelope: the per-burst arcs already stop it clicking.
+    frames = int(SAMPLE_RATE * duration)
+    samples = [voice(i / SAMPLE_RATE) for i in range(frames)]
+    high = max(abs(s) for s in samples) or 1.0
+    return [s / high * 0.26 for s in samples]
+
+
+def hum():
+    """Seamless two-second loop for the owl's thinking state.
+
+    Every component completes a whole number of cycles in the loop length, so the
+    end joins the start exactly and there is no click at the wrap point.
+    """
+    import math
+    duration = 2.0
+    fundamental = 220.0          # 440 cycles in 2.0 s
+    vibrato_rate = 2.5           # 5 cycles
+    swell_rate = 1.0             # 2 cycles
+    frames = int(SAMPLE_RATE * duration)
+
+    samples = []
+    for i in range(frames):
+        t = i / SAMPLE_RATE
+        vibrato = 1.0 + 0.006 * math.sin(2 * math.pi * vibrato_rate * t)
+        swell = 0.82 + 0.18 * math.sin(2 * math.pi * swell_rate * t)
+        value = (math.sin(2 * math.pi * fundamental * vibrato * t)
+                 + 0.30 * math.sin(2 * math.pi * fundamental * 2 * vibrato * t)
+                 + 0.09 * math.sin(2 * math.pi * fundamental * 3 * vibrato * t))
+        samples.append(value * swell)
+
+    high = max(abs(s) for s in samples) or 1.0
+    return [s / high * 0.13 for s in samples]
+
+
 def wake():
     """Two soft notes, C5 then G5, for the owl coming out of the sleepy idle."""
     def voice(t):
@@ -83,3 +143,6 @@ if __name__ == "__main__":
     write("tap_soft", tap_soft())
     write("hop", hop())
     write("wake", wake())
+    write("giggle_a", giggle(rising=True))
+    write("giggle_b", giggle(rising=False))
+    write("hum", hum())

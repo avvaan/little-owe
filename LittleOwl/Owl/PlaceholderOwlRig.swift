@@ -32,6 +32,7 @@ final class PlaceholderOwlRig: OwlRig {
         static let tilt    = "owl.tilt"
         static let happy   = "owl.happy"
         static let restore = "owl.happy.restore"
+        static let nudge   = "owl.nudge"
         static let lid     = "owl.lid"
     }
 
@@ -103,6 +104,7 @@ final class PlaceholderOwlRig: OwlRig {
         case .blink:    node.run(blinkAction())
         case .headTilt: node.run(.run(headTiltSequence(), onChildWithName: "//\(Self.headNodeName)"))
         case .yawn:     node.run(yawnAction())
+        case .nudge:    nudge()
         }
     }
 
@@ -238,6 +240,18 @@ final class PlaceholderOwlRig: OwlRig {
         ]), withKey: Key.restore)
     }
 
+    /// Runs on the rig root rather than on `bodyGroup`, so it never fights the
+    /// breathing loop for control of the same scale.
+    private func nudge() {
+        node.removeAction(forKey: Key.nudge)
+        node.setScale(1)
+        node.run(.sequence([
+            .scale(to: 1.06, duration: 0.07),
+            .scale(to: 0.98, duration: 0.06),
+            .scale(to: 1.00, duration: 0.09)
+        ]), withKey: Key.nudge)
+    }
+
     private func blinkAction() -> SKAction {
         .run { [weak self] in
             guard let self, !self.eyesAreClosed else { return }
@@ -292,6 +306,7 @@ final class PlaceholderOwlRig: OwlRig {
     }
 
     private func resetPose() {
+        node.setScale(1)
         headGroup.zRotation = 0
         headGroup.position = CGPoint(x: 0, y: G.neckY)
         bodyGroup.zRotation = 0
