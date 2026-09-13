@@ -26,7 +26,7 @@ final class OwlNode: SKNode, Tappable {
 
     // MARK: Init
 
-    init(rig: OwlRig = PlaceholderOwlRig()) {
+    init(rig: OwlRig = WatercolourOwlRig()) {
         self.rig = rig
         super.init()
         name = RoomObjectID.owl.rawValue

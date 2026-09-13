@@ -11,7 +11,6 @@ final class RoomScene: SKScene {
     private let owl = OwlNode()
     private var props: [RoomObject] = []
     private var windowNode: WindowNode!
-    private var lightSpill: SKShapeNode!
     private var ambientWash: SKSpriteNode!
     private var debugOverlay: DebugOverlay?
 
@@ -41,7 +40,7 @@ final class RoomScene: SKScene {
     // MARK: Lifecycle
 
     override func didMove(to view: SKView) {
-        backgroundColor = Palette.roofNear
+        backgroundColor = Palette.roomShadow
         scaleMode = .aspectFill
 
         AudioSession.shared.configure()
@@ -54,24 +53,13 @@ final class RoomScene: SKScene {
     }
 
     private func buildRoom() {
-        addChild(RoomBuilder.makeShell())
-        addChild(RoomBuilder.makeRug())
-        addChild(RoomBuilder.makeShelf())
-        addChild(RoomBuilder.makeSideTable())
-        addChild(RoomBuilder.makePerch())
+        addChild(RoomBuilder.makeRoom())
 
         let (windowObject, windowNode) = RoomBuilder.makeWindow(time: timeWatcher.current)
         self.windowNode = windowNode
 
-        let book   = RoomBuilder.makeBook()
-        let lamp   = RoomBuilder.makeLamp()
-        let blocks = RoomBuilder.makeBlocks()
-
-        props = [book, lamp, blocks, windowObject]
+        props = [RoomBuilder.makeBook(), RoomBuilder.makeLamp(), RoomBuilder.makeBlocks(), windowObject]
         props.forEach { addChild($0) }
-
-        lightSpill = RoomBuilder.makeLightSpill()
-        addChild(lightSpill)
 
         ambientWash = RoomBuilder.makeAmbientWash()
         addChild(ambientWash)
@@ -169,16 +157,10 @@ final class RoomScene: SKScene {
     private func applyTimeOfDay(_ time: TimeOfDay, animated: Bool) {
         windowNode?.setTime(time, animated: animated)
 
-        let spill = WindowNode.spill(for: time)
-        let wash  = Palette.ambientWash(for: time)
-        let duration: TimeInterval = animated ? 1.4 : 0
-
-        lightSpill.fillColor = spill.color
-        lightSpill.run(.fadeAlpha(to: spill.alpha, duration: duration))
-
+        let wash = Palette.ambientWash(for: time)
         ambientWash.color = wash.color
         ambientWash.blendMode = wash.blend
-        ambientWash.run(.fadeAlpha(to: wash.alpha, duration: duration))
+        ambientWash.run(.fadeAlpha(to: wash.alpha, duration: animated ? 1.4 : 0))
     }
 
     // MARK: Update

@@ -1,33 +1,12 @@
 import SpriteKit
 import UIKit
 
-/// SpriteKit has no gradient primitive, so we bake small textures once at scene
-/// build time. Sizes stay modest because everything is stretched by the sprite.
+/// SpriteKit has no gradient primitive, so we bake one small texture at scene build
+/// time. It stays modest in size because everything stretches it.
 enum GradientTexture {
 
-    /// Colours run top to bottom, `colors.first` at the top.
-    static func vertical(_ colors: [SKColor], size: CGSize = CGSize(width: 8, height: 256)) -> SKTexture {
-        let image = UIGraphicsImageRenderer(size: size).image { context in
-            let cg = context.cgContext
-            guard let gradient = CGGradient(
-                colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                colors: colors.map(\.cgColor) as CFArray,
-                locations: nil
-            ) else { return }
-            cg.drawLinearGradient(
-                gradient,
-                start: .zero,
-                end: CGPoint(x: 0, y: size.height),
-                options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
-            )
-        }
-        let texture = SKTexture(image: image)
-        texture.filteringMode = .linear
-        return texture
-    }
-
-    /// Soft round glow, opaque in the middle and fully transparent at the rim.
-    /// Used for the sun, the moon halo and the lamp.
+    /// Soft round glow, opaque in the middle and fully transparent at the rim. Used for
+    /// the owl's contact shadow and for the bloom that answers a tap on a painted prop.
     static func radialGlow(_ color: SKColor, diameter: CGFloat = 256) -> SKTexture {
         let size = CGSize(width: diameter, height: diameter)
         let image = UIGraphicsImageRenderer(size: size).image { context in
@@ -53,16 +32,5 @@ enum GradientTexture {
         let texture = SKTexture(image: image)
         texture.filteringMode = .linear
         return texture
-    }
-
-    /// Hard-edged white disc. Used as an `SKCropNode` mask — shape nodes are unreliable
-    /// as masks on some GPUs, and this costs one small texture.
-    static func solidCircle(diameter: CGFloat) -> SKTexture {
-        let size = CGSize(width: diameter, height: diameter)
-        let image = UIGraphicsImageRenderer(size: size).image { context in
-            UIColor.white.setFill()
-            context.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
-        }
-        return SKTexture(image: image)
     }
 }

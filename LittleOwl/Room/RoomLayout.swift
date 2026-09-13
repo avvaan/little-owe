@@ -1,90 +1,93 @@
 import SpriteKit
 
-/// Fixed design canvas. The scene is authored at this size and drawn with
-/// `.aspectFill`, so on every supported iPad the room fills the screen and only a
-/// little is cropped from the long edge.
+/// Fixed design canvas, matching the aspect of the painted room (2336 × 1744 → 4:3).
+/// The scene is authored at this size and drawn with `.aspectFill`, so on every
+/// supported iPad the room fills the screen and only a little is cropped from the
+/// long edge.
+///
+/// Every coordinate below was measured off the artwork rather than invented. The
+/// measurements can be re-checked at any time with:
+///
+///     python3 tools/compose_room.py --grid
 enum RoomLayout {
 
     static let designSize = CGSize(width: 1366, height: 1024)
 
+    /// The painted room is 2336 px wide for these 1366 design points.
+    static let artScale: CGFloat = 2336.0 / 1366.0
+
     // MARK: Tap targets
 
-    /// The UX rule is 88 x 88 **points on the device**. With `.aspectFill` the scene is
+    /// The UX rule is 88 × 88 **points on the device**. With `.aspectFill` the scene is
     /// scaled down on every iPad narrower than 4:3; the worst case in the supported
-    /// range is the 10th-gen iPad at 1180 x 820 pt, where
+    /// range is the 10th-gen iPad at 1180 × 820 pt, where
     ///   scale = max(1180/1366, 820/1024) = 0.864
     /// so 88 pt on screen needs 88 / 0.864 = 102 design points. We round well past that.
     /// `DebugOverlay` draws these rectangles so the margin can be checked on device.
     static let minimumTapTarget: CGFloat = 120
 
-    // MARK: Room shell
+    // MARK: Props, measured from the painting
 
-    static let floorLine: CGFloat = 300
-    static let eaveHeight: CGFloat = 745
-    static let ridgeHeight: CGFloat = 1024
-    static var ridgeX: CGFloat { designSize.width / 2 }
+    /// The open book on the shelf. Painted into the background, so only the tap target
+    /// lives here.
+    static let bookCentre = CGPoint(x: 262, y: 800)
+    static let bookSize   = CGSize(width: 230, height: 150)
 
-    /// Back wall: floor line, up both sides to the eaves, then two slopes to the ridge.
-    static var wallPath: CGPath {
-        let path = CGMutablePath()
-        path.move(to: CGPoint(x: 0, y: floorLine))
-        path.addLine(to: CGPoint(x: 0, y: eaveHeight))
-        path.addLine(to: CGPoint(x: ridgeX, y: ridgeHeight))
-        path.addLine(to: CGPoint(x: designSize.width, y: eaveHeight))
-        path.addLine(to: CGPoint(x: designSize.width, y: floorLine))
-        path.closeSubpath()
-        return path
-    }
+    /// The lamp on the side table. Also painted in.
+    static let lampCentre = CGPoint(x: 195, y: 551)
+    static let lampSize   = CGSize(width: 190, height: 215)
 
-    // MARK: Props
+    /// The round window. The glass is a separate sprite so the sky can change with the
+    /// clock; the muntins sit above it as their own overlay.
+    static let windowCentre = CGPoint(x: 1035, y: 724)
+    static let glassRadius: CGFloat = 128
+    /// Includes the wooden ring and the sill below it.
+    static let windowTapSize = CGSize(width: 310, height: 310)
 
-    static let shelfRect   = CGRect(x: 80,  y: 706, width: 360, height: 26)
-    static let bookAnchor  = CGPoint(x: 258, y: 792)
+    /// The three letter blocks, each its own sprite so one can be lifted later.
+    static let blockHeight: CGFloat = 92
+    static let blockCentres: [CGPoint] = [
+        CGPoint(x: 392, y: 282),
+        CGPoint(x: 490, y: 286),
+        CGPoint(x: 590, y: 282)
+    ]
+    static let blocksTapCentre = CGPoint(x: 490, y: 284)
+    static let blocksTapSize   = CGSize(width: 310, height: 140)
 
-    static let tableTopRect = CGRect(x: 92,  y: 442, width: 232, height: 24)
-    static let lampAnchor   = CGPoint(x: 208, y: 466)
+    /// The rug, for reference — painted in, not tappable.
+    static let rugCentre = CGPoint(x: 700, y: 176)
+    static let rugSize   = CGSize(width: 850, height: 235)
 
-    static let windowCentre = CGPoint(x: 1012, y: 716)
-    static let windowRadius: CGFloat = 138
+    // MARK: The owl
 
-    static let rugCentre = CGPoint(x: 700, y: 186)
-    static let rugSize   = CGSize(width: 780, height: 236)
-    static let blocksAnchor = CGPoint(x: 498, y: 208)
+    /// The owl's feet rest here; the rig is built upward from this point.
+    static let owlHome = CGPoint(x: 703, y: 424)
 
-    static let perchCentre = CGPoint(x: 716, y: 346)
-    /// The owl's feet rest here; everything in the rig is built upward from the origin.
-    static let owlHome     = CGPoint(x: 716, y: 392)
+    /// Drawn height of the owl sprite in design points.
+    static let owlHeight: CGFloat = 372
 
     /// Where the owl lands when it goes to an object. Kept clear of the prop itself so
     /// the child can still see what they tapped.
     static func approachPoint(for object: RoomObjectID) -> CGPoint {
         switch object {
         case .owl:    return owlHome
-        case .book:   return CGPoint(x: 360, y: 758)
-        case .lamp:   return CGPoint(x: 330, y: 470)
-        case .blocks: return CGPoint(x: 470, y: 268)
-        case .window: return CGPoint(x: 1012, y: 470)
+        case .book:   return CGPoint(x: 392, y: 690)
+        case .lamp:   return CGPoint(x: 330, y: 440)
+        case .blocks: return CGPoint(x: 500, y: 200)
+        case .window: return CGPoint(x: 1035, y: 470)
         }
     }
 
     // MARK: Depth
 
     enum Z {
-        static let sky: CGFloat        = -100
-        /// Roof planes, gable wall, beams and floor are one baked sprite.
-        static let wall: CGFloat       = -90
-        static let windowGlass: CGFloat = -70
-        static let windowFrame: CGFloat = -60
-        static let floor: CGFloat      = -40
-        static let rug: CGFloat        = -30
-        static let furniture: CGFloat  = -10
-        /// In front of the floor and the furniture: light falls *on* the room, and at
-        /// -50 it was drawing behind the floorboards it is supposed to land on.
-        static let lightSpill: CGFloat = 6
-        static let props: CGFloat      = 10
-        static let perch: CGFloat      = 18
-        static let owl: CGFloat        = 20
+        static let room: CGFloat        = -100
+        static let windowSky: CGFloat   = -90
+        static let windowWood: CGFloat  = -80
+        static let props: CGFloat       = 10
+        static let owl: CGFloat         = 20
+        static let highlight: CGFloat   = 60
         static let ambientWash: CGFloat = 80
-        static let debug: CGFloat      = 900
+        static let debug: CGFloat       = 900
     }
 }

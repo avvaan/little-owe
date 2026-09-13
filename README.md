@@ -4,8 +4,8 @@ An offline talking-companion app for iPad, for children aged 3–6. A cozy attic
 with a small owl who lives there: the child talks to the owl, and the owl talks back.
 A digital toy, not a chatbot.
 
-**Status: deliverable 2 of 8.** The room, the owl, the time-of-day window, and Echo —
-the owl repeating what the child says in a sillier voice.
+**Status: deliverable 2 of 8, now on painted artwork.** The attic room, the owl, the
+time-of-day window, and Echo — the owl repeating what the child says in a sillier voice.
 
 ---
 
@@ -76,20 +76,37 @@ who never stops:
 python3 tools/simulate_turn_detection.py
 ```
 
-## Previews
+## The artwork
 
-`docs/preview/` holds a render of the room at each time of day, generated from the
-same layout constants the app uses:
+The room is a watercolour painting. `art-source/` holds the master layers as delivered;
+`LittleOwl/Resources/Art/` holds the sprites the app ships, and they are **derived, not
+hand-edited**:
 
 ```
-python3 tools/preview_room.py                 # SVG
-CHROME=/path/to/chromium tools/render_preview_png.sh   # SVG + PNG
+pip install Pillow numpy
+python3 tools/export_art.py      # art-source/ -> LittleOwl/Resources/Art/
 ```
 
-Composition-accurate, finish-approximate: it does not simulate animation or
-SpriteKit's blend modes. It exists so layout changes can be reviewed without a Mac.
+That trims and normalises the cut-outs, downscales each sprite to twice the size it is
+actually drawn at, and splits the window glass into a sky and the wooden muntins that
+cross it — so the sky can follow the device clock behind unchanged woodwork.
 
-![The attic room in the morning](docs/preview/room-morning.png)
+Only three things are separate sprites: the window's sky, the three letter blocks, and
+the owl. Everything else — shelf, book, lamp, table, stump, rug — is one painting, which
+is why the book and the lamp answer a tap with a bloom of light rather than a squash.
+
+`docs/preview/` is rendered from the app's own layout constants, so it cannot quietly
+drift from what SpriteKit draws:
+
+```
+python3 tools/compose_room.py           # docs/preview/room-night.png
+python3 tools/compose_room.py --grid    # plus the measuring grid and every tap target
+```
+
+![The attic room](docs/preview/room-night.png)
+
+What is still wanted from the artist — six more owl poses and three more skies — is in
+`docs/ART_BRIEF.md`. Each drops in without a code change.
 
 ---
 
@@ -99,11 +116,12 @@ SpriteKit's blend modes. It exists so layout changes can be reviewed without a M
 LittleOwl/
   App/        SwiftUI entry point and the SpriteView host
   Room/       Scene, layout constants, props, the window, the time-of-day clock
-  Owl/        Owl behaviour (OwlNode), the rig seam (OwlRig), the placeholder rig
+  Owl/        Owl behaviour (OwlNode), the rig seam (OwlRig), the painted rig
   Audio/      Session policy, microphone permission, capture, pitched playback
   Modes/      Echo
   Support/    Palette, generated textures, sound effects, the tap-target overlay
-  Resources/  Asset catalogue and placeholder sound effects
+  Resources/  Asset catalogue, painted art, placeholder sound effects
+art-source/   Master artwork as delivered by the painter
 Config/       Info.plist
 content/      Content packs (deliverable 3)
 docs/         Art brief, decisions, previews
@@ -112,9 +130,10 @@ tools/        Placeholder-asset generators and the preview renderer
 
 Two seams matter more than the rest:
 
-- **`OwlRig`** separates what the owl *does* from how it is *drawn*. `PlaceholderOwlRig`
-  draws vector shapes; a `RiveOwlRig` will drive a Rive state machine. Nothing above
-  the protocol knows which is in use. See `docs/ART_BRIEF.md`.
+- **`OwlRig`** separates what the owl *does* from how it is *drawn*. `WatercolourOwlRig`
+  swaps painted frames and falls back to the base pose for any frame that has not been
+  painted yet, so the owl gets livelier as art lands and no behaviour code changes. See
+  `docs/ART_BRIEF.md`.
 - **`RoomScene.handle(_:)`** separates "a child touched something" from "a mode runs".
   Every mode attaches there and nowhere else.
 
