@@ -25,11 +25,16 @@ enum SpeechMatching {
     ]
 
     /// Lowercased, unpunctuated, de-pluralised words, with the function words dropped.
+    ///
+    /// The order matters and is not obvious: function words are dropped **before**
+    /// stemming as well as after. Stemming first turns "does" into "doe", which is no
+    /// longer in the ignore list and survives as noise in every question a child asks.
+    /// The second pass catches a plural that stems onto a function word.
     static func tokens(_ text: String) -> [String] {
         text
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
-            .filter { !$0.isEmpty }
+            .filter { !$0.isEmpty && !ignored.contains($0) }
             .map(singular)
             .filter { !ignored.contains($0) }
     }

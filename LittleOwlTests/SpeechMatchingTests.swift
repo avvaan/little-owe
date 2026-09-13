@@ -12,6 +12,13 @@ final class SpeechMatchingTests: XCTestCase {
         XCTAssertEqual(SpeechMatching.tokens("WHERE DOES RAIN COME FROM"), ["rain", "come"])
     }
 
+    func testFunctionWordsAreDroppedBeforeStemmingCanMangleThem() {
+        // Regression: stemming first turned "does" into "doe", which is not in the
+        // ignore list, so it survived as noise in every question a child asks.
+        XCTAssertEqual(SpeechMatching.tokens("what does a cow say"), ["cow", "say"])
+        XCTAssertFalse(SpeechMatching.tokens("where does it go").contains("doe"))
+    }
+
     func testTokensKeepContentVerbs() {
         // "come" must survive: dropping it would gut "where does rain come from".
         XCTAssertTrue(SpeechMatching.tokens("does it come").contains("come"))
