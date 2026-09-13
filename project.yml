@@ -1,0 +1,38 @@
+# Source of truth for the Xcode project.
+#
+# A working LittleOwl.xcodeproj is committed so the repo opens with a double-click.
+# If the project file ever conflicts in a merge, delete it and regenerate:
+#
+#     brew install xcodegen && xcodegen generate
+#
+# XcodeGen is a build-time convenience only — it ships nothing into the app, so the
+# "no third-party SDKs" rule is untouched.
+
+name: LittleOwl
+options:
+  bundleIdPrefix: com.littleowl
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "2"        # iPad only
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  LittleOwl:
+    type: application
+    platform: iOS
+    sources:
+      - path: LittleOwl
+    settings:
+      base:
+        INFOPLIST_FILE: Config/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        PRODUCT_BUNDLE_IDENTIFIER: com.littleowl.LittleOwl
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
