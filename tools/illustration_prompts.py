@@ -126,6 +126,9 @@ IRREGULAR = {
     "fire": "a small friendly campfire with warm flames, cosy and safe, not dangerous",
     "river": "a winding river between green banks",
     "nose": "a single friendly animal nose and whiskers, close up",
+    # "a moon" comes back as a full disc as often as not, and the card next to it
+    # is the sun. A crescent is the one a child can tell apart at a glance.
+    "moon": "a crescent moon",
     "one": "one single small round acorn, alone and clearly just the one",
     # White paint on a cream card is not a picture of anything.
     "white": "a soft rounded watercolour patch of clean white, given a faint soft grey "
