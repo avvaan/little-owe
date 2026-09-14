@@ -74,6 +74,11 @@ Tap the round window and ask the owl anything. It knows about a hundred and thir
 children actually ask: why the sky is blue, where rain comes from, why cats purr, what is
 inside a camel's hump. If it doesn't know, it says so and sends your child to ask you.
 
+Tap the basket in the corner and the owl does the asking. It lays out three painted
+cards, says what each one is about, and tells your child whichever one they tap. Same
+hundred and thirty questions, the other way round — and this one needs no microphone at
+all.
+
 MADE FOR SMALL CHILDREN
 
 Everything is a tap on an object. There are no menus, no buttons with words on, and no

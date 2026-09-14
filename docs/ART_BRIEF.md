@@ -62,6 +62,33 @@ The room itself is still lit for night: a lit lamp, a warm pool on the floor. Th
 tints it gently for the time of day, but a genuinely bright morning attic would need the
 room repainted. Nice-to-have, not a blocker.
 
+### The basket in the corner
+
+The one prop that is not in the room painting. The near right-hand corner is bare
+floorboards, which is why there was room for a fifth object there at all.
+
+It is delivered the way the puppy is — the whole subject painted on a **flat card of one
+colour**, cool blue against warm straw, and keyed out by `export_corner()`. That is what
+an image generator gives you, and the key recovers the colour under each soft edge
+rather than leaving a rim of card around the weave.
+
+Two things are worth knowing before replacing it:
+
+- **It brings its own shadow.** Every other prop's shadow is painted into the room, and
+  a cut-out standing on painted floorboards with no shade under it floats. The export
+  adds a blurred ellipse at its foot and leaves room below for the blur to fade out in;
+  `RoomLayout.basketSize` is the whole sprite, shadow included, and a test checks that
+  the sprite's aspect and that constant agree.
+- **It is painted in daylight and stands in the far corner from the lamp**, so a flat
+  warm multiply (`CORNER_LIGHT`) takes it down to the light it is standing in. Not
+  lighting — just enough that it does not read as a sticker.
+
+What it has to say without a word on it: *the owl keeps things in here that it wonders
+about.* Something a child would pick up and put in a basket. Five were painted and four
+thrown away; the two that failed were finely detailed botanical studies, sharp and
+saturated, and next to the ABC blocks and the rag rug they read as pasted in. The room
+is flat soft shapes, very little interior detail, muted and dusty.
+
 ## 3. Voice — not art, but the same hand-off
 
 Three assets belong to the voice actor rather than the illustrator, and Echo already
