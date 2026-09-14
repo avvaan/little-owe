@@ -109,12 +109,15 @@ final class SpokenSetTests: XCTestCase {
     func testRowsAreBalancedAndNeverTooWide() {
         XCTAssertEqual(SpokenSetPicker.rows(for: 0), [])
         XCTAssertEqual(SpokenSetPicker.rows(for: 1), [1])
-        XCTAssertEqual(SpokenSetPicker.rows(for: 5), [5])
-        // Seven sets come out four and three, not five and two.
-        XCTAssertEqual(SpokenSetPicker.rows(for: 7), [4, 3])
-        XCTAssertEqual(SpokenSetPicker.rows(for: 10), [5, 5])
+        // The whole shipped pack fits one row, which is the only way it stays clear of
+        // the owl.
+        XCTAssertEqual(SpokenSetPicker.rows(for: 7), [7])
+        // Past that it wraps, as evenly as it can: eight is four and four, not seven
+        // and one.
+        XCTAssertEqual(SpokenSetPicker.rows(for: 8), [4, 4])
+        XCTAssertEqual(SpokenSetPicker.rows(for: 14), [7, 7])
 
-        for count in 1...12 {
+        for count in 1...16 {
             let rows = SpokenSetPicker.rows(for: count)
             XCTAssertEqual(rows.reduce(0, +), count)
             XCTAssertLessThanOrEqual(rows.max() ?? 0, SpokenSetPicker.maxPerRow)
@@ -129,6 +132,19 @@ final class SpokenSetTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(SpokenSetPicker.cardSize.height, RoomLayout.minimumTapTarget)
     }
 
+    func testTheCardsStayClearOfTheOwl() throws {
+        // The owl stays on its perch while the cards are up, so the cards have to go
+        // where it is not. A card on the owl's chest is a card a child taps by accident
+        // while reaching for the owl to leave.
+        let pack = try ContentPack.shipped()
+        let picker = SpokenSetPicker(sets: pack.spokenSets)
+
+        XCTAssertEqual(SpokenSetPicker.rows(for: pack.spokenSets.count).count, 1,
+                       "the shipped pack no longer fits one row")
+        XCTAssertLessThan(picker.contentHeight, RoomLayout.owlHome.y - 60,
+                          "the cards cannot fit below the owl's feet")
+    }
+
     func testEveryCardIsReachableWhereItSits() throws {
         // The hit area is in the card's own space and the cards are spread across the
         // row, so a picker that forgets to subtract the card's position offers exactly
@@ -140,6 +156,24 @@ final class SpokenSetTests: XCTestCase {
             var picked: SpokenSet?
             picker.onPick = { picked = $0 }
             XCTAssertTrue(picker.handleTap(at: card.position), "\(card.set.id) is not reachable")
+            XCTAssertEqual(picked?.id, card.set.id)
+        }
+    }
+
+    func testCardsStayReachableWhenThePickerIsScaledToFit() throws {
+        // Enough sets to wrap, so the mode shrinks the whole picker. Hit-testing has to
+        // take the scale off as well as the position.
+        let pack = try ContentPack.shipped()
+        let picker = SpokenSetPicker(sets: pack.spokenSets + pack.spokenSets)
+        picker.setScale(0.7)
+        picker.position = CGPoint(x: 683, y: 300)
+
+        for card in picker.cards {
+            var picked: SpokenSet?
+            picker.onPick = { picked = $0 }
+            let scenePoint = CGPoint(x: picker.position.x + card.position.x * 0.7,
+                                     y: picker.position.y + card.position.y * 0.7)
+            XCTAssertTrue(picker.handleTap(at: scenePoint), "\(card.set.id) is not reachable")
             XCTAssertEqual(picked?.id, card.set.id)
         }
     }

@@ -31,7 +31,14 @@ final class RoomScene: SKScene {
 
     /// Every mode that dims the room behind it. The scene routes taps through whichever
     /// one is running rather than knowing what each of them is.
-    private var roomModes: [any RoomMode] { [story, spokenSets].compactMap { $0 } }
+    private var roomModes: [any RoomMode] {
+        // Written out rather than `[story, spokenSets].compactMap`, which infers `[Any]`
+        // from two differently-typed optionals.
+        var modes: [any RoomMode] = []
+        if let story { modes.append(story) }
+        if let spokenSets { modes.append(spokenSets) }
+        return modes
+    }
 
     /// Most specific target first: with padded tap targets the boxes overlap, and a
     /// smaller box always means a more deliberate aim.

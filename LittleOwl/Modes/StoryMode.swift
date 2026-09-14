@@ -157,7 +157,10 @@ final class StoryMode: RoomMode {
         phase = .choosingHero
 
         let picker = HeroPicker(heroes: pack.heroes, language: pack.language)
-        picker.position = CGPoint(x: RoomLayout.designSize.width / 2, y: 470)
+        // In the band below the owl's feet. The owl stays on its perch while the cards
+        // are up, and at 470 the middle card sat squarely on its chest.
+        picker.position = CGPoint(x: RoomLayout.designSize.width / 2,
+                                  y: RoomLayout.owlHome.y - 20 - HeroPicker.cardSize.height / 2)
         picker.zPosition = Z.overlay
         picker.onPick = { [weak self] hero in self?.pick(hero) }
         scene.addChild(picker)

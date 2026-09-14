@@ -244,11 +244,26 @@ final class SpokenSetMode: RoomMode {
         }
 
         let picker = SpokenSetPicker(sets: sets)
-        picker.position = CGPoint(x: RoomLayout.designSize.width / 2, y: 500)
+        place(picker)
         picker.zPosition = ModeLayer.overlay
         picker.onPick = { [weak self] set in self?.startSet(set) }
         scene.addChild(picker)
         self.picker = picker
+    }
+
+    /// Puts the cards in the band of room below the owl's feet.
+    ///
+    /// The owl stays on its perch while the cards are up — it is the thing a child is
+    /// looking at — so the cards have to go somewhere it is not. That band is 384 points
+    /// tall, which one row of cards fits comfortably; if a parent ever loads enough sets
+    /// to wrap, the whole picker shrinks to fit rather than climbing over the owl.
+    private func place(_ picker: SpokenSetPicker) {
+        let ceiling = RoomLayout.owlHome.y - 20
+        let floor: CGFloat = 40      // clear of the crop `.aspectFill` takes off the bottom
+        let scale = min(1, (ceiling - floor) / max(picker.contentHeight, 1))
+        picker.setScale(scale)
+        picker.position = CGPoint(x: RoomLayout.designSize.width / 2,
+                                  y: ceiling - picker.contentHeight * scale / 2)
     }
 
     private func startSet(_ set: SpokenSet) {

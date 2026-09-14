@@ -10,12 +10,14 @@ import SpriteKit
 /// The row wraps, because a parent may leave anything from one set to ten on the lamp.
 final class SpokenSetPicker: SKNode {
 
-    /// Well past the 88 pt floor at every supported screen size, and small enough that
-    /// five fit across the canvas with room to spare after `.aspectFill` takes its crop.
-    static let cardSize = CGSize(width: 172, height: 212)
-    static let gap: CGFloat = 26
-    static let rowGap: CGFloat = 26
-    static let maxPerRow = 5
+    /// Well past the 88 pt floor at every supported screen size, and sized so the whole
+    /// shipped pack — seven sets — fits one row across the canvas with room to spare
+    /// after `.aspectFill` takes its crop. One row matters: the band of room below the
+    /// owl's feet is the only place a row of cards does not land on the owl.
+    static let cardSize = CGSize(width: 148, height: 186)
+    static let gap: CGFloat = 20
+    static let rowGap: CGFloat = 22
+    static let maxPerRow = 7
 
     private(set) var cards: [SpokenSetCard] = []
     var onPick: ((SpokenSet) -> Void)?
@@ -36,12 +38,17 @@ final class SpokenSetPicker: SKNode {
         return CGFloat(count) * cardSize.width + CGFloat(count - 1) * gap
     }
 
+    /// How tall the laid-out cards are, before any scaling. The mode uses it to keep the
+    /// picker in the clear band below the owl however many sets a parent has left on.
+    private(set) var contentHeight: CGFloat = 0
+
     init(sets: [SpokenSet]) {
         super.init()
 
         let layout = SpokenSetPicker.rows(for: sets.count)
         let totalHeight = CGFloat(layout.count) * SpokenSetPicker.cardSize.height
             + CGFloat(max(layout.count - 1, 0)) * SpokenSetPicker.rowGap
+        contentHeight = totalHeight
 
         var index = 0
         var y = totalHeight / 2 - SpokenSetPicker.cardSize.height / 2
@@ -70,9 +77,13 @@ final class SpokenSetPicker: SKNode {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("Not supported") }
 
-    /// `point` is in the parent's coordinate space.
+    /// `point` is in the parent's coordinate space. The node may have been scaled down
+    /// to fit, so the scale comes off as well as the position — otherwise the cards drift
+    /// further from their hit areas the smaller the picker gets.
     func handleTap(at point: CGPoint) -> Bool {
-        let local = CGPoint(x: point.x - position.x, y: point.y - position.y)
+        guard xScale != 0, yScale != 0 else { return false }
+        let local = CGPoint(x: (point.x - position.x) / xScale,
+                            y: (point.y - position.y) / yScale)
         guard let card = cards.first(where: { $0.contains(rowPoint: local) }) else { return false }
 
         SoundKit.shared.play(.tap)
@@ -210,10 +221,19 @@ enum SetSymbol: String, CaseIterable {
         path.closeSubpath()
         path.addRect(CGRect(x: -w * 1.12, y: -h * 0.06, width: w * 2.24, height: h * 0.09))
 
-        for side in [CGFloat(-0.34), 0.34] {
-            path.addRect(CGRect(x: w * side - h * 0.028, y: h * 0.12,
-                                width: h * 0.056, height: h * 0.24))
-        }
+        // One curl of steam, centred. Two marks above a rimmed half-disc read as a face
+        // rather than as dinner, which is the kind of thing you only see once it is
+        // drawn.
+        let stroke = h * 0.05
+        path.move(to: CGPoint(x: -stroke / 2, y: h * 0.10))
+        path.addCurve(to: CGPoint(x: -stroke / 2, y: h * 0.40),
+                      control1: CGPoint(x: h * 0.14, y: h * 0.18),
+                      control2: CGPoint(x: -h * 0.14, y: h * 0.30))
+        path.addLine(to: CGPoint(x: stroke / 2, y: h * 0.40))
+        path.addCurve(to: CGPoint(x: stroke / 2, y: h * 0.10),
+                      control1: CGPoint(x: -h * 0.14 + stroke, y: h * 0.30),
+                      control2: CGPoint(x: h * 0.14 + stroke, y: h * 0.18))
+        path.closeSubpath()
         return path
     }
 
