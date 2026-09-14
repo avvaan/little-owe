@@ -440,6 +440,75 @@ def export_all():
     export_generated_skies(shipped)
     export_owl_frames()
     export_patches(room)
+    export_dog()
+
+
+# ----------------------------------------------------------------- the puppy
+
+# The second character. Generated as a whole animal on a flat card of one colour,
+# rather than as a layer with alpha, because that is what an image generator gives you.
+DOG_CARD = os.path.join(SRC, "dog-raw", "dog_base_card.png")
+
+# How far a pixel must be from the card colour before it is the animal at all, and how
+# far before it is the animal completely. The gap between them is the soft edge: fur is
+# mostly soft edge, and a single threshold turns it into a cut-out with scissors.
+DOG_KEY_LO, DOG_KEY_HI = 26, 78
+
+
+def _key_flat_card(rgb):
+    """Alpha and un-fringed colour for a subject painted on a card of one flat colour.
+
+    Two things happen here and only the first is obvious. The easy half is the alpha
+    ramp. The half that decides whether this looks painted or cut out is recovering the
+    colour underneath: a half-transparent pixel of fur on a blue card *is* half blue,
+    and leaving it that way rims the whole animal in blue against the warm room. So the
+    card is subtracted back out of every partial pixel.
+    """
+    a = np.asarray(rgb).astype(np.float64)
+    # The card is uniform, so any corner is the card. Take the median of all four to be
+    # safe against a stray speck.
+    corners = np.array([a[4, 4], a[4, -5], a[-5, 4], a[-5, -5]])
+    card = np.median(corners, axis=0)
+
+    dist = np.abs(a - card).sum(axis=2)
+    alpha = np.clip((dist - DOG_KEY_LO) / (DOG_KEY_HI - DOG_KEY_LO), 0.0, 1.0)
+
+    # c = alpha*F + (1-alpha)*card  ->  F = (c - (1-alpha)*card) / alpha
+    safe = np.maximum(alpha, 1e-3)[..., None]
+    front = (a - (1.0 - alpha)[..., None] * card) / safe
+    front = np.clip(front, 0, 255)
+
+    out = np.dstack([front, alpha * 255.0]).astype("uint8")
+    return Image.fromarray(out, "RGBA")
+
+
+def export_dog():
+    """The puppy, cut off its card and scaled into the owl's place.
+
+    Its silhouette is 0.55 wide to tall against the owl's 0.58, so at the same height it
+    is eleven points narrower and drops into the same spot with nothing in `RoomLayout`
+    changed. That is luck rather than design, and worth checking again if the painting
+    is ever redone.
+    """
+    if not os.path.exists(DOG_CARD):
+        print("  (no dog card yet; skipping the puppy)")
+        return
+
+    keyed = _key_flat_card(Image.open(DOG_CARD).convert("RGB"))
+
+    a = np.array(keyed)
+    ys, xs = np.where(a[..., 3] > 6)
+    keyed = keyed.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+
+    target = round(layout_value("owlHeight") * 2)     # 2x the size it is ever drawn at
+    if keyed.height > target:
+        keyed = keyed.resize((round(keyed.width * target / keyed.height), target),
+                             Image.LANCZOS)
+
+    path = os.path.join(OUT, "dog_base.png")
+    keyed.save(path, optimize=True)
+    print(f"  {'dog_base.png':<24} {keyed.size[0]}x{keyed.size[1]}  "
+          f"{os.path.getsize(path)//1024}KB")
 
 
 def compare(fresh_dir):
