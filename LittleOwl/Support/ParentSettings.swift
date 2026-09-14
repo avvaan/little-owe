@@ -7,9 +7,7 @@ import Combine
 /// played — just the handful of choices a parent makes behind the gate. Five keys in
 /// `UserDefaults`, all of them written from one screen, and a fresh install starts with
 /// every one of them unset.
-///
-/// The one thing that is not a preference is the API key a `LITTLE_OWL_AI` build can
-/// hold, and it deliberately does not live here: see `BrainKey`.
+
 ///
 /// It is an `ObservableObject` because the settings screen is SwiftUI, and every setter
 /// writes straight through to `UserDefaults` so a parent closing the app mid-change does
@@ -30,8 +28,6 @@ final class ParentSettings: ObservableObject {
         static let hiddenObjects = "parent.hiddenObjects"
         static let captions = "parent.captions"
         static let voiceVolume = "parent.voiceVolume"
-        static let brain = "parent.brain"
-        static let brainProvider = "parent.brainProvider"
         static let character = "parent.character"
     }
 
@@ -153,36 +149,6 @@ final class ParentSettings: ObservableObject {
         }
     }
 
-    // MARK: The owl answering for itself
-
-    /// Whether the owl may ask a model when the question bank has no answer.
-    ///
-    /// Off until a parent turns it on, and in a build without `LITTLE_OWL_AI` there is
-    /// nothing for it to turn on — the code it would reach is not compiled. So this
-    /// setting is inert in every build but the one somebody deliberately made, which is
-    /// why it can sit here in the ordinary settings rather than behind a second door.
-    var brainEnabled: Bool {
-        get { defaults.object(forKey: Key.brain) as? Bool ?? false }
-        set {
-            objectWillChange.send()
-            defaults.set(newValue, forKey: Key.brain)
-        }
-    }
-
-    /// Which service the owl asks. Claude unless a parent chose otherwise; an
-    /// unrecognised stored value falls back to it rather than breaking the screen.
-    var brainProvider: BrainProvider {
-        get {
-            guard let raw = defaults.string(forKey: Key.brainProvider),
-                  let provider = BrainProvider(rawValue: raw) else { return .anthropic }
-            return provider
-        }
-        set {
-            objectWillChange.send()
-            defaults.set(newValue.rawValue, forKey: Key.brainProvider)
-        }
-    }
-
     // MARK: Reset
 
     /// Puts every setting back to its default.
@@ -194,14 +160,8 @@ final class ParentSettings: ObservableObject {
     func resetToDefaults() {
         objectWillChange.send()
         for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions,
-                    Key.voiceVolume, Key.brain, Key.brainProvider, Key.character] {
+                    Key.voiceVolume, Key.character] {
             defaults.removeObject(forKey: key)
         }
-        #if LITTLE_OWL_AI
-        // The one stored thing that is not a preference. A parent resetting the app has
-        // asked for their keys to be gone, not for them to be quietly kept - and that
-        // means every provider's, not just the one currently selected.
-        BrainKey.removeAll()
-        #endif
     }
 }

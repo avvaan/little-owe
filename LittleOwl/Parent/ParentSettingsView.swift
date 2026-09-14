@@ -27,13 +27,6 @@ struct ParentSettingsView: View {
 
     @State private var showingResetConfirmation = false
 
-    #if LITTLE_OWL_AI
-    @State private var typedKey = ""
-    // A `@State` initialiser cannot see `settings`, so this starts from the shared
-    // instance and `onAppear` corrects it for whichever one this view was handed.
-    @State private var keyIsStored = BrainKey.isSet(for: ParentSettings.shared.brainProvider)
-    #endif
-
     var body: some View {
         NavigationStack {
             Form {
@@ -41,9 +34,6 @@ struct ParentSettingsView: View {
                 if let pack, !pack.spokenSets.isEmpty { lampSection(pack) }
                 voiceSection
                 microphoneSection
-                #if LITTLE_OWL_AI
-                brainSection
-                #endif
                 resetSection
                 aboutSection
             }
@@ -162,80 +152,6 @@ struct ParentSettingsView: View {
             Text("Captions are the only words your child ever sees, and they only appear while the owl is speaking. The app never asks a child to read anything.")
         }
     }
-
-    // MARK: The owl answering for itself
-
-    #if LITTLE_OWL_AI
-    /// Only in a build somebody deliberately made. There is no such section in the
-    /// App Store build, because there is no such code in it.
-    private var brainSection: some View {
-        Section {
-            Toggle("Let the owl answer new questions", isOn: Binding(
-                get: { settings.brainEnabled },
-                set: { settings.brainEnabled = $0 }
-            ))
-            .disabled(!keyIsStored)
-
-            Picker("Ask", selection: Binding(
-                get: { settings.brainProvider },
-                set: { settings.brainProvider = $0; refreshKeyState() }
-            )) {
-                ForEach(BrainProvider.allCases) { provider in
-                    Text(provider.name).tag(provider)
-                }
-            }
-
-            if keyIsStored {
-                LabeledContent("API key", value: "Stored on this iPad")
-                Button("Remove the key", role: .destructive) {
-                    BrainKey.set(nil, for: settings.brainProvider)
-                    settings.brainEnabled = false
-                    typedKey = ""
-                    refreshKeyState()
-                }
-            } else {
-                SecureField(settings.brainProvider.keyPrompt, text: $typedKey)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                Button("Save the key") {
-                    if BrainKey.set(typedKey, for: settings.brainProvider) {
-                        typedKey = ""
-                        refreshKeyState()
-                    }
-                }
-                .disabled(typedKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        } header: {
-            Text("When the owl does not know")
-        } footer: {
-            Text("""
-                The owl knows about a hundred and thirty questions by heart. \
-                Switched on, anything outside that goes to \
-                \(settings.brainProvider.destination) as text — the question only, \
-                never your child's voice, never anything about them, and nothing is \
-                kept between questions. Answers are checked before they are spoken, \
-                and anything that does not come back as one or two plain sentences \
-                becomes the owl's ordinary "I do not know that one. Ask your \
-                grown-up." So does no signal at all.
-
-                That check looks at the shape of an answer, not its subject. What \
-                keeps the subject right is the instruction the owl is given, and how \
-                closely a service follows it is the difference between them. Each \
-                service is billed to your own account, and this is the only part of \
-                Little Owl that uses the network.
-                """)
-        }
-        .onAppear { refreshKeyState() }
-    }
-
-    /// The switch is meaningless without a key, and each service has its own, so
-    /// changing service changes whether there is one.
-    private func refreshKeyState() {
-        keyIsStored = BrainKey.isSet(for: settings.brainProvider)
-        if !keyIsStored { settings.brainEnabled = false }
-    }
-
-    #endif
 
     // MARK: Microphone
 

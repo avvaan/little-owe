@@ -550,7 +550,7 @@ move without them if they do not, which is the same bargain every other frame ha
 
 ---
 
-## The owl is allowed one thing it did not read somewhere
+## The owl was allowed one thing it did not read somewhere, and then it was not
 
 Every answer in this app is a sentence somebody wrote. That was stated as a
 non-negotiable and it was the right call: an owl that makes something up for a
@@ -622,9 +622,24 @@ was wrong in the first way anybody would meet it: a parent opens settings, types
 closes settings, and the owl carries on saying it does not know until the app is
 restarted. It is a keychain read, and the `URLSession` is shared.
 
-CI builds the flagged path as well as the default one. Code that is never compiled stops
-compiling, and the whole point of this arrangement is that the personal build is a real
-build rather than a branch somebody keeps rebasing.
+CI built the flagged path as well as the default one, because code that is never
+compiled stops compiling.
+
+**And then it was taken out again.** Not because any of the above turned out to be
+wrong — it held up, and a build without the flag genuinely had no networking in it — but
+because the feature was not worth what it cost to keep honest. Every document in this
+folder had to carry a paragraph about it. Every submission needed somebody to remember
+not to tick a box. The App Store description's plainest sentence, that there is no
+networking code in this app, was true only because of a compile flag a person had to
+keep getting right.
+
+The owl says "I do not know that one. Ask your grown-up." again, and that was always the
+better answer to a question nobody wrote down.
+
+It is in the history if it is ever wanted: `OwlBrain`, `OwlAnswerGuard` and `BrainReply`
+were the interesting parts, and `OwlAnswerGuard`'s reasoning — that a word list is not
+safety, that rejecting must cost nothing — is worth reading before anybody builds this
+again.
 
 ---
 
@@ -665,10 +680,6 @@ further on.
 
 - **The room is painted for night only.** The window follows the clock, but a bright
   morning attic would need the room itself repainted; the app tints it gently instead.
-- **`LITTLE_OWL_AI` must never be compiled into a submission.** It is off by default in
-  the TestFlight workflow and a tagged release cannot turn it on, but nothing stops a
-  person ticking the box and then promoting that build. `docs/RELEASE.md` says so; no
-  check enforces it.
 - **The owl's voice is still the system synthesiser** wherever `content/en/audio/` has
   no recording. The fallback is per line rather than per build, so a half-recorded pack
   plays what exists and speaks the rest.

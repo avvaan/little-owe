@@ -80,23 +80,6 @@ jobs:
             -resultBundlePath .build/TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
-      # LITTLE_OWL_AI is off in every build that ships, so nothing above this compiles
-      # the code behind it - and code that is never compiled stops compiling. This is a
-      # build, not a test run: the flagged code is one networking type, one keychain
-      # wrapper and one settings section, and what would rot about them is whether they
-      # still build against the rest of the app.
-      - name: Build the optional brain too, so it cannot rot
-        run: |
-          set -o pipefail
-          xcodebuild build \
-            -project LittleOwl.xcodeproj \
-            -scheme LittleOwl \
-            -configuration Debug \
-            -destination "id=${{ steps.sim.outputs.udid }}" \
-            -derivedDataPath .build-ai \
-            CODE_SIGNING_ALLOWED=NO \
-            SWIFT_ACTIVE_COMPILATION_CONDITIONS='$(inherited) LITTLE_OWL_AI'
-
       - name: Keep the test results when something fails
         if: failure()
         uses: actions/upload-artifact@v4

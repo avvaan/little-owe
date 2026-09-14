@@ -15,11 +15,6 @@ on:
         description: "What testers should look at in this build"
         required: false
         default: ""
-      brain:
-        description: "Compile LITTLE_OWL_AI, so the owl can answer questions the content pack does not cover. A build with this ON must never be submitted for App Store review - see docs/RELEASE.md."
-        required: false
-        default: false
-        type: boolean
   push:
     tags: ["v*"]
 
@@ -92,19 +87,8 @@ jobs:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          # Off unless somebody asked for it at dispatch. A tagged release never asks,
-          # so the build that goes to review is the one with no networking code in it.
-          BRAIN: ${{ inputs.brain }}
         run: |
           set -o pipefail
-
-          CONDITIONS='$(inherited)'
-          if [ "$BRAIN" = "true" ]; then
-            CONDITIONS='$(inherited) LITTLE_OWL_AI'
-            echo "::warning::This build has LITTLE_OWL_AI compiled in. It is for your own iPad. Do NOT submit it for App Store review - see docs/RELEASE.md."
-          fi
-          echo "Compilation conditions: $CONDITIONS"
-
           xcodebuild archive \
             -project LittleOwl.xcodeproj \
             -scheme LittleOwl \
@@ -116,8 +100,7 @@ jobs:
             -authenticationKeyID "$KEY_ID" \
             -authenticationKeyIssuerID "$ISSUER_ID" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
-            SWIFT_ACTIVE_COMPILATION_CONDITIONS="$CONDITIONS"
+            CURRENT_PROJECT_VERSION=${{ github.run_number }}
 
       - name: Write the export options
         env:
