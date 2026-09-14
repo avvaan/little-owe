@@ -38,6 +38,11 @@ final class SpokenSetMode: RoomMode {
 
     var onLeave: (() -> Void)?
 
+    /// Captions are the only text a child ever sees, and a parent can turn them off.
+    var captionsEnabled = true {
+        didSet { caption.isHidden = !captionsEnabled }
+    }
+
     /// True while the set is over and the lamp is the way to hear it again.
     var againProp: RoomObjectID? { phase == .finished ? .lamp : nil }
 

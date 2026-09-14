@@ -33,6 +33,11 @@ final class WhyMode: RoomMode {
 
     var onLeave: (() -> Void)?
 
+    /// Captions are the only text a child ever sees, and a parent can turn them off.
+    var captionsEnabled = true {
+        didSet { caption.isHidden = !captionsEnabled }
+    }
+
     /// Nothing to offer again: the owl asks for another question by itself, forever,
     /// until the child taps it.
     var againProp: RoomObjectID? { nil }

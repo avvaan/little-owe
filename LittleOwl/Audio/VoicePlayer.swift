@@ -30,6 +30,15 @@ final class VoicePlayer {
     /// Playback speed without changing pitch. Echo sets 1.08.
     var rate: Float = 1
 
+    /// 0...1, what the parent set. Applied to the player node, so the level tap on the
+    /// mixer measures the quieter signal — which is why `installLevelTap` divides it back
+    /// out. A parent turning the owl down must not also stop its beak moving.
+    var volume: Float = 1 {
+        didSet { player.volume = clampedVolume }
+    }
+
+    private var clampedVolume: Float { min(max(volume, 0), 1) }
+
     private(set) var isPlaying = false
 
     private let engine = AVAudioEngine()
@@ -61,6 +70,7 @@ final class VoicePlayer {
 
         timePitch.pitch = pitchCents
         timePitch.rate = rate
+        player.volume = clampedVolume
         smoothedLevel = 0
 
         let format = buffer.format
@@ -121,7 +131,10 @@ final class VoicePlayer {
         let mixer = engine.mainMixerNode
         mixer.installTap(onBus: 0, bufferSize: 1024, format: nil) { [weak self] buffer, _ in
             guard let self else { return }
-            let target = VoiceRecorder.normalise(buffer.meanSquareLevel())
+            // Divided back out: the tap is downstream of the player's volume, so a
+            // quiet owl would otherwise read as a still one.
+            let heard = buffer.meanSquareLevel() / max(self.clampedVolume, 0.08)
+            let target = VoiceRecorder.normalise(heard)
             // Opens fast and closes slower: a beak that snaps shut between syllables
             // reads as a glitch, one that lags a little reads as a mouth.
             self.smoothedLevel += (target - self.smoothedLevel) * (target > self.smoothedLevel ? 0.6 : 0.22)
