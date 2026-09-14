@@ -31,6 +31,11 @@ final class WordGameMode: RoomMode {
 
     var onLeave: (() -> Void)?
 
+    /// Captions are the only text a child ever sees, and a parent can turn them off.
+    var captionsEnabled = true {
+        didSet { caption.isHidden = !captionsEnabled }
+    }
+
     /// The blocks are never an "again" offer: the game simply goes on until the child
     /// taps the owl. Nothing here ends by itself.
     var againProp: RoomObjectID? { nil }

@@ -65,3 +65,35 @@ intended character of each.
 1024 × 1024, no transparency, no rounded corners (the system rounds it). The owl's face,
 warm background, readable at 60 points. Kids-category apps are browsed by parents on
 small tiles.
+
+---
+
+## Two variants of the room, for parent settings
+
+Parent settings can take an object out of the room, and the brief's own example is the
+book: *"turning off the book removes it from the shelf"*.
+
+Three of the four already work. The letter blocks are their own sprites and simply go.
+The book is painted into the wall, so `tools/export_art.py` cuts a piece of wall to put in
+its place — cloned from the painting itself, at the offset whose grain best continues the
+grain around the book, which matters because the planking there runs diagonally.
+
+**The lamp and the window cannot be patched out, and need you.** Both are light sources,
+and their light is painted across the wall and the furniture around them. Cloning wall
+over the lamp leaves a warm pool of light on the table with nothing making it; the same is
+true of the window and the wall beside it.
+
+What would fix it, if you want those two switches to be real:
+
+- **`owl_bg_no_lamp.png`** — the same room, with the lamp gone from the side table and the
+  light it casts gone with it. That corner should read as unlit: the table, the wall behind
+  it and the floor below all lose the warm pool.
+- **`owl_bg_no_window.png`** — the same room with plain wall where the window is, and the
+  daylight it throws across the floor and the right-hand wall removed.
+
+Same size and same everything else as `owl_bg_empty.png`, so they drop in as alternatives
+to it.
+
+Until they arrive, turning the lamp or the window off stops the mode and takes the object
+out of hit-testing — a tap there wakes the owl instead of doing nothing — and the settings
+screen says plainly that the object stays in the picture.

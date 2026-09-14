@@ -12,6 +12,8 @@ final class RoomScene: SKScene {
     private let owl = OwlNode()
     private var props: [RoomObject] = []
     private var windowNode: WindowNode!
+    /// Shown in the book's place when a parent takes the book out of the room.
+    private var bookPatch: SKSpriteNode!
     private var ambientWash: SKSpriteNode!
     private var debugOverlay: DebugOverlay?
 
@@ -61,6 +63,20 @@ final class RoomScene: SKScene {
     /// behaviour below so the room is explorable on its own.
     var onModeRequested: ((RoomObjectID) -> Void)?
 
+    /// The parent's choices. The child-facing app reads them and never writes them.
+    let settings: ParentSettings
+
+    /// So the settings screen can list what is actually in the pack.
+    var contentPack: ContentPack? { pack }
+
+    init(size: CGSize, settings: ParentSettings = .shared) {
+        self.settings = settings
+        super.init(size: size)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("Not supported") }
+
     // MARK: Lifecycle
 
     override func didMove(to view: SKView) {
@@ -79,6 +95,55 @@ final class RoomScene: SKScene {
 
         buildRoom()
         applyTimeOfDay(timeWatcher.current, animated: false)
+        applySettings()
+    }
+
+    // MARK: Parent settings
+
+    /// Pushes the parent's choices into the room. Called at launch and every time the
+    /// settings screen closes, so a change lands without restarting anything.
+    ///
+    /// A prop turned off is taken out of the room and out of hit-testing, and any mode
+    /// running behind it is sent home — a child must not be left inside a story whose
+    /// book has just vanished from the shelf.
+    func applySettings() {
+        for prop in props {
+            let visible = settings.isVisible(prop.id)
+            if !visible, activeMode == prop.id { endActiveMode() }
+            prop.isAvailable = visible
+        }
+
+        // The book is painted into the wall, so taking it out of the room means putting
+        // a piece of wall over it. The blocks are their own sprites and simply go.
+        //
+        // The lamp and the window stay painted where they are: both are light sources and
+        // their glow is part of the picture, so they cannot be cloned over. Turning them
+        // off stops the mode and takes them out of hit-testing, and a tap there falls
+        // through to waking the owl rather than into nothing.
+        bookPatch.isHidden = settings.isVisible(.book)
+
+        voice?.volume = settings.voiceVolume
+
+        let captions = settings.captionsEnabled
+        story?.captionsEnabled = captions
+        spokenSets?.captionsEnabled = captions
+        wordGames?.captionsEnabled = captions
+        why?.captionsEnabled = captions
+    }
+
+    /// "Reset owl": stop whatever is happening and put the owl back on its perch.
+    ///
+    /// There is nothing else to reset. No progress, no history, no saved state about the
+    /// child — the app has never had any. This is a way out of a mode for a parent whose
+    /// child has wandered off mid-story, and nothing more.
+    func resetOwl() {
+        echo.cancel()
+        roomModes.forEach { $0.leave() }
+        activeMode = nil
+        SoundKit.shared.stopAllLoops()
+        owl.transition(to: .idle)
+        owl.returnHome()
+        applySettings()
     }
 
     private func buildRoom() {
@@ -89,6 +154,9 @@ final class RoomScene: SKScene {
 
         props = [RoomBuilder.makeBook(), RoomBuilder.makeLamp(), RoomBuilder.makeBlocks(), windowObject]
         props.forEach { addChild($0) }
+
+        bookPatch = RoomBuilder.makeBookPatch()
+        addChild(bookPatch)
 
         ambientWash = RoomBuilder.makeAmbientWash()
         addChild(ambientWash)

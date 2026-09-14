@@ -1,12 +1,17 @@
 import Foundation
+import Combine
 
 /// The only thing this app stores.
 ///
 /// No history, no logs, nothing about what a child said or tapped or how long they
-/// played — just the handful of choices a parent makes behind the gate. Deliverable 7
-/// builds the gate and the screen; this is the store underneath it, and Prayers is its
-/// first reader.
-final class ParentSettings {
+/// played — just the handful of choices a parent makes behind the gate. Five keys in
+/// `UserDefaults`, all of them written from one screen, and a fresh install starts with
+/// every one of them unset.
+///
+/// It is an `ObservableObject` because the settings screen is SwiftUI, and every setter
+/// writes straight through to `UserDefaults` so a parent closing the app mid-change does
+/// not lose it.
+final class ParentSettings: ObservableObject {
 
     static let shared = ParentSettings()
 
@@ -19,7 +24,42 @@ final class ParentSettings {
 
     private enum Key {
         static let enabledSpokenSets = "parent.enabledSpokenSets"
+        static let hiddenObjects = "parent.hiddenObjects"
+        static let captions = "parent.captions"
+        static let voiceVolume = "parent.voiceVolume"
     }
+
+    // MARK: What is in the room
+
+    /// Props the parent has taken out of the room. Stored as the hidden set rather than
+    /// the visible one so that a prop added in a later version is **on** by default
+    /// instead of silently missing for everyone who already opened settings once.
+    ///
+    /// The owl is not in here and cannot be: it is the app.
+    var hiddenObjects: Set<RoomObjectID> {
+        get {
+            let raw = defaults.array(forKey: Key.hiddenObjects) as? [String] ?? []
+            return Set(raw.compactMap(RoomObjectID.init(rawValue:)).filter { $0 != .owl })
+        }
+        set {
+            objectWillChange.send()
+            let cleaned = newValue.filter { $0 != .owl }
+            defaults.set(cleaned.map(\.rawValue).sorted(), forKey: Key.hiddenObjects)
+        }
+    }
+
+    func isVisible(_ id: RoomObjectID) -> Bool {
+        id == .owl || !hiddenObjects.contains(id)
+    }
+
+    func setVisible(_ id: RoomObjectID, _ visible: Bool) {
+        guard id != .owl else { return }
+        var hidden = hiddenObjects
+        if visible { hidden.remove(id) } else { hidden.insert(id) }
+        hiddenObjects = hidden
+    }
+
+    // MARK: What is on the lamp
 
     /// Which prayer and rhyme sets are on the lamp.
     ///
@@ -32,6 +72,7 @@ final class ParentSettings {
             return Set(ids)
         }
         set {
+            objectWillChange.send()
             guard let newValue else {
                 defaults.removeObject(forKey: Key.enabledSpokenSets)
                 return
@@ -46,5 +87,55 @@ final class ParentSettings {
     func spokenSets(from pack: ContentPack) -> [SpokenSet] {
         guard let enabled = enabledSpokenSetIDs else { return pack.spokenSets }
         return pack.spokenSets.filter { enabled.contains($0.id) }
+    }
+
+    func isEnabled(_ set: SpokenSet) -> Bool {
+        enabledSpokenSetIDs?.contains(set.id) ?? true
+    }
+
+    /// Turning one on or off for the first time has to write out the whole current
+    /// selection, because "nil" means everything and there is no way back to it.
+    func setEnabled(_ set: SpokenSet, _ enabled: Bool, in pack: ContentPack) {
+        var ids = enabledSpokenSetIDs ?? Set(pack.spokenSets.map(\.id))
+        if enabled { ids.insert(set.id) } else { ids.remove(set.id) }
+        enabledSpokenSetIDs = ids
+    }
+
+    // MARK: Captions and volume
+
+    /// Captions are the only text a child ever sees, and they are optional.
+    var captionsEnabled: Bool {
+        get { defaults.object(forKey: Key.captions) as? Bool ?? true }
+        set {
+            objectWillChange.send()
+            defaults.set(newValue, forKey: Key.captions)
+        }
+    }
+
+    /// 0...1. The owl's voice only — the sound effects have their own soft level and sit
+    /// well under it either way.
+    var voiceVolume: Double {
+        get {
+            guard let stored = defaults.object(forKey: Key.voiceVolume) as? Double else { return 1 }
+            return min(max(stored, 0), 1)
+        }
+        set {
+            objectWillChange.send()
+            defaults.set(min(max(newValue, 0), 1), forKey: Key.voiceVolume)
+        }
+    }
+
+    // MARK: Reset
+
+    /// Puts every setting back to its default.
+    ///
+    /// Note what this does **not** do, because it is the whole point: there is no child
+    /// data to clear. Nothing was ever kept about what the child said, asked, answered or
+    /// played, so a reset has nothing to erase but these four keys.
+    func resetToDefaults() {
+        objectWillChange.send()
+        for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions, Key.voiceVolume] {
+            defaults.removeObject(forKey: key)
+        }
     }
 }

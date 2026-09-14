@@ -30,6 +30,13 @@ final class OwlVoice: NSObject {
 
     private(set) var isSpeaking = false
 
+    /// 0...1, from parent settings. Applied to both paths — the recorded one through the
+    /// player, the synthesised one through the utterance — so the owl sounds the same
+    /// either way at any setting.
+    var volume: Double = 1 {
+        didSet { player.volume = Float(min(max(volume, 0), 1)) }
+    }
+
     /// True when the last line spoken had no recording. Parent settings will use this
     /// to tell a family why the owl sounds like a robot.
     private(set) var isUsingSynthesiser = false
@@ -81,6 +88,7 @@ final class OwlVoice: NSObject {
         // three-year-old, not a navigation system.
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.88
         utterance.pitchMultiplier = 1.15
+        utterance.volume = Float(min(max(volume, 0), 1))
         utterance.postUtteranceDelay = 0.1
         synthesiser.speak(utterance)
     }

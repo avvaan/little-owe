@@ -36,6 +36,12 @@ final class StoryMode: RoomMode {
     /// asks for "tap the book", and a book the child cannot see is not an offer.
     var onOfferAgain: ((Bool) -> Void)?
 
+    /// Captions are the only text a child ever sees, and a parent can turn them off.
+    /// Kept here as well as on the page, because the page is built when a story starts.
+    var captionsEnabled = true {
+        didSet { pageNode?.showsCaptions = captionsEnabled }
+    }
+
     // MARK: Tuning
 
     /// A beat between the last word of a page and the first of the next, so a page is a
@@ -201,6 +207,7 @@ final class StoryMode: RoomMode {
         if pageNode == nil {
             let node = StoryPageNode(panelSize: Z.panelSize, captionWidth: Z.captionWidth,
                                      language: pack.language)
+            node.showsCaptions = captionsEnabled
             node.position = CGPoint(x: Z.panelCentre.x, y: Z.panelCentre.y)
             node.zPosition = Z.overlay
             node.alpha = 0
