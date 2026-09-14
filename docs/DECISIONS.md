@@ -595,6 +595,32 @@ Four more things hold it up:
 The key lives in the keychain rather than `UserDefaults`, for the ordinary reason and
 for one specific to this app: the privacy manifest declares four `UserDefaults` keys
 under CA92.1, and a secret is not one of the four things that declaration describes.
+One key per service, so switching between them does not mean typing the other one back
+in from an iPad keyboard.
+
+**Two services, and the parent picks.** Claude or DeepSeek, chosen on the settings
+screen. `OwlBrain` was a protocol for exactly this, so the second one cost one branch in
+three places — the URL, how the key is presented, and whether the system prompt is a
+field or a message — and changed nothing about the prompt, the guard, or the mode.
+
+They are not interchangeable, and the screen says so rather than pretending. The guard
+checks the *shape* of an answer, never its subject; what keeps the subject right for a
+five-year-old is entirely how closely a model follows "do not answer that one at all",
+and models differ at that. The other difference a parent is entitled to know without
+reading the source is where the question goes — Anthropic in the United States, DeepSeek
+in China — so `BrainProvider` carries that sentence and the screen prints it.
+
+Reading the reply moved out of the networking into `BrainReply`, which is compiled and
+tested in every build including the ones with no networking in them. That is where this
+breaks quietly: a socket either opens or times out, but a document whose shape somebody
+else decides just starts returning nil. Both shapes have fixtures, including each
+service's error body and each other's reply, because the one thing that must never
+happen is an error message being read aloud to a child.
+
+The brain is built per unanswered question rather than once when the room loads. Once
+was wrong in the first way anybody would meet it: a parent opens settings, types a key,
+closes settings, and the owl carries on saying it does not know until the app is
+restarted. It is a keychain read, and the `URLSession` is shared.
 
 CI builds the flagged path as well as the default one. Code that is never compiled stops
 compiling, and the whole point of this arrangement is that the personal build is a real

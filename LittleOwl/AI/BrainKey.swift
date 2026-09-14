@@ -13,12 +13,16 @@ import Security
 /// follow them to another iPad through a backup. If they restore, they type it again.
 enum BrainKey {
 
-    private static let account = "com.syrkin.littleowl.brain"
+    /// One key per provider, so switching between them does not mean typing the other
+    /// one in again from an iPad keyboard.
+    private static func account(_ provider: BrainProvider) -> String {
+        "com.syrkin.littleowl.brain.\(provider.rawValue)"
+    }
 
-    static var current: String? {
+    static func current(for provider: BrainProvider) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
+            kSecAttrAccount as String: account(provider),
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -34,12 +38,12 @@ enum BrainKey {
     /// Stores a key, or clears it when handed nothing. Returns whether it worked, so the
     /// settings screen can say something truthful rather than pretending.
     @discardableResult
-    static func set(_ key: String?) -> Bool {
+    static func set(_ key: String?, for provider: BrainProvider) -> Bool {
         let trimmed = key?.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account
+            kSecAttrAccount as String: account(provider)
         ]
         SecItemDelete(query as CFDictionary)
 
@@ -51,6 +55,11 @@ enum BrainKey {
         return SecItemAdd(insert as CFDictionary, nil) == errSecSuccess
     }
 
-    static var isSet: Bool { current != nil }
+    static func isSet(for provider: BrainProvider) -> Bool { current(for: provider) != nil }
+
+    /// Used by the reset button, which means every one of them.
+    static func removeAll() {
+        for provider in BrainProvider.allCases { set(nil, for: provider) }
+    }
 }
 #endif

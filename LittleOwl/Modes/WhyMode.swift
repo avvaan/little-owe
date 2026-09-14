@@ -77,11 +77,6 @@ final class WhyMode: RoomMode {
     private let turn: ListeningTurn
     private let choices: SpokenChoices
 
-    /// Nil in any build without `LITTLE_OWL_AI`, and nil in one that has it until a
-    /// parent has both turned it on and entered a key. Nothing downstream of here knows
-    /// which of those it is.
-    private let brain: OwlBrain?
-
     /// Guards against a slow answer arriving after the child has walked away, or after
     /// they asked something else. Bumped on every question; an answer whose stamp does
     /// not match is dropped.
@@ -113,7 +108,6 @@ final class WhyMode: RoomMode {
         self.matcher = QuestionMatcher(pack.questions)
         self.turn = ListeningTurn(recognitionLocale: pack.recognitionLocale)
         self.choices = SpokenChoices(scene: scene, voice: voice, language: pack.language)
-        self.brain = Self.makeBrain()
 
         halo = ListeningHalo.make()
 
@@ -282,7 +276,7 @@ final class WhyMode: RoomMode {
     /// a brain and a parent who switched it on, the owl thinks about it first — and if
     /// thinking gets it nowhere, says exactly the same thing.
     private func handleMiss(_ heard: String) {
-        guard let brain, ParentSettings.shared.brainEnabled else {
+        guard ParentSettings.shared.brainEnabled, let brain = Self.makeBrain() else {
             sayUnknown()
             return
         }
@@ -311,12 +305,19 @@ final class WhyMode: RoomMode {
         }
     }
 
-    /// Built once, here, so that everything above this line is the same code in every
-    /// build and the difference is a single function that returns nil.
+    /// Built per unanswered question rather than once when the room loads.
+    ///
+    /// Building it once was wrong in the first way anybody would meet it: a parent opens
+    /// settings, types a key, closes settings, and the owl carries on saying it does not
+    /// know until the app is restarted. It is a keychain read.
+    ///
+    /// Nil in any build without `LITTLE_OWL_AI`, and nil in one that has it until a
+    /// parent has entered a key. Nothing at the call site knows which of those it is.
     private static func makeBrain() -> OwlBrain? {
         #if LITTLE_OWL_AI
-        guard let key = BrainKey.current else { return nil }
-        return AnthropicOwlBrain(key: key)
+        let provider = ParentSettings.shared.brainProvider
+        guard let key = BrainKey.current(for: provider) else { return nil }
+        return NetworkOwlBrain(provider: provider, key: key)
         #else
         return nil
         #endif

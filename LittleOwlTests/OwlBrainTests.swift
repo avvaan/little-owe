@@ -116,6 +116,101 @@ final class OwlBrainTests: XCTestCase {
                       "the prompt no longer asks for the sentence the guard watches for")
     }
 
+    // MARK: Reading the reply
+
+    // Two services, two document shapes, and the parsing is where this breaks quietly:
+    // a socket either opens or times out, but a reply whose shape changed just returns
+    // nil forever. So both live outside the networking and are tested in every build,
+    // including the ones compiled with no networking at all.
+
+    func testAnAnthropicReply() {
+        let json = """
+            {"id":"msg_1","type":"message","role":"assistant",
+             "content":[{"type":"text","text":"Because the light bounces about."}]}
+            """
+        XCTAssertEqual(BrainReply.fromAnthropic(Data(json.utf8)),
+                       "Because the light bounces about.")
+    }
+
+    func testAnthropicSkipsBlocksThatAreNotText() {
+        let json = """
+            {"content":[{"type":"thinking","thinking":"hmm"},
+                        {"type":"text","text":"Because it bounces."}]}
+            """
+        XCTAssertEqual(BrainReply.fromAnthropic(Data(json.utf8)), "Because it bounces.")
+    }
+
+    func testADeepSeekReply() {
+        let json = """
+            {"id":"x","object":"chat.completion","model":"deepseek-v4-pro",
+             "choices":[{"index":0,"message":{"role":"assistant",
+                         "content":"Because the light bounces about."},
+                         "finish_reason":"stop"}]}
+            """
+        XCTAssertEqual(BrainReply.fromDeepSeek(Data(json.utf8)),
+                       "Because the light bounces about.")
+    }
+
+    func testDeepSeekReasoningIsNotReadToTheChild() {
+        // A reasoning model puts its working in reasoning_content. The owl says the
+        // answer; it does not think out loud at a five-year-old.
+        let json = """
+            {"choices":[{"message":{"role":"assistant",
+                         "reasoning_content":"The user is five. I should be simple.",
+                         "content":"Because the light bounces about."}}]}
+            """
+        XCTAssertEqual(BrainReply.fromDeepSeek(Data(json.utf8)),
+                       "Because the light bounces about.")
+    }
+
+    func testAnErrorBodyIsNotAnAnswer() {
+        // What either service sends on a bad key. Nothing here may reach a child.
+        let anthropic = #"{"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}}"#
+        let deepseek = #"{"error":{"message":"Authentication Fails","type":"authentication_error"}}"#
+
+        XCTAssertNil(BrainReply.fromAnthropic(Data(anthropic.utf8)))
+        XCTAssertNil(BrainReply.fromDeepSeek(Data(deepseek.utf8)))
+        // And neither parser accepts the other's document.
+        XCTAssertNil(BrainReply.fromAnthropic(Data(#"{"choices":[{"message":{"content":"hi there friend"}}]}"#.utf8)))
+        XCTAssertNil(BrainReply.fromDeepSeek(Data(#"{"content":[{"type":"text","text":"hi there friend"}]}"#.utf8)))
+    }
+
+    func testRubbishIsNotAnAnswer() {
+        for junk in ["", "not json at all", "[]", "{}", "null"] {
+            XCTAssertNil(BrainReply.fromAnthropic(Data(junk.utf8)), junk)
+            XCTAssertNil(BrainReply.fromDeepSeek(Data(junk.utf8)), junk)
+        }
+    }
+
+    func testEveryProviderIsRoutedSomewhere() {
+        // A provider added without a branch in `text(_:from:)` would silently never
+        // answer, which looks exactly like a network problem.
+        let bodies: [BrainProvider: String] = [
+            .anthropic: #"{"content":[{"type":"text","text":"Because it bounces."}]}"#,
+            .deepseek: #"{"choices":[{"message":{"content":"Because it bounces."}}]}"#
+        ]
+        for provider in BrainProvider.allCases {
+            guard let body = bodies[provider] else {
+                XCTFail("no fixture for \(provider.name)")
+                continue
+            }
+            XCTAssertEqual(BrainReply.text(Data(body.utf8), from: provider),
+                           "Because it bounces.", provider.name)
+        }
+    }
+
+    // MARK: Which service
+
+    func testEveryProviderSaysWhereTheQuestionGoes() {
+        // A parent choosing this for their own child is entitled to know it from the
+        // screen rather than from the source.
+        for provider in BrainProvider.allCases {
+            XCTAssertFalse(provider.name.isEmpty)
+            XCTAssertFalse(provider.destination.isEmpty, "\(provider.name) does not say where it sends the question")
+            XCTAssertTrue(provider.keyPrompt.lowercased().contains("key"))
+        }
+    }
+
     // MARK: The prompt itself
 
     func testThePromptSaysWhoItIsTalkingTo() {

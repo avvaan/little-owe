@@ -31,6 +31,7 @@ final class ParentSettings: ObservableObject {
         static let captions = "parent.captions"
         static let voiceVolume = "parent.voiceVolume"
         static let brain = "parent.brain"
+        static let brainProvider = "parent.brainProvider"
     }
 
     // MARK: What is in the room
@@ -145,6 +146,20 @@ final class ParentSettings: ObservableObject {
         }
     }
 
+    /// Which service the owl asks. Claude unless a parent chose otherwise; an
+    /// unrecognised stored value falls back to it rather than breaking the screen.
+    var brainProvider: BrainProvider {
+        get {
+            guard let raw = defaults.string(forKey: Key.brainProvider),
+                  let provider = BrainProvider(rawValue: raw) else { return .anthropic }
+            return provider
+        }
+        set {
+            objectWillChange.send()
+            defaults.set(newValue.rawValue, forKey: Key.brainProvider)
+        }
+    }
+
     // MARK: Reset
 
     /// Puts every setting back to its default.
@@ -156,13 +171,14 @@ final class ParentSettings: ObservableObject {
     func resetToDefaults() {
         objectWillChange.send()
         for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions,
-                    Key.voiceVolume, Key.brain] {
+                    Key.voiceVolume, Key.brain, Key.brainProvider] {
             defaults.removeObject(forKey: key)
         }
         #if LITTLE_OWL_AI
         // The one stored thing that is not a preference. A parent resetting the app has
-        // asked for their key to be gone, not for it to be quietly kept.
-        BrainKey.set(nil)
+        // asked for their keys to be gone, not for them to be quietly kept - and that
+        // means every provider's, not just the one currently selected.
+        BrainKey.removeAll()
         #endif
     }
 }

@@ -121,9 +121,14 @@ audience. The workflow prints a warning into the log when you ask for one, and A
 Connect will not tell the two apart, so this is on you rather than on a check.
 
 On the iPad itself the feature is still off after installing: open the grown-up settings
-(hold the top-left corner three seconds, answer the sum), paste an Anthropic API key,
-then turn the switch on. The key goes to the keychain, not to `UserDefaults`, and
-**Reset** on that screen deletes it.
+(hold the top-left corner three seconds, answer the sum), choose **Claude** or
+**DeepSeek**, paste that service's API key, then turn the switch on. Each service keeps
+its own key, both go to the keychain rather than `UserDefaults`, and **Reset** on that
+screen deletes all of them.
+
+The key is typed on the iPad on purpose and is not a build secret. A key compiled into
+an app is extractable by anyone holding the app, and it would also sit in the archive,
+in the workflow artifact, and in TestFlight. Typing it once is the cheaper trade.
 
 ---
 

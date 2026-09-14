@@ -29,6 +29,45 @@ protocol OwlBrain: AnyObject {
     func answer(to question: String) async -> String?
 }
 
+/// Who the owl asks.
+///
+/// Always compiled, even in a build with no networking, so the settings screen and the
+/// stored preference are the same code everywhere and only the asking is conditional.
+///
+/// The choice is the parent's rather than the architecture's. They are not equivalent:
+/// the whole of what keeps this safe for a five-year-old is how well a model follows
+/// "do not answer that one at all", and models differ at it. So the screen says where
+/// each one sends the question, and the parent decides.
+enum BrainProvider: String, CaseIterable, Identifiable {
+    case anthropic
+    case deepseek
+
+    var id: String { rawValue }
+
+    var name: String {
+        switch self {
+        case .anthropic: return "Claude"
+        case .deepseek:  return "DeepSeek"
+        }
+    }
+
+    /// Where the question goes. Said plainly, because a parent choosing this for their
+    /// own child is entitled to know it without reading the source.
+    var destination: String {
+        switch self {
+        case .anthropic: return "Anthropic, in the United States"
+        case .deepseek:  return "DeepSeek, in China"
+        }
+    }
+
+    var keyPrompt: String {
+        switch self {
+        case .anthropic: return "Anthropic API key"
+        case .deepseek:  return "DeepSeek API key"
+        }
+    }
+}
+
 /// What the owl is told it is.
 ///
 /// Kept here rather than next to the networking so it is readable in a build that has
