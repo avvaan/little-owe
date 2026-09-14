@@ -25,12 +25,18 @@ def load(language, name):
 
 # One voice for every picture in the app, so a story page and a game card look like they
 # came from the same hand. Worth keeping in one string rather than pasted per call.
-STYLE = ("Children's storybook watercolour illustration. Soft loose watercolour washes "
+_LOOK = ("Children's storybook watercolour illustration. Soft loose watercolour washes "
          "with visible paper grain and hand-painted brush texture, gentle warm palette, "
          "naive storybook charm, soft rounded shapes. No ink outline, no digital "
          "smoothing, no 3D render, no photorealism, no text, no lettering, no numbers, "
-         "no watermark, no border or frame. Calm and tender mood for a picture book for "
-         "a three-year-old, nothing frightening.")
+         "no watermark, no border or frame.")
+
+STYLE = _LOOK + (" Calm and tender mood for a picture book for a three-year-old, "
+                 "nothing frightening.")
+
+# A patch of purple paint cannot frighten anybody, and asking for it not to only spends
+# words the model then has to ignore. Colours and counting cards get the plain version.
+STYLE_ABSTRACT = _LOOK + " Calm mood for a picture book for a three-year-old."
 
 # The hero has to be recognisably the same animal across ten pages, so the description
 # is fixed here rather than left to the sentence, which mentions the hero by name and
@@ -160,12 +166,21 @@ def word_subject(word):
     return f"{article} {word}"
 
 
+def word_style(word):
+    """Which of the two moods this card is painted in.
+
+    Colours and counts are abstract whatever IRREGULAR does to their wording - "white"
+    is still a patch of paint and "one" is still an acorn you can count.
+    """
+    return STYLE_ABSTRACT if word in COLOURS or word in NUMBERS else STYLE
+
+
 def game_prompts(language):
     """(target, prompt) for every distinct answer word across the word games."""
     words = sorted({c for game in load(language, "word-games.json")["games"]
                     for c in game.get("choices", [])})
     return [(f"content/{language}/illustrations/choice_{w}.jpg",
-             f"{STYLE} {CARD} The subject: {word_subject(w)}.")
+             f"{word_style(w)} {CARD} The subject: {word_subject(w)}.")
             for w in words]
 
 
