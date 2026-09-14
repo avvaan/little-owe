@@ -88,6 +88,12 @@ def compose(time="night", owl=True):
     for letter, centre in zip("abc", L["blockCentres"]):
         paste(canvas, f"block_{letter}.png", (centre["x"], centre["y"]), L["blockHeight"])
 
+    # The basket is the one prop that is not in room_bg.jpg, so it is the one the preview
+    # would silently leave out. `paste` says so and carries on if its painting is absent,
+    # which is the same thing the app does.
+    paste(canvas, "corner_basket.png",
+          (L["basketCentre"]["x"], L["basketCentre"]["y"]), L["basketSize"]["height"])
+
     if owl:
         owl_h = L["owlHeight"]
         paste(canvas, "owl_base.png", (L["owlHome"]["x"], L["owlHome"]["y"] + owl_h / 2), owl_h)
@@ -109,6 +115,7 @@ def draw_grid(canvas):
         ("lamp", L["lampCentre"], L["lampSize"]),
         ("blocks", L["blocksTapCentre"], L["blocksTapSize"]),
         ("window", L["windowCentre"], L["windowTapSize"]),
+        ("basket", L["basketCentre"], L["basketSize"]),
         ("owl", {"x": L["owlHome"]["x"], "y": L["owlHome"]["y"] + L["owlHeight"] / 2},
          {"width": 260, "height": L["owlHeight"] + 40}),
     ]

@@ -97,12 +97,14 @@ final class WonderMode: RoomMode {
         caption.zPosition = ModeLayer.overlay
 
         choices.onPick = { [weak self] index in self?.cardTapped(index) }
-        // Naming the cards is the owl talking; once it stops, the cards are simply
-        // waiting and so is the owl.
-        choices.onNamed = { [weak self] in self?.owl.transition(to: .thinking) }
+        // Naming the cards is the owl talking; once it stops it is waiting on the child.
+        // `.listening` is ear tufts up and leaning in, which is what waiting looks like —
+        // the microphone is not open here and never is. Word games do the same after
+        // their cards, and `.thinking` would shut the owl's eyes while a child chooses.
+        choices.onNamed = { [weak self] in self?.owl.transition(to: .listening) }
     }
 
-    var canBegin: Bool { pack.questions.count >= 1 }
+    var canBegin: Bool { !pack.questions.isEmpty }
 
     // MARK: Starting and stopping
 
