@@ -45,17 +45,49 @@ HEROES = {
 }
 
 
+# The season and the place, fixed per story and stated as firmly as the hero.
+#
+# This is not decoration. The first cut left the setting to each page's own sentence,
+# and a story that opens on a frosty morning in the snow reached page five - "she asked
+# the rabbits under the hedge" - in high summer, green grass and all, because that
+# sentence says nothing about winter. A child notices the snow going away.
+SETTINGS = {
+    "fox-lost-mitten":
+        "Deep winter throughout: snow on the ground in every scene, bare birches and "
+        "snow-laden firs, a pale cold sky, breath-cold air. No green grass, no leaves, "
+        "no summer anywhere in this story",
+    "bunny-tallest-grass":
+        "High summer throughout: a wide green meadow of tall grasses and wildflowers, "
+        "warm sunlight, soft blue sky with a few clouds. No snow, no autumn anywhere in "
+        "this story",
+    "bear-slow-honey":
+        "Late summer throughout: a warm sunlit woodland of oaks and birches, dappled "
+        "green shade, bees and long golden light. No snow, no winter anywhere in this "
+        "story",
+    "mouse-night-light":
+        "Night throughout, mostly inside an old cottage: a dim warm kitchen and the "
+        "dusty space behind its wall, lit by moonlight through a window and a single "
+        "small warm glow. Quiet and cosy, never dark enough to frighten. No daylight "
+        "anywhere in this story",
+    "hedgehog-first-hello":
+        "Autumn throughout: an old English garden with a long hedge, heaps of dry brown "
+        "and gold leaves, soft low sunlight, bare seed-heads. No snow, no summer green "
+        "anywhere in this story",
+}
+
+
 def story_prompts(language):
     """(target, prompt) for every story page."""
     out = []
     for story in load(language, "stories.json")["stories"]:
         hero = HEROES.get(story["heroId"], "a small friendly woodland animal")
+        setting = SETTINGS.get(story["id"], "")
         for page in story["pages"]:
             stem = os.path.splitext(page["illustration"])[0]
             prompt = (
                 f"{STYLE} The recurring character is {hero} — the same animal on every "
-                f"page of this story. Wide landscape composition with generous empty "
-                f"space. The scene to paint: {page['text']}"
+                f"page of this story. Setting: {setting}. Wide landscape composition "
+                f"with generous empty space. The scene to paint: {page['text']}"
             )
             out.append((f"content/{language}/illustrations/{stem}.jpg", prompt))
     return out
