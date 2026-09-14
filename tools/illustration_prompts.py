@@ -120,6 +120,13 @@ CARD = ("A single subject alone, centred, filling most of the square with a clea
         "margin, painted on a plain soft cream background with no scene, no shadow and "
         "no other objects.")
 
+# Two of the questions are about shadows, and "no shadow" is the one line of the card
+# rule that cannot survive them. Asking for a picture of a shadow with no shadow in it
+# is how you get a card of nothing.
+CARD_WITH_SHADOW = ("A single subject alone, centred, filling most of the square with a "
+                    "clear even margin, painted on a plain soft cream background with no "
+                    "scene and no other objects.")
+
 
 # Words the rules above get wrong. Small enough to write out, and writing them out is
 # cheaper than a picture of "a sand".
@@ -188,7 +195,8 @@ def question_prompts(language):
     """(target, prompt) for the cards the owl offers when a child does not speak."""
     out = []
     for question in load(language, "questions.json")["questions"]:
-        prompt = (f"{STYLE} {CARD} It illustrates this question for a child who cannot "
+        card = CARD_WITH_SHADOW if "shadow" in question["text"].lower() else CARD
+        prompt = (f"{STYLE} {card} It illustrates this question for a child who cannot "
                   f"read it, so paint what the question is *about* rather than the "
                   f"answer: {question['text']}")
         out.append((f"content/{language}/illustrations/question_{question['id']}.jpg", prompt))
