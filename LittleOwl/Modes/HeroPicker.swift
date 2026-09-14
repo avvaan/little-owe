@@ -50,7 +50,7 @@ final class HeroPicker: SKNode {
     /// `point` is in the parent's coordinate space.
     func handleTap(at point: CGPoint) -> Bool {
         let local = CGPoint(x: point.x - position.x, y: point.y - position.y)
-        guard let card = cards.first(where: { $0.hitArea.contains(local) }) else { return false }
+        guard let card = cards.first(where: { $0.contains(rowPoint: local) }) else { return false }
 
         SoundKit.shared.play(.tap)
         card.acknowledgeTap()
@@ -112,6 +112,13 @@ final class HeroCard: SKNode {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("Not supported") }
+
+    /// `point` is in the picker's space. `hitArea` is in the card's own, so the card's
+    /// position has to come off first — without that only a card sitting exactly on the
+    /// picker's origin is reachable, which is one card out of five.
+    func contains(rowPoint point: CGPoint) -> Bool {
+        hitArea.contains(CGPoint(x: point.x - position.x, y: point.y - position.y))
+    }
 
     func acknowledgeTap() {
         content.removeAllActions()

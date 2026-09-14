@@ -9,7 +9,7 @@ import SpriteKit
 ///
 /// Tapping the owl leaves, at any point. Nothing else times out: a child who wanders
 /// off mid-story comes back to the same page, waiting.
-final class StoryMode {
+final class StoryMode: RoomMode {
 
     enum Phase {
         case idle
@@ -24,6 +24,9 @@ final class StoryMode {
 
     /// True while tapping the book means "again" rather than "start".
     var canReplay: Bool { phase == .finished }
+
+    /// The book is the way to hear the story again, once it is over.
+    var againProp: RoomObjectID? { canReplay ? .book : nil }
 
     /// Fires when the child has left the story and the room is theirs again.
     var onLeave: (() -> Void)?
@@ -138,7 +141,7 @@ final class StoryMode {
     }
 
     /// The book was tapped while a story was on screen.
-    func bookTapped() {
+    func againTapped() {
         switch phase {
         case .finished:
             guard let story else { return }
@@ -154,7 +157,10 @@ final class StoryMode {
         phase = .choosingHero
 
         let picker = HeroPicker(heroes: pack.heroes, language: pack.language)
-        picker.position = CGPoint(x: RoomLayout.designSize.width / 2, y: 470)
+        // In the band below the owl's feet. The owl stays on its perch while the cards
+        // are up, and at 470 the middle card sat squarely on its chest.
+        picker.position = CGPoint(x: RoomLayout.designSize.width / 2,
+                                  y: RoomLayout.owlHome.y - 20 - HeroPicker.cardSize.height / 2)
         picker.zPosition = Z.overlay
         picker.onPick = { [weak self] hero in self?.pick(hero) }
         scene.addChild(picker)
@@ -278,9 +284,9 @@ final class StoryMode {
     }
 
     private enum Z {
-        static let dim: CGFloat = 200
-        static let owl: CGFloat = 210
-        static let overlay: CGFloat = 220
+        static let dim = ModeLayer.dim
+        static let owl = ModeLayer.owl
+        static let overlay = ModeLayer.overlay
 
         /// Right of the owl, which reads from the left.
         static let panelCentre = CGPoint(x: 800, y: 620)

@@ -161,6 +161,12 @@ struct SpokenSet: Decodable, Equatable {
     let kind: Kind
     /// Shown in parent settings only.
     let title: String
+    /// What the child taps to choose this set: a name from `SetSymbol`, drawn on the
+    /// card. It is the whole label — a three-year-old cannot read "Before meals", so the
+    /// bowl is not decoration.
+    let symbol: String
+    /// Six hex digits for the card behind the symbol.
+    let colour: String?
     /// True while the text is standing in for one the family will supply.
     let isPlaceholder: Bool
     let source: String?
@@ -183,13 +189,19 @@ struct SpokenSet: Decodable, Equatable {
         }
     }
 
-    enum CodingKeys: String, CodingKey { case id, kind, title, placeholder, source, lines, tags }
+    enum CodingKeys: String, CodingKey {
+        case id, kind, title, symbol, colour, placeholder, source, lines, tags
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(String.self, forKey: .id)
         kind = try c.decode(Kind.self, forKey: .kind)
         title = try c.decode(String.self, forKey: .title)
+        // A set with no symbol still gets a card rather than a blank one; a test keeps
+        // the shipped pack from relying on that.
+        symbol = try c.decodeIfPresent(String.self, forKey: .symbol) ?? "star"
+        colour = try c.decodeIfPresent(String.self, forKey: .colour)
         isPlaceholder = try c.decodeIfPresent(Bool.self, forKey: .placeholder) ?? false
         source = try c.decodeIfPresent(String.self, forKey: .source)
         tags = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
@@ -282,6 +294,11 @@ enum PhraseGroup: String, CaseIterable {
     case nudge
     case unknownQuestion
     case storyAgain
+    /// Said once at the top of a prayer or rhyme: the only explanation a child gets of
+    /// what the mode is, and it has to be spoken rather than written.
+    case repeatInvite
+    /// Offered when a set is finished and the lamp is glowing.
+    case setAgain
 }
 
 struct Phrase: Decodable, Equatable, Speakable {

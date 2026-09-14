@@ -1,12 +1,15 @@
 {
   "_comment": "Prayers and rhymes share one shape: an ordered list of lines the owl says and waits for the child to repeat. `kind` decides which parent-settings list a set appears in. A parent chooses which sets are loaded on the lamp.",
   "_placeholder": "Every prayer set below is marked placeholder:true. They are traditional texts standing in until the real ones are supplied; replacing them is editing this file, nothing more.",
+  "_symbol": "`symbol` is the shape drawn on the card a child taps to choose this set, and it is the whole label - no set title is ever shown to a child. Names come from SetSymbol: sun, moon, bowl, star, egg, note, boat. Two sets on the lamp at once must never share one.",
 
   "sets": [
     {
       "id": "prayer-morning",
       "kind": "prayer",
       "title": "Morning",
+      "symbol": "sun",
+      "colour": "F2C777",
       "placeholder": true,
       "source": "Traditional",
       "tags": ["morning"],
@@ -21,6 +24,8 @@
       "id": "prayer-evening",
       "kind": "prayer",
       "title": "Evening",
+      "symbol": "moon",
+      "colour": "5A6FA8",
       "placeholder": true,
       "source": "Traditional",
       "tags": ["evening", "bedtime"],
@@ -35,6 +40,8 @@
       "id": "prayer-meal",
       "kind": "prayer",
       "title": "Before meals",
+      "symbol": "bowl",
+      "colour": "8FB37A",
       "placeholder": true,
       "source": "Traditional",
       "tags": ["meal"],
@@ -49,6 +56,8 @@
       "id": "rhyme-twinkle",
       "kind": "rhyme",
       "title": "Twinkle, Twinkle, Little Star",
+      "symbol": "star",
+      "colour": "6E7FC4",
       "source": "Jane Taylor, 1806 — public domain",
       "tags": ["bedtime", "star"],
       "lines": [
@@ -62,6 +71,8 @@
       "id": "rhyme-humpty",
       "kind": "rhyme",
       "title": "Humpty Dumpty",
+      "symbol": "egg",
+      "colour": "D98C6A",
       "source": "Traditional — public domain",
       "tags": ["silly"],
       "lines": [
@@ -75,6 +86,8 @@
       "id": "rhyme-diddle",
       "kind": "rhyme",
       "title": "Hey Diddle Diddle",
+      "symbol": "note",
+      "colour": "B08BC4",
       "source": "Traditional — public domain",
       "tags": ["silly", "animals"],
       "lines": [
@@ -88,6 +101,8 @@
       "id": "rhyme-row",
       "kind": "rhyme",
       "title": "Row, Row, Row Your Boat",
+      "symbol": "boat",
+      "colour": "6FA9B5",
       "source": "Traditional — public domain",
       "tags": ["silly", "water"],
       "lines": [

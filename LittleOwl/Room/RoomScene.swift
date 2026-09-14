@@ -27,6 +27,18 @@ final class RoomScene: SKScene {
     private var pack: ContentPack?
     private var voice: OwlVoice?
     private var story: StoryMode?
+    private var spokenSets: SpokenSetMode?
+
+    /// Every mode that dims the room behind it. The scene routes taps through whichever
+    /// one is running rather than knowing what each of them is.
+    private var roomModes: [any RoomMode] {
+        // Written out rather than `[story, spokenSets].compactMap`, which infers `[Any]`
+        // from two differently-typed optionals.
+        var modes: [any RoomMode] = []
+        if let story { modes.append(story) }
+        if let spokenSets { modes.append(spokenSets) }
+        return modes
+    }
 
     /// Most specific target first: with padded tap targets the boxes overlap, and a
     /// smaller box always means a more deliberate aim.
@@ -54,7 +66,7 @@ final class RoomScene: SKScene {
         AudioSession.shared.configure()
         AudioSession.shared.onAudioLost = { [weak self] in
             self?.echo.cancel()
-            self?.story?.leave()
+            self?.roomModes.forEach { $0.leave() }
         }
         echo.onMicrophoneUnavailable = { [weak self] in self?.isMicrophoneUnavailable = true }
         SoundKit.shared.preload()
@@ -102,12 +114,17 @@ final class RoomScene: SKScene {
             let pack = try ContentLoader.load()
             let voice = OwlVoice(pack: pack)
             let story = StoryMode(scene: self, owl: owl, pack: pack, voice: voice)
-            story.onOfferAgain = { [weak self] offering in self?.offerAnotherStory(offering) }
+            story.onOfferAgain = { [weak self] offering in self?.offer(.book, offering) }
             story.onLeave = { [weak self] in self?.activeMode = nil }
+
+            let spokenSets = SpokenSetMode(scene: self, owl: owl, pack: pack, voice: voice)
+            spokenSets.onOfferAgain = { [weak self] offering in self?.offer(.lamp, offering) }
+            spokenSets.onLeave = { [weak self] in self?.activeMode = nil }
 
             self.pack = pack
             self.voice = voice
             self.story = story
+            self.spokenSets = spokenSets
         } catch {
             // Nothing to show a child, and nothing a child could do about it. The room
             // stays playable and Echo still works.
@@ -115,25 +132,12 @@ final class RoomScene: SKScene {
         }
     }
 
-    /// Lifts the book above the story's dimming and lets it glow, so "tap the book to
-    /// hear it again" is an offer the child can actually see.
-    private func offerAnotherStory(_ offering: Bool) {
-        guard let book = props.first(where: { $0.id == .book }) else { return }
-        book.zPosition = offering ? StoryZ.bookOffer : RoomLayout.Z.props
-        book.removeAction(forKey: "offer")
-        if offering {
-            book.run(.repeatForever(.sequence([
-                .fadeAlpha(to: 0.72, duration: 0.8),
-                .fadeAlpha(to: 1.0, duration: 0.8)
-            ])), withKey: "offer")
-        } else {
-            book.alpha = 1
-        }
-    }
-
-    private enum StoryZ {
-        /// Above the story's dimming layer, which sits at 200.
-        static let bookOffer: CGFloat = 215
+    /// Lifts a prop above a mode's dimming and lets it glow, so "tap the book to hear it
+    /// again" — or the lamp — is an offer the child can actually see.
+    private func offer(_ id: RoomObjectID, _ offering: Bool) {
+        guard let prop = props.first(where: { $0.id == id }) else { return }
+        prop.zPosition = offering ? ModeLayer.offer : RoomLayout.Z.props
+        prop.setOffering(offering)
     }
 
     // MARK: Touches
@@ -142,22 +146,22 @@ final class RoomScene: SKScene {
         guard let touch = touches.first else { return }
         let point = touch.location(in: self)
 
-        // While a story is on screen the room is behind a dimming layer. Only the owl
-        // and — once the story is over — the book are reachable; everything else would
-        // be a tap on something the child cannot see.
-        if let story, story.isRunning {
-            if story.handleTap(at: point) { return }
+        // While a mode is on screen the room is behind a dimming layer. Only the owl and
+        // — when the mode is offering one — the prop that means "again" are reachable;
+        // anything else would be a tap on something the child cannot see.
+        if let mode = roomModes.first(where: { $0.isRunning }) {
+            if mode.handleTap(at: point) { return }
 
             if owl.containsPoint(inParent: point) {
                 owl.acknowledgeTap()
-                story.leave()
+                mode.leave()
                 return
             }
-            if story.canReplay,
-               let book = props.first(where: { $0.id == .book }),
-               book.containsPoint(inParent: point) {
-                book.acknowledgeTap()
-                story.bookTapped()
+            if let id = mode.againProp,
+               let prop = props.first(where: { $0.id == id }),
+               prop.containsPoint(inParent: point) {
+                prop.acknowledgeTap()
+                mode.againTapped()
                 return
             }
             return
@@ -196,6 +200,11 @@ final class RoomScene: SKScene {
             return
         }
 
+        if id == .lamp, let spokenSets, spokenSets.canBegin {
+            spokenSets.begin()
+            return
+        }
+
         if let onModeRequested {
             owl.travel(to: RoomLayout.approachPoint(for: id)) { onModeRequested(id) }
             return
@@ -211,8 +220,8 @@ final class RoomScene: SKScene {
     private func endActiveMode() {
         activeMode = nil
         echo.cancel()
-        if let story, story.isRunning {
-            story.leave()
+        if let mode = roomModes.first(where: { $0.isRunning }) {
+            mode.leave()
             return
         }
         owl.transition(to: .idle)
@@ -225,7 +234,7 @@ final class RoomScene: SKScene {
     /// the microphone has to let go, and the recording has to be released.
     func handleAppBackgrounded() {
         echo.cancel()
-        story?.leave()
+        roomModes.forEach { $0.leave() }
         SoundKit.shared.stopAllLoops()
     }
 

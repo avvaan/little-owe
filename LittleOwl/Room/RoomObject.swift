@@ -121,6 +121,36 @@ final class RoomObject: SKNode, Tappable {
         }
     }
 
+    /// A slow breathing glow over a prop the mode above is offering — "tap this to hear
+    /// it again".
+    ///
+    /// It has to be the glow that breathes, not the node. The book and the lamp are
+    /// painted into the room and have no artwork of their own, so a prop node at rest is
+    /// a hit area and a glow held at alpha 0: fading *that* between 0.72 and 1 changes
+    /// nothing a child can see.
+    func setOffering(_ offering: Bool) {
+        guard let glowNode else { return }
+        glowNode.removeAction(forKey: Key.offering)
+
+        guard offering else {
+            // A tap on the offered prop turns the offer off, so the tap's own glow may
+            // be mid-flight. It ends at zero by itself; stomping it would swallow the
+            // feedback for the very tap that got us here.
+            if glowNode.action(forKey: Key.feedback) == nil {
+                glowNode.setScale(1)
+                glowNode.run(.fadeAlpha(to: 0, duration: 0.3))
+            }
+            return
+        }
+
+        glowNode.setScale(1)
+        glowNode.alpha = 0
+        glowNode.run(.repeatForever(.sequence([
+            .group([.fadeAlpha(to: 0.5, duration: 0.9), .scale(to: 1.04, duration: 0.9)]),
+            .group([.fadeAlpha(to: 0.18, duration: 0.9), .scale(to: 1.0, duration: 0.9)])
+        ])), withKey: Key.offering)
+    }
+
     private func makeGlow(size: CGSize) -> SKSpriteNode {
         let glow = SKSpriteNode(texture: GradientTexture.radialGlow(Palette.tapGlow))
         glow.size = size
@@ -133,6 +163,7 @@ final class RoomObject: SKNode, Tappable {
 
     private enum Key {
         static let feedback = "prop.feedback"
+        static let offering = "prop.offering"
     }
 
     private static func expand(_ rect: CGRect, toAtLeast minimum: CGFloat) -> CGRect {
