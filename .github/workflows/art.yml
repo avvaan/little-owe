@@ -26,6 +26,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Pictures are scaled and re-encoded on the way in, so this one needs Pillow.
+      - name: Pillow
+        run: pip install --quiet --disable-pip-version-check Pillow
+
       - name: What is missing
         run: python3 tools/fetch_art.py --dry-run
 
