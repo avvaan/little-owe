@@ -40,6 +40,20 @@ enum RoomBuilder {
         return object
     }
 
+    /// The piece of wall that replaces the book when a parent takes it out.
+    ///
+    /// Cloned from the painting itself by `tools/export_art.py`, which searches for the
+    /// offset whose wall best continues the wall around the book — the planking here runs
+    /// diagonally, so a fixed sideways or upward offset would break the grain.
+    static func makeBookPatch() -> SKSpriteNode {
+        let patch = SKSpriteNode(imageNamed: "patch_book")
+        patch.size = RoomLayout.bookPatchSize
+        patch.position = RoomLayout.bookPatchCentre
+        patch.zPosition = RoomLayout.Z.patch
+        patch.isHidden = true
+        return patch
+    }
+
     static func makeLamp() -> RoomObject {
         let object = RoomObject(
             id: .lamp,

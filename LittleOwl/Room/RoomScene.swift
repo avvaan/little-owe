@@ -12,6 +12,8 @@ final class RoomScene: SKScene {
     private let owl = OwlNode()
     private var props: [RoomObject] = []
     private var windowNode: WindowNode!
+    /// Shown in the book's place when a parent takes the book out of the room.
+    private var bookPatch: SKSpriteNode!
     private var ambientWash: SKSpriteNode!
     private var debugOverlay: DebugOverlay?
 
@@ -111,6 +113,15 @@ final class RoomScene: SKScene {
             prop.isAvailable = visible
         }
 
+        // The book is painted into the wall, so taking it out of the room means putting
+        // a piece of wall over it. The blocks are their own sprites and simply go.
+        //
+        // The lamp and the window stay painted where they are: both are light sources and
+        // their glow is part of the picture, so they cannot be cloned over. Turning them
+        // off stops the mode and takes them out of hit-testing, and a tap there falls
+        // through to waking the owl rather than into nothing.
+        bookPatch.isHidden = settings.isVisible(.book)
+
         voice?.volume = settings.voiceVolume
 
         let captions = settings.captionsEnabled
@@ -143,6 +154,9 @@ final class RoomScene: SKScene {
 
         props = [RoomBuilder.makeBook(), RoomBuilder.makeLamp(), RoomBuilder.makeBlocks(), windowObject]
         props.forEach { addChild($0) }
+
+        bookPatch = RoomBuilder.makeBookPatch()
+        addChild(bookPatch)
 
         ambientWash = RoomBuilder.makeAmbientWash()
         addChild(ambientWash)

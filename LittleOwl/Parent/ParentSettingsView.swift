@@ -61,13 +61,32 @@ struct ParentSettingsView: View {
                         Text(object.modeDescription)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                        if !settings.isVisible(object), let note = staysInThePicture(object) {
+                            Text(note)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
         } header: {
             Text("In the room")
         } footer: {
-            Text("Turning one off takes it out of the room. The owl itself is always there — tapping it is how your child talks to it, and how they come back from anything.")
+            Text("Turning one off takes it out of the room and your child cannot open it any more. The owl itself is always there — tapping it is how your child talks to it, and how they come back from anything.")
+        }
+    }
+
+    /// The lamp and the window are painted into the room *and* light it, so they cannot
+    /// simply be lifted out of the picture the way the book can. Saying so here is better
+    /// than a parent turning one off and wondering why it is still on the wall.
+    private func staysInThePicture(_ object: RoomObjectID) -> String? {
+        switch object {
+        case .lamp:
+            return "Still painted on the table — it is what lights that corner of the room. It just doesn't do anything now."
+        case .window:
+            return "Still painted on the wall, and it stops following the time of day. It just doesn't do anything now."
+        case .book, .blocks, .owl:
+            return nil
         }
     }
 

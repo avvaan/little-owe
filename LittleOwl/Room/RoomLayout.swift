@@ -54,6 +54,18 @@ enum RoomLayout {
     static let blocksTapCentre = CGPoint(x: 490, y: 284)
     static let blocksTapSize   = CGSize(width: 310, height: 140)
 
+    /// The piece of wall that stands in for the book when a parent takes it out of the
+    /// room. Both numbers are printed by `tools/export_art.py`, which measures them off
+    /// the painting while it cuts the patch, so the sprite and its place come from the
+    /// same source.
+    ///
+    /// There is no equivalent for the lamp or the window. Both are light sources and
+    /// their glow is painted across the wall and the furniture around them — cloning wall
+    /// over the lamp would leave a pool of light with nothing making it. See
+    /// docs/ART_BRIEF.md.
+    static let bookPatchCentre = CGPoint(x: 263, y: 807)
+    static let bookPatchSize   = CGSize(width: 249, height: 150)
+
     /// The rug, for reference — painted in, not tappable.
     static let rugCentre = CGPoint(x: 700, y: 176)
     static let rugSize   = CGSize(width: 850, height: 235)
@@ -84,6 +96,8 @@ enum RoomLayout {
         static let room: CGFloat        = -100
         static let windowSky: CGFloat   = -90
         static let windowWood: CGFloat  = -80
+        /// Above the painting, below everything that stands in front of it.
+        static let patch: CGFloat       = -95
         static let props: CGFloat       = 10
         static let owl: CGFloat         = 20
         static let highlight: CGFloat   = 60

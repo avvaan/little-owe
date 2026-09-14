@@ -65,8 +65,8 @@ def layout_value(name):
     m = re.search(rf"static let {name}\s*=\s*CGPoint\(x:\s*(-?[\d.]+),\s*y:\s*(-?[\d.]+)\)", text)
     if m:
         return (float(m.group(1)), float(m.group(2)))
-    m = re.search(r"static let designSize\s*=\s*CGSize\(width:\s*(-?[\d.]+),\s*height:\s*(-?[\d.]+)\)", text)
-    if name == "designSize" and m:
+    m = re.search(rf"static let {name}\s*=\s*CGSize\(width:\s*(-?[\d.]+),\s*height:\s*(-?[\d.]+)\)", text)
+    if m:
         return (float(m.group(1)), float(m.group(2)))
     raise KeyError(name)
 
@@ -314,6 +314,117 @@ def export_generated_skies(shipped_size):
         _save_sky(name, crop, cross)
 
 
+# ---------------------------------------------------------------- removable props
+#
+# Parent settings can take a prop out of the room. The blocks are their own sprites and
+# simply hide; the book is painted into the wall, so hiding it needs a piece of wall to
+# put in its place.
+#
+# The patch is cloned from elsewhere in the same painting rather than invented. The wall
+# here is diagonal roof planking, so a fixed horizontal or vertical offset would break
+# the grain - instead the offset is SEARCHED for: every candidate is scored on how well
+# the ring of wall just outside the hole matches the same ring moved by that offset, and
+# the best one wins. That finds an offset along the planks by itself, whatever angle they
+# run at.
+#
+# The lamp and the window are deliberately not in here. Both are light sources and their
+# glow is painted across the wall and the furniture around them, so cloning wall over the
+# lamp would leave a pool of light with nothing making it. Removing those two needs a
+# repaint, not a patch - see docs/ART_BRIEF.md.
+
+# Book only, in source pixels: the covers and pages, stopping just above the shelf plank
+# so the shelf itself survives.
+BOOK_HOLE = (262, 262, 636, 467)
+
+# How far past the hole the patch reaches, and the width of the fade at its edge.
+PATCH_MARGIN = 26
+PATCH_RING = 22
+
+
+def _best_clone_offset(pixels, hole, ring=PATCH_RING):
+    """The (dx, dy) whose wall best continues the wall around `hole`."""
+    x0, y0, x1, y1 = hole
+    height, width = pixels.shape[:2]
+
+    outer = (max(x0 - ring, 0), max(y0 - ring, 0),
+             min(x1 + ring, width), min(y1 + ring, height))
+    ring_mask = np.zeros((height, width), bool)
+    ring_mask[outer[1]:outer[3], outer[0]:outer[2]] = True
+    ring_mask[y0:y1, x0:x1] = False
+
+    ys, xs = np.nonzero(ring_mask)
+    wanted = pixels[ys, xs].astype(np.float32)
+
+    best, best_offset = None, (0, 0)
+    span_x, span_y = x1 - x0, y1 - y0
+    for dy in range(-3 * span_y, 3 * span_y + 1, 8):
+        for dx in range(-3 * span_x, 3 * span_x + 1, 8):
+            if abs(dx) < span_x * 0.6 and abs(dy) < span_y * 0.6:
+                continue                      # the source would sit on the book itself
+            sx, sy = xs + dx, ys + dy
+            if sx.min() < 0 or sy.min() < 0 or sx.max() >= width or sy.max() >= height:
+                continue
+            if (x0 + dx) < 0 or (y0 + dy) < 0 or (x1 + dx) > width or (y1 + dy) > height:
+                continue
+            # Reject a source that overlaps the hole, which would clone the book back in.
+            if not (x1 + dx <= x0 or x0 + dx >= x1 or y1 + dy <= y0 or y0 + dy >= y1):
+                continue
+            score = float(np.mean((pixels[sy, sx].astype(np.float32) - wanted) ** 2))
+            if best is None or score < best:
+                best, best_offset = score, (dx, dy)
+    return best_offset, best
+
+
+def _feathered_alpha(size, margin=PATCH_MARGIN):
+    """Opaque in the middle, fading to nothing over `margin` at the edge."""
+    width, height = size
+    ramp_x = np.minimum(np.arange(width), np.arange(width)[::-1]) / max(margin, 1)
+    ramp_y = np.minimum(np.arange(height), np.arange(height)[::-1]) / max(margin, 1)
+    alpha = np.minimum(np.clip(ramp_x, 0, 1)[None, :], np.clip(ramp_y, 0, 1)[:, None])
+    # Smoothstep, so the edge has no visible line where the ramp starts.
+    alpha = alpha * alpha * (3 - 2 * alpha)
+    return (alpha * 255).astype(np.uint8)
+
+
+def export_patches(room):
+    pixels = np.asarray(room.convert("RGB"))
+    x0, y0, x1, y1 = BOOK_HOLE
+    padded = (x0 - PATCH_MARGIN, y0 - PATCH_MARGIN, x1 + PATCH_MARGIN, y1 + PATCH_MARGIN)
+
+    offset, score = _best_clone_offset(pixels, padded)
+    dx, dy = offset
+    source = room.crop((padded[0] + dx, padded[1] + dy,
+                        padded[2] + dx, padded[3] + dy)).convert("RGBA")
+
+    patch = source.copy()
+    patch.putalpha(Image.fromarray(_feathered_alpha(patch.size)))
+
+    name = "patch_book.png"
+    patch.save(os.path.join(OUT, name))
+    print(f"  {name:<24} {patch.width}x{patch.height}  cloned from ({dx:+d}, {dy:+d})  "
+          f"seam {score:.0f}")
+
+    # Where it goes, in design points, measured off the same painting. RoomLayout has to
+    # agree: the sprite and its place come from here, and a patch that has moved without
+    # the layout moving with it is a piece of wall sitting next to the book.
+    scale = room.width / DESIGN_W
+    centre = (round((padded[0] + padded[2]) / 2 / scale),
+              round((room.height - (padded[1] + padded[3]) / 2) / scale))
+    size = (round((padded[2] - padded[0]) / scale), round((padded[3] - padded[1]) / scale))
+    print(f"  {'':24} sits at {centre} design points, {size[0]}x{size[1]}")
+
+    declared_centre = layout_value("bookPatchCentre")
+    declared_size = layout_value("bookPatchSize")
+    drift = (abs(declared_centre[0] - centre[0]), abs(declared_centre[1] - centre[1]),
+             abs(declared_size[0] - size[0]), abs(declared_size[1] - size[1]))
+    if max(drift) > 1:
+        raise ValueError(
+            f"RoomLayout.bookPatchCentre/Size say {declared_centre} {declared_size}, "
+            f"but the patch cut from the painting is {centre} {size}. "
+            "Update RoomLayout to match."
+        )
+
+
 def export_all():
     os.makedirs(OUT, exist_ok=True)
     room = Image.open(os.path.join(SRC, "owl_bg_empty.png")).convert("RGB")
@@ -328,6 +439,7 @@ def export_all():
     shipped = export_window(room)
     export_generated_skies(shipped)
     export_owl_frames()
+    export_patches(room)
 
 
 def compare(fresh_dir):

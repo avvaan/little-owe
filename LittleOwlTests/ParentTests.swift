@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 @testable import LittleOwl
 
 /// The parental gate and the settings behind it.
@@ -178,6 +179,32 @@ final class ParentTests: XCTestCase {
         XCTAssertFalse(second.isVisible(.blocks))
         XCTAssertFalse(second.captionsEnabled)
         XCTAssertEqual(second.voiceVolume, 0.5, accuracy: 0.0001)
+    }
+
+    // MARK: Taking the book out of the room
+
+    func testTheBookPatchIsShippedAndTheRightShape() throws {
+        // The patch is cut from the painting by tools/export_art.py, which also prints
+        // where it goes. If someone regenerates it at a different shape without moving
+        // RoomLayout with it, the room gets a piece of wall sitting next to the book.
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "patch_book", withExtension: "png"),
+                                "patch_book.png is not in the bundle")
+        let image = try XCTUnwrap(UIImage(contentsOfFile: url.path))
+
+        let declared = RoomLayout.bookPatchSize.width / RoomLayout.bookPatchSize.height
+        let actual = image.size.width / image.size.height
+        XCTAssertEqual(declared, actual, accuracy: declared * 0.02,
+                       "the shipped patch is a different shape from RoomLayout.bookPatchSize")
+    }
+
+    func testTheBookPatchSitsOverTheBook() {
+        // It has to be at least as wide as the book's own target and centred on it.
+        // Vertically it stops higher, on purpose: the tap target runs down onto the shelf
+        // and the shelf is not what is being removed.
+        XCTAssertGreaterThanOrEqual(RoomLayout.bookPatchSize.width, RoomLayout.bookSize.width)
+        XCTAssertEqual(RoomLayout.bookPatchCentre.x, RoomLayout.bookCentre.x, accuracy: 8)
+        XCTAssertGreaterThan(RoomLayout.bookPatchCentre.y, RoomLayout.bookCentre.y,
+                             "the patch should sit above the shelf, not on it")
     }
 
     // MARK: Every prop a parent is offered is a prop that exists
