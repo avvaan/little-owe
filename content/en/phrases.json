@@ -62,6 +62,14 @@
       { "id": "set-again-1", "text": "Again?" },
       { "id": "set-again-2", "text": "Shall we say it once more?" },
       { "id": "set-again-3", "text": "That was lovely. Once more?" }
+    ],
+
+    "_comment_wonderInvite": "The owl at the basket in the corner, where it does the asking instead of answering. Each line has to make a child expect pictures and a choice, without asking anyone to read one.",
+    "wonderInvite": [
+      { "id": "wonder-1", "text": "I have been wondering about something. Have a look at these!" },
+      { "id": "wonder-2", "text": "Ooh, look what I found. Which one shall I tell you about?" },
+      { "id": "wonder-3", "text": "I know some good ones. Listen, then tap the one you want." },
+      { "id": "wonder-4", "text": "Shall I tell you something? Pick one of these." }
     ]
   }
 }

@@ -8,6 +8,7 @@ enum RoomObjectID: String, CaseIterable {
     case lamp
     case blocks
     case window
+    case basket
 
     /// Mode names are for the code and the parent settings screen only. The child
     /// never sees a word of this.
@@ -18,6 +19,7 @@ enum RoomObjectID: String, CaseIterable {
         case .lamp:   return "Prayers and rhymes"
         case .blocks: return "Word games"
         case .window: return "Why questions"
+        case .basket: return "The owl's own questions"
         }
     }
 }

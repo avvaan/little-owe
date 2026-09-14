@@ -96,6 +96,33 @@ enum RoomBuilder {
         return object
     }
 
+    /// The basket in the near corner: the one prop that is not in the painting.
+    ///
+    /// Nil when its painting is not in the bundle, and the room is then built without it
+    /// — the same rule the second character follows. A missing texture is drawn by
+    /// SpriteKit as a red cross, and one of those has already reached a child's iPad
+    /// once; see `ArtTexture`.
+    static func makeBasket() -> RoomObject? {
+        guard let texture = ArtTexture.texture(named: "corner_basket") else { return nil }
+
+        let sprite = SKSpriteNode(texture: texture)
+        let height = RoomLayout.basketSize.height
+        sprite.size = CGSize(width: height * sprite.size.width / sprite.size.height,
+                             height: height)
+
+        let object = RoomObject(
+            id: .basket,
+            content: sprite,
+            localBounds: CGRect(origin: .zero, size: RoomLayout.basketSize)
+                .offsetBy(dx: -RoomLayout.basketSize.width / 2,
+                          dy: -RoomLayout.basketSize.height / 2),
+            feedback: .squash
+        )
+        object.position = RoomLayout.basketCentre
+        object.zPosition = RoomLayout.Z.props
+        return object
+    }
+
     static func makeWindow(time: TimeOfDay) -> (object: RoomObject, window: WindowNode) {
         let window = WindowNode(radius: RoomLayout.glassRadius, time: time)
         let bounds = CGRect(origin: .zero, size: RoomLayout.windowTapSize)

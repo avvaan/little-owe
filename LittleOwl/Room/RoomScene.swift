@@ -36,6 +36,7 @@ final class RoomScene: SKScene {
     private var spokenSets: SpokenSetMode?
     private var wordGames: WordGameMode?
     private var why: WhyMode?
+    private var wonder: WonderMode?
 
     /// Every mode that dims the room behind it. The scene routes taps through whichever
     /// one is running rather than knowing what each of them is.
@@ -47,6 +48,7 @@ final class RoomScene: SKScene {
         if let spokenSets { modes.append(spokenSets) }
         if let wordGames { modes.append(wordGames) }
         if let why { modes.append(why) }
+        if let wonder { modes.append(wonder) }
         return modes
     }
 
@@ -133,6 +135,7 @@ final class RoomScene: SKScene {
         spokenSets?.captionsEnabled = captions
         wordGames?.captionsEnabled = captions
         why?.captionsEnabled = captions
+        wonder?.captionsEnabled = captions
     }
 
     /// "Reset owl": stop whatever is happening and put the owl back on its perch.
@@ -157,6 +160,9 @@ final class RoomScene: SKScene {
         self.windowNode = windowNode
 
         props = [RoomBuilder.makeBook(), RoomBuilder.makeLamp(), RoomBuilder.makeBlocks(), windowObject]
+        // The basket is the only prop that is not in the painting, so it is the only one
+        // that can be missing. A build without its artwork simply has no corner.
+        if let basket = RoomBuilder.makeBasket() { props.append(basket) }
         props.forEach { addChild($0) }
 
         bookPatch = RoomBuilder.makeBookPatch()
@@ -205,12 +211,16 @@ final class RoomScene: SKScene {
             let why = WhyMode(scene: self, owl: owl, pack: pack, voice: voice)
             why.onLeave = { [weak self] in self?.activeMode = nil }
 
+            let wonder = WonderMode(scene: self, owl: owl, pack: pack, voice: voice)
+            wonder.onLeave = { [weak self] in self?.activeMode = nil }
+
             self.pack = pack
             self.voice = voice
             self.story = story
             self.spokenSets = spokenSets
             self.wordGames = wordGames
             self.why = why
+            self.wonder = wonder
         } catch {
             // Nothing to show a child, and nothing a child could do about it. The room
             // stays playable and Echo still works.
@@ -334,6 +344,11 @@ final class RoomScene: SKScene {
 
         if id == .window, let why, why.canBegin {
             why.begin()
+            return
+        }
+
+        if id == .basket, let wonder, wonder.canBegin {
+            wonder.begin()
             return
         }
 

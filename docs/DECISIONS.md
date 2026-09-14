@@ -674,6 +674,41 @@ because the sprite is stretched to that size and a painting of the wrong shape w
 fail to load — it would quietly distort, which is the same class of bug one step
 further on.
 
+## The window and the basket are two halves, not one mode with a fallback
+
+The window was doing both jobs. A child taps it, the owl says "ask me anything you like",
+and on a device that can hear, that is exactly right. On a device that cannot — no
+microphone, permission declined, an iPad in a house where nobody said yes — the same tap
+put up three cards instead, and for a long while those cards were coloured rectangles
+with nothing on them. What a child actually saw was: I tapped the window and got three
+empty boxes.
+
+So the two halves were separated. The window keeps its own job and only its own job: the
+child asks out loud and the owl answers. The basket in the near corner is the other
+direction — the owl offers three questions as pictures, says what each one is while that
+card lights, and tells you about whichever you tap. Same bank of questions, same written
+answers, opposite way round.
+
+Three things follow from that and all three are better than the arrangement they replace:
+
+- **The corner needs no microphone at all.** A child on an iPad that cannot hear now has
+  a whole half of Why that is not a fallback for something else, and does not feel like
+  one.
+- **The cards are the mode rather than a consolation.** They had to stop being
+  rectangles, so every one of the 129 questions was painted. `question_sky-blue` is a
+  child looking up at a blue sky — a three-year-old can tell three of those apart at a
+  glance and then remember which one the owl named.
+- **A parent's toggle list says what the two are for.** "Why questions" and "The owl's
+  own questions" are two lines, and the footer says which needs a microphone.
+
+The window keeps its card fallback. Removing it would mean a child with no microphone
+taps the window and nothing happens, and a dead prop is worse than a duplicated one.
+
+The basket is also the first prop that is **not in the painting**, which makes it the
+first prop that can be missing — so `RoomBuilder.makeBasket()` returns nil when its
+painting is not in the bundle and the room is simply built without that corner. See the
+red cross below for why that is not paranoia.
+
 ---
 
 ## Open, and deliberately deferred
