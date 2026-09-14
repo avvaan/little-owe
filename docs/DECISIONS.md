@@ -438,6 +438,57 @@ minute, and that list dies when the child leaves. Nothing counts right answers, 
 or on disk, because a three-year-old who gets one wrong should not then be a three-year-old
 with a number attached.
 
+## The privacy manifest had left itself a note, and the note had expired
+
+It said, in a comment: *"Parent settings (deliverable 7) will add UserDefaults, which
+needs NSPrivacyAccessedAPICategoryUserDefaults with reason CA92.1. Add it when that code
+lands, not before."*
+
+Deliverable 7 landed two PRs ago. `ParentSettings` reads and writes `UserDefaults`, the
+manifest still declared nothing, and Apple rejects a build that touches a required-reason
+API without declaring it — with a message that names the API category rather than the code
+that called it.
+
+Declared now, with `CA92.1`: "information accessible only to the app itself", which is the
+literal truth — four keys, no app group, no shared container, nothing about the child. A
+sweep for the other required-reason categories found nothing: no file timestamps, no
+disk-space APIs, no system boot time, no active-keyboard API.
+
+Two tests hold it. One asserts the manifest still promises that nothing is tracked and
+nothing is collected — the day somebody adds analytics is the day that test fails, which
+is the entire point of having it. The other asserts the UserDefaults reason is there.
+
+## Nothing is collected, and the manifest is how that is said in Apple's language
+
+`NSPrivacyCollectedDataTypes` is empty and must stay empty. Worth writing down why the
+microphone does not belong in it: under Apple's definition, using the microphone is not
+collection unless the audio is stored or transmitted. It is neither — one in-memory
+buffer, released when playback ends, never a file. Speech recognition is the same: the
+request sets `requiresOnDeviceRecognition` and the app refuses to start a task without it,
+so nothing reaches a server.
+
+That means the App Privacy answer in App Store Connect is a single **No**, and the listing
+shows **Data Not Collected**.
+
+## The review notes are load-bearing
+
+The parental gate is deliberately invisible: a small target in a corner that shows nothing
+until it is held for three seconds. That is right for a three-year-old and wrong for a
+reviewer, who will not find it and cannot check the settings they are required to check.
+
+So `docs/APP_STORE.md` carries review notes that say exactly where the gate is and what it
+asks for, alongside where each permission prompt appears and what happens when it is
+declined. A Kids submission where the reviewer cannot reach the parent settings is a
+rejection about something that works.
+
+## A script measures the listing, because Apple measures it at the worst moment
+
+App Store Connect enforces field limits one at a time, at submission, after the form is
+filled in. A 31-character subtitle is a round trip for no reason.
+`tools/check_metadata.py` reads the fenced blocks out of the metadata draft and measures
+them, and CI runs it. It also refuses a keyword list with a space beside a comma, which
+silently wastes one of the hundred characters each time.
+
 ---
 
 ## Open, and deliberately deferred

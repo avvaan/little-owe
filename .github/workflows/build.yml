@@ -100,3 +100,8 @@ jobs:
 
       - name: Check the turn detector still behaves
         run: python3 tools/simulate_turn_detection.py
+
+      # Apple enforces these limits one field at a time, at submission, after a form has
+      # been filled in - so a subtitle one character too long costs a round trip.
+      - name: Check the App Store listing fits Apple's field limits
+        run: python3 tools/check_metadata.py

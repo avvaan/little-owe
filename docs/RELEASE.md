@@ -114,8 +114,11 @@ project (`0.1` today); bump it there when you want a new version in App Store Co
 
 None of these block **internal** TestFlight, which is what you want right now.
 
-- **A privacy policy URL** (deliverable 8). Kids listings are refused without one.
-- **App Store metadata**: description, keywords, screenshots, age rating questionnaire.
+- **A privacy policy URL.** Kids listings are refused without one. The text is written —
+  `docs/PRIVACY_POLICY.md` — and needs hosting anywhere public and stable.
+- **App Store metadata**: drafted in `docs/APP_STORE.md`, ready to paste, with the review
+  notes that tell a reviewer how to open the parental gate. They will not find it
+  otherwise, and a reviewer who cannot reach the settings is a rejection.
 - **Primary category Kids**, age band 5 and under, on the app record.
 - **Real prayer texts.** All three prayer sets are traditional placeholders marked
   `"placeholder": true` in `content/en/spoken-sets.json`.
