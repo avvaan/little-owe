@@ -7,7 +7,10 @@ import SpriteKit
 /// the rig.
 final class OwlNode: SKNode, Tappable {
 
-    private let rig: OwlRig
+    private var rig: OwlRig
+
+    /// Which animal is on screen. Changing it swaps the paintings and nothing else.
+    var character: Character { rig.character }
 
     private(set) var state: OwlState = .idle
 
@@ -48,6 +51,26 @@ final class OwlNode: SKNode, Tappable {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("Not supported") }
+
+    // MARK: Changing character
+
+    /// Puts a different set of paintings on the same bird.
+    ///
+    /// The node itself is not rebuilt, and that is the point: every mode holds a
+    /// reference to this `OwlNode`, so replacing it would mean rebuilding the room.
+    /// Only the rig changes, and the new one is handed the state the old one was in —
+    /// a child who swaps character mid-sentence gets the same character mid-sentence,
+    /// not one that has forgotten what it was doing.
+    func wear(_ newRig: OwlRig) {
+        let pose = state
+        rig.node.removeFromParent()
+        rig = newRig
+        addChild(newRig.node)
+        newRig.enter(pose)
+        // The idle repertoire is timed against nothing in particular, but a swap is an
+        // interaction: give the new animal a moment before it starts fidgeting.
+        nextBeat = nil
+    }
 
     // MARK: State
 

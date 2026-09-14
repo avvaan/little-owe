@@ -9,7 +9,11 @@ final class RoomScene: SKScene {
 
     // MARK: Contents
 
-    private let owl = OwlNode()
+    private let owl = OwlNode(rig: WatercolourOwlRig(character: ParentSettings.shared.character))
+
+    /// Only built when there is a second character's artwork to offer. Nil is the
+    /// ordinary state of a build whose second set of paintings has not landed.
+    private var characterPicker: CharacterPicker?
     private var props: [RoomObject] = []
     private var windowNode: WindowNode!
     /// Shown in the book's place when a parent takes the book out of the room.
@@ -164,6 +168,8 @@ final class RoomScene: SKScene {
         owl.zPosition = RoomLayout.Z.owl
         addChild(owl)
 
+        buildCharacterPicker()
+
         tappables = ((props as [any Tappable]) + [owl])
             .sorted { lhs, rhs in
                 let a = lhs.hitAreaInParent
@@ -247,6 +253,13 @@ final class RoomScene: SKScene {
             return
         }
 
+        // Before the room's own props: it sits in a corner nothing else claims, and a
+        // child reaching for a corner should not have to be accurate.
+        if let picker = characterPicker, picker.containsPoint(inParent: point) {
+            picker.acknowledgeTap()
+            return
+        }
+
         guard let target = tappables.first(where: { $0.containsPoint(inParent: point) }) else {
             // A tap on empty floor still wakes the owl. Nothing in this app is a dead zone
             // that silently ignores a child.
@@ -259,6 +272,35 @@ final class RoomScene: SKScene {
     }
 
     /// The single seam between "a child touched something" and "a mode runs".
+    /// The badge in the corner, offering whichever animal is not on the perch.
+    ///
+    /// Built only when a second character's paintings are actually in the bundle, so a
+    /// build with one animal has no corner badge at all rather than a badge that offers
+    /// nothing.
+    private func buildCharacterPicker() {
+        let others = Character.available.filter { $0 != owl.character }
+        guard let other = others.first else { return }
+
+        let picker = CharacterPicker(offering: other)
+        picker.onPick = { [weak self] character in self?.change(to: character) }
+        addChild(picker)
+        characterPicker = picker
+    }
+
+    /// Swaps who lives here.
+    ///
+    /// Everything except the paintings stays: the same node, the same modes holding the
+    /// same reference to it, the same pose. A child who swaps while the owl is halfway
+    /// through a story gets the puppy halfway through the same story.
+    private func change(to character: Character) {
+        guard character != owl.character, character.isAvailable else { return }
+
+        ParentSettings.shared.character = character
+        owl.wear(WatercolourOwlRig(character: character))
+        owl.transition(to: .happy)
+        characterPicker?.nowOnThePerch(character)
+    }
+
     private func handle(_ id: RoomObjectID) {
         if id == .owl {
             // While a prop mode is running, the owl is the way back to the room.

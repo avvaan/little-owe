@@ -1,0 +1,80 @@
+name: Art
+
+# Fetches generated pictures listed in art-source/generated.json and commits them.
+#
+# The session that generates the pictures cannot download them - its network policy
+# denies the generator's CDN - but a runner can. So generation happens in the chat, the
+# URLs land in the manifest, and this brings the pixels home.
+#
+# Needs no secrets: the manifest holds public URLs.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: art
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    name: Fetch and commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: What is missing
+        run: python3 tools/fetch_art.py --dry-run
+
+      - name: Fetch
+        run: python3 tools/fetch_art.py
+
+      - name: Commit whatever arrived
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # -uall, and `git status` rather than `git diff`: every picture is a file that
+          # did not exist, `git diff` does not look at untracked files at all, and
+          # `git status` collapses a wholly untracked directory into one line. Both of
+          # those cost real money on the voice workflow before this one existed.
+          changes=$(git status --porcelain -uall)
+          if [ -z "$changes" ]; then
+            echo "nothing new to commit"
+            exit 0
+          fi
+
+          count=$(printf '%s\n' "$changes" | wc -l | tr -d ' ')
+          echo "committing $count file(s)"
+          git add -A
+          git commit -m "Fetch ${count} generated picture(s)
+
+          Listed in art-source/generated.json and fetched by .github/workflows/art.yml.
+          The session that generated them cannot reach the generator's CDN; a runner can."
+
+          # Generating and fetching takes long enough for the branch to move underneath.
+          branch="${{ github.ref_name }}"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:"$branch"; then
+              exit 0
+            fi
+            echo "push rejected; rebasing onto origin/$branch (attempt $attempt)"
+            git fetch origin "$branch"
+            git rebase "origin/$branch"
+          done
+          echo "::error::Could not push after three attempts."
+          exit 1
+
+      - name: Every picture in the manifest is now in the branch
+        run: |
+          missing=$(python3 tools/fetch_art.py --dry-run | sed -n 's/^to fetch: //p')
+          untracked=$(git ls-files --others --exclude-standard | wc -l | tr -d ' ')
+          echo "still missing: $missing, untracked: $untracked"
+          if [ "$missing" != "0" ] || [ "$untracked" != "0" ]; then
+            echo "::error::Pictures were fetched but are not in the branch."
+            exit 1
+          fi

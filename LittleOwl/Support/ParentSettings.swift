@@ -32,6 +32,7 @@ final class ParentSettings: ObservableObject {
         static let voiceVolume = "parent.voiceVolume"
         static let brain = "parent.brain"
         static let brainProvider = "parent.brainProvider"
+        static let character = "parent.character"
     }
 
     // MARK: What is in the room
@@ -130,6 +131,28 @@ final class ParentSettings: ObservableObject {
         }
     }
 
+    // MARK: Who lives in the attic
+
+    /// The owl unless somebody chose otherwise.
+    ///
+    /// The one setting here a **child** sets rather than a parent: it is changed by
+    /// tapping the badge in the corner of the room, not from this screen. It is kept
+    /// here anyway because it is a preference that has to survive the app closing, and
+    /// this is where preferences live. A character whose paintings are not in the
+    /// bundle falls back to the owl rather than leaving the room empty.
+    var character: Character {
+        get {
+            guard let raw = defaults.string(forKey: Key.character),
+                  let character = Character(rawValue: raw),
+                  character.isAvailable else { return .fallback }
+            return character
+        }
+        set {
+            objectWillChange.send()
+            defaults.set(newValue.rawValue, forKey: Key.character)
+        }
+    }
+
     // MARK: The owl answering for itself
 
     /// Whether the owl may ask a model when the question bank has no answer.
@@ -171,7 +194,7 @@ final class ParentSettings: ObservableObject {
     func resetToDefaults() {
         objectWillChange.send()
         for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions,
-                    Key.voiceVolume, Key.brain, Key.brainProvider] {
+                    Key.voiceVolume, Key.brain, Key.brainProvider, Key.character] {
             defaults.removeObject(forKey: key)
         }
         #if LITTLE_OWL_AI

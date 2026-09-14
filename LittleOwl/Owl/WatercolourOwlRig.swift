@@ -22,16 +22,19 @@ final class WatercolourOwlRig: OwlRig {
 
     /// A painted pose. `base` is guaranteed; the rest are optional until the artwork
     /// for them exists.
+    ///
+    /// The case carries the suffix rather than the whole filename, because there is
+    /// more than one character now and `owl_blink` and `dog_blink` are the same pose.
     private enum Frame: String, CaseIterable {
-        case base      = "owl_base"
-        case blink     = "owl_blink"
-        case sleepy    = "owl_sleepy"
-        case happy     = "owl_happy"
-        case listen    = "owl_listen"
-        case talkHalf  = "owl_talk_half"
-        case talkWide  = "owl_talk_wide"
-        case turnLeft  = "owl_turn_left"
-        case turnRight = "owl_turn_right"
+        case base      = "base"
+        case blink     = "blink"
+        case sleepy    = "sleepy"
+        case happy     = "happy"
+        case listen    = "listen"
+        case talkHalf  = "talk_half"
+        case talkWide  = "talk_wide"
+        case turnLeft  = "turn_left"
+        case turnRight = "turn_right"
 
         /// Frames that replace the whole bird rather than just its face, because the
         /// ear tufts move outside the base silhouette. They change the body by a
@@ -42,6 +45,14 @@ final class WatercolourOwlRig: OwlRig {
             case .base, .blink, .happy, .talkHalf, .talkWide: return false
             }
         }
+    }
+
+    /// Which animal this rig paints. Everything above `OwlRig` is the same code for
+    /// both; this is the only thing that differs.
+    let character: Character
+
+    private func fileName(_ frame: Frame) -> String {
+        "\(character.artPrefix)_\(frame.rawValue)"
     }
 
     private var textures: [Frame: SKTexture] = [:]
@@ -82,16 +93,19 @@ final class WatercolourOwlRig: OwlRig {
 
     // MARK: Init
 
-    init() {
+    init(character: Character = .owl) {
+        self.character = character
+
         // Through `ArtTexture` like every other painting: `imageNamed:` assumes `.png`
-        // for a loose bundle file, and an owl frame delivered as a JPEG would be
-        // skipped in silence rather than drawn.
-        let base = ArtTexture.required(Frame.base.rawValue) ?? SKTexture()
+        // for a loose bundle file, and a frame delivered as a JPEG would be skipped in
+        // silence rather than drawn.
+        let base = ArtTexture.required("\(character.artPrefix)_\(Frame.base.rawValue)") ?? SKTexture()
         sprite = SKSpriteNode(texture: base)
 
         textures[.base] = base
         for frame in Frame.allCases where frame != .base {
-            guard let texture = ArtTexture.texture(named: frame.rawValue) else { continue }
+            guard let texture = ArtTexture.texture(named: "\(character.artPrefix)_\(frame.rawValue)")
+            else { continue }
             textures[frame] = texture
         }
 
@@ -102,7 +116,7 @@ final class WatercolourOwlRig: OwlRig {
     /// Which painted states the bundle actually has. Surfaced so the room can log it
     /// once at launch rather than leaving the gap to be discovered on device.
     var availableFrameNames: [String] {
-        Frame.allCases.filter { textures[$0] != nil }.map(\.rawValue)
+        Frame.allCases.filter { textures[$0] != nil }.map { fileName($0) }
     }
 
     // MARK: OwlRig

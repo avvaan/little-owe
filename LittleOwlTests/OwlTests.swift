@@ -171,6 +171,7 @@ final class OwlTests: XCTestCase {
 /// Records what the owl asked for without drawing any of it.
 private final class SpyRig: OwlRig {
     let node = SKNode()
+    let character: Character = .owl
     var standingHeight: CGFloat { 400 }
 
     private(set) var states: [OwlState] = []
