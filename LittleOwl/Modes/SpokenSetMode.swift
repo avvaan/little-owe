@@ -46,16 +46,6 @@ final class SpokenSetMode: RoomMode {
 
     // MARK: Tuning
 
-    /// The brief's number. Silence this long and the owl says the line again.
-    var silencePatience: TimeInterval = 8
-
-    /// How long a child may keep going in one breath before the turn ends anyway.
-    var longestChildTurn: TimeInterval = 12
-
-    /// Silence after the child has been talking that ends their turn. A shade longer
-    /// than Echo's: a recitation has pauses in it that a played-back giggle does not.
-    var silenceToFinishTurn: TimeInterval = 1.25
-
     /// A beat between the owl finishing a line and the child's turn opening, so the two
     /// do not run into each other.
     var beatBeforeChildTurn: TimeInterval = 0.4
@@ -75,8 +65,7 @@ final class SpokenSetMode: RoomMode {
     private let voice: OwlVoice
     private let settings: ParentSettings
 
-    private let recorder = VoiceRecorder()
-    private let listener: SpeechListener
+    private let turn: ListeningTurn
 
     private let dim = SKSpriteNode(color: SKColor(white: 0.03, alpha: 1), size: RoomLayout.designSize)
     private let caption = CaptionNode(maxWidth: 900, fontSize: 52)
@@ -90,9 +79,6 @@ final class SpokenSetMode: RoomMode {
     /// Whether the owl has already offered the current line a second time. The brief
     /// allows exactly one gentle repeat, and then it moves on whatever happens.
     private var hasRepeatedLine = false
-
-    /// Whether this session can hear at all. Resolved once, when the lamp is tapped.
-    private var canHear = false
 
     /// Which of the owl's lines is in the air. Every one of them ends in
     /// `voice.onFinished`, and what happens next depends entirely on which it was — so
@@ -112,7 +98,9 @@ final class SpokenSetMode: RoomMode {
         self.pack = pack
         self.voice = voice
         self.settings = settings
-        self.listener = SpeechListener(locale: pack.recognitionLocale)
+        self.turn = ListeningTurn(recognitionLocale: pack.recognitionLocale)
+        // Silence this long and the owl says the line again. The brief's number.
+        turn.patience = 8
 
         halo = SKShapeNode(circleOfRadius: RoomLayout.owlHeight * 0.60)
         halo.strokeColor = SKColor(hex: 0xFFE6B0).withAlphaComponent(0.6)
@@ -129,10 +117,6 @@ final class SpokenSetMode: RoomMode {
 
         caption.position = CGPoint(x: 860, y: 660)
         caption.zPosition = ModeLayer.overlay
-
-        recorder.onFinished = { [weak self] _, reason in
-            self?.childTurnStopped(reason)
-        }
     }
 
     /// The sets a parent has left on the lamp. Empty means the lamp does nothing, which
@@ -146,7 +130,7 @@ final class SpokenSetMode: RoomMode {
     func begin() {
         guard phase == .idle, canBegin else { return }
 
-        resolveHearing()
+        turn.prepare()
 
         if dim.parent == nil { scene.addChild(dim) }
         dim.removeAllActions()      // a pending fade-out from a quick exit and re-entry
@@ -165,7 +149,7 @@ final class SpokenSetMode: RoomMode {
 
         voice.stop()
         owl.setMouthOpenness(0)
-        stopListeningForChild()
+        turn.cancel()
 
         picker?.removeFromParent()
         picker = nil
@@ -206,29 +190,6 @@ final class SpokenSetMode: RoomMode {
         // No invitation the second time. A child who has just been through the whole set
         // has been told how this works.
         recite(set, inviting: false)
-    }
-
-    // MARK: Hearing
-
-    /// Works out, once per visit, whether the owl can tell that the child spoke.
-    ///
-    /// The microphone prompt is **not** asked for here. The brief puts it on the first
-    /// tap of the owl and nowhere else, so a child who has never played Echo gets the
-    /// pause instead of a permission alert on the lamp. Speech recognition is a separate
-    /// permission, and it is only ever asked for once the microphone is already granted —
-    /// so it lands on a parent who has already said yes once.
-    private func resolveHearing() {
-        canHear = false
-        guard MicrophonePermission.status == .granted else { return }
-
-        if SpeechListener.isAuthorisationUndetermined {
-            SpeechListener.requestAuthorisation { [weak self] granted in
-                guard let self, self.isRunning else { return }
-                self.canHear = granted && self.listener.isReady
-            }
-            return
-        }
-        canHear = listener.isReady
     }
 
     // MARK: Choosing
@@ -364,56 +325,24 @@ final class SpokenSetMode: RoomMode {
         owl.transition(to: .listening)
         showHalo()
 
-        guard canHear, listener.start() else {
-            // The fallback the brief asks for. Nothing is measured, so nothing can fail:
-            // the owl simply waits, then takes the child's word for it.
-            after(RepeatJudge.fallbackPause(forLineOf: RepeatJudge.wordCount(of: line.text))) {
-                [weak self] in self?.closeChildTurn(heard: nil, heardByEar: false)
-            }
-            return
-        }
-
-        recorder.retainsAudio = false        // nothing to play back, so nothing is kept
-        recorder.onBuffer = { [weak self] buffer in self?.listener.append(buffer) }
-        recorder.patienceBeforeSpeech = silencePatience
-        recorder.silenceToFinish = silenceToFinishTurn
-        recorder.maximumDuration = longestChildTurn
-        recorder.start()
-    }
-
-    private func childTurnStopped(_ reason: VoiceRecorder.StopReason) {
-        guard phase == .listening else { return }
-
-        switch reason {
-        case .silence, .maxDuration:
-            listener.finish { [weak self] heard in
-                self?.closeChildTurn(heard: heard, heardByEar: true)
-            }
-
-        case .noSpeech:
-            listener.cancel()
-            closeChildTurn(heard: nil, heardByEar: true)
-
-        case .cancelled:
-            listener.cancel()
-
-        case .failed:
-            // The microphone went away mid-turn. Fall back for the rest of the visit
-            // rather than letting a child recite to an owl that cannot hear.
-            listener.cancel()
-            canHear = false
-            closeChildTurn(heard: nil, heardByEar: false)
+        let pause = RepeatJudge.fallbackPause(forLineOf: RepeatJudge.wordCount(of: line.text))
+        turn.begin(fallbackPause: pause) { [weak self] outcome in
+            self?.closeChildTurn(outcome)
         }
     }
 
-    private func closeChildTurn(heard: String?, heardByEar: Bool) {
+    private func closeChildTurn(_ heard: ListeningTurn.Outcome) {
         guard phase == .listening, let line = currentLine else { return }
-        stopListeningForChild()
         hideHalo()
 
+        let outcome: RepeatJudge.Outcome
+        switch heard {
+        case .heard(let text): outcome = RepeatJudge.judge(line: line.text, heard: text)
+        case .nothing:         outcome = .notEnough
         // Without recognition there is nothing to judge, and judging was never the
         // point: the owl waited, so the child said it.
-        let outcome = heardByEar ? RepeatJudge.judge(line: line.text, heard: heard) : .repeated
+        case .waited:          outcome = .repeated
+        }
 
         switch outcome {
         case .repeated:
@@ -428,12 +357,6 @@ final class SpokenSetMode: RoomMode {
             // "wrong", and no child waited out by a toy.
             advance()
         }
-    }
-
-    private func stopListeningForChild() {
-        recorder.stop(reason: .cancelled)
-        recorder.onBuffer = nil
-        listener.cancel()
     }
 
     // MARK: Between lines

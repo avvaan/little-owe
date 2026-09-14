@@ -28,6 +28,8 @@ final class RoomScene: SKScene {
     private var voice: OwlVoice?
     private var story: StoryMode?
     private var spokenSets: SpokenSetMode?
+    private var wordGames: WordGameMode?
+    private var why: WhyMode?
 
     /// Every mode that dims the room behind it. The scene routes taps through whichever
     /// one is running rather than knowing what each of them is.
@@ -37,6 +39,8 @@ final class RoomScene: SKScene {
         var modes: [any RoomMode] = []
         if let story { modes.append(story) }
         if let spokenSets { modes.append(spokenSets) }
+        if let wordGames { modes.append(wordGames) }
+        if let why { modes.append(why) }
         return modes
     }
 
@@ -121,10 +125,18 @@ final class RoomScene: SKScene {
             spokenSets.onOfferAgain = { [weak self] offering in self?.offer(.lamp, offering) }
             spokenSets.onLeave = { [weak self] in self?.activeMode = nil }
 
+            let wordGames = WordGameMode(scene: self, owl: owl, pack: pack, voice: voice)
+            wordGames.onLeave = { [weak self] in self?.activeMode = nil }
+
+            let why = WhyMode(scene: self, owl: owl, pack: pack, voice: voice)
+            why.onLeave = { [weak self] in self?.activeMode = nil }
+
             self.pack = pack
             self.voice = voice
             self.story = story
             self.spokenSets = spokenSets
+            self.wordGames = wordGames
+            self.why = why
         } catch {
             // Nothing to show a child, and nothing a child could do about it. The room
             // stays playable and Echo still works.
@@ -202,6 +214,16 @@ final class RoomScene: SKScene {
 
         if id == .lamp, let spokenSets, spokenSets.canBegin {
             spokenSets.begin()
+            return
+        }
+
+        if id == .blocks, let wordGames, wordGames.canBegin {
+            wordGames.begin()
+            return
+        }
+
+        if id == .window, let why, why.canBegin {
+            why.begin()
             return
         }
 

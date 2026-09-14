@@ -42,6 +42,21 @@
       { "id": "invite-3", "text": "Let's say this one together. You go after me." }
     ],
 
+    "_comment_askInvite": "The owl at the window, asking the child to ask it something. It has to invite a question without naming one, or every child asks the same thing.",
+    "askInvite": [
+      { "id": "ask-1", "text": "Ask me anything you like." },
+      { "id": "ask-2", "text": "What would you like to know?" },
+      { "id": "ask-3", "text": "Go on - ask me a question." },
+      { "id": "ask-4", "text": "I'm listening. What are you wondering about?" }
+    ],
+
+    "_comment_chooseInvite": "Said on a device that cannot recognise speech, just before the tap-to-choose cards come up. The owl then reads each card aloud, because the child cannot read them.",
+    "chooseInvite": [
+      { "id": "choose-1", "text": "Listen, and tap the one you want." },
+      { "id": "choose-2", "text": "Here are some to choose from. Tap one!" },
+      { "id": "choose-3", "text": "Have a listen, then tap the one you like." }
+    ],
+
     "_comment_setAgain": "Offered when a prayer or rhyme is finished and the lamp is glowing.",
     "setAgain": [
       { "id": "set-again-1", "text": "Again?" },

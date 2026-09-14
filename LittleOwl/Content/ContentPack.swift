@@ -299,6 +299,10 @@ enum PhraseGroup: String, CaseIterable {
     case repeatInvite
     /// Offered when a set is finished and the lamp is glowing.
     case setAgain
+    /// The owl asking the child to ask it something, at the window.
+    case askInvite
+    /// Said before the tap-to-choose cards on a device that cannot hear.
+    case chooseInvite
 }
 
 struct Phrase: Decodable, Equatable, Speakable {

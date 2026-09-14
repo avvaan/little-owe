@@ -383,6 +383,61 @@ lamp are painted into the room and have no artwork of their own, so a prop node 
 area plus a glow held at alpha 0 — and the offer was breathing the *node's* alpha, which
 changed nothing a child could see. `RoomObject.setOffering` now breathes the glow itself.
 
+## The tap-to-choose fallback is read aloud, not looked at
+
+The brief asks Word games and Why to "fall back to a tap-to-choose picture answer" where
+speech recognition is unavailable. The pictures are not drawn, and the app never asks a
+child to read — so a card cannot be a label, and a coloured rectangle on its own tells a
+three-year-old nothing.
+
+So the owl **reads each card aloud while that card lights up**, and the child taps the one
+they remember hearing. A card is a place to aim, not a label. Illustrations drop in
+without touching any of this: a card shows `choice_<something>.png` the moment one exists
+in the pack.
+
+That change made an old content decision wrong. The three animal-sound tasks offered
+cards named *cow*, *duck*, *cat* — pictures, so tapping the cow answered "what sound does
+a cow make". Once the cards are spoken, tapping a card that says "cow" is not an answer to
+that question at all. The cards are now *moo*, *quack*, *meow*, which is both coherent and
+better, and a test asserts that a game's first card is an answer `accepted` would take and
+the other two are not.
+
+## One `ListeningTurn`, three modes
+
+Prayers, Word games and Why all want the same thing: open the microphone, let the child
+talk, come back with what they said or with the fact that nothing was heard. That seam is
+one type now, so there is one place that decides whether this device can hear, one place
+that guarantees exactly one outcome per turn, and one place that never asks for the
+microphone — the prompt stays on the first tap of the owl, where the brief puts it.
+
+It also means one `AVAudioEngine`. `VoiceRecorder` owns the tap and does the turn
+detection; the live buffers go straight to on-device recognition rather than a second
+engine fighting for the same input node, and `retainsAudio` is off so nothing is copied or
+kept.
+
+## The owl must never answer a question nobody asked
+
+The Why bank is 129 questions now, inside the brief's 100-200. Two tests hold the line:
+every canonical phrasing **and every authored alternate** must resolve to its own
+question, so a new entry that shadows an old one fails the build rather than quietly
+stealing its answers; and a handful of things a child says that are not questions at all
+must match nothing.
+
+Writing them turned up a trap worth recording. An entry whose keywords or alternates
+reduce to **one content word** matches on that word wherever it appears. That is right for
+"volcano" or "hibernation", which only ever mean one thing, and wrong for "colour" — the
+alternate "what is colour" was answering "what is my favourite colour" with an explanation
+of how eyes work. Single-word candidates are now kept to words that only ever mean their
+own question, and a test names the two that used to be wrong.
+
+## No scores, anywhere
+
+The brief says no scores and no streaks, so Word games has nowhere to put one. It keeps a
+short list of the tasks just asked, purely so the same one does not come round twice in a
+minute, and that list dies when the child leaves. Nothing counts right answers, in memory
+or on disk, because a three-year-old who gets one wrong should not then be a three-year-old
+with a number attached.
+
 ---
 
 ## Open, and deliberately deferred

@@ -139,8 +139,9 @@ def layer():
     return Image.new("RGBA", (W, H), (0, 0, 0, 0))
 
 
-def dimmed_room():
-    canvas = compose("night")
+def dimmed_room(owl=True):
+    """The room behind a running mode. `owl=False` for a screen that moves the owl."""
+    canvas = compose("night", owl=owl)
     # Pillow's ImageDraw overwrites pixels on an RGBA image rather than blending them, so
     # anything translucent has to be its own layer and composited.
     sheet = Image.new("RGBA", (W, H), (8, 8, 8, 168))    # the mode's dimming layer
@@ -183,7 +184,7 @@ def picker_screen(sets):
 
 
 def reciting_screen(line, lit_words):
-    canvas = dimmed_room()
+    canvas = dimmed_room(owl=False)
     spot = approach_point("lamp")
     paste(canvas, "owl_base.png", (spot[0], spot[1] + L["owlHeight"] / 2), L["owlHeight"])
     over = layer()

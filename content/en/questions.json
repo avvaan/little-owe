@@ -1,7 +1,8 @@
 {
   "_comment": "The Why bank. Recognition gives a rough transcript; QuestionMatcher scores it against each entry's keywords. `keywords` are the words that must mostly be present — pick nouns, not question words. `alternates` are whole phrasings that should also hit.",
   "_rule": "The owl must never invent an answer. Nothing here is generated at runtime: if nothing matches, it says the unknownQuestion line from phrases.json and asks the child to check with a grown-up.",
-  "_gap": "The brief asks for 100 to 200 questions. Twenty-eight are here, enough to build and test the matcher. Adding more is writing, not engineering.",
+  "_size": "129 questions, inside the brief's 100-200. Every canonical phrasing and every alternate is asserted to resolve to its own question, so a new entry that shadows an old one fails the build rather than quietly stealing its answers.",
+  "_singleWord": "An entry whose keywords or alternates reduce to ONE content word matches on that word alone, wherever it appears. That is right for 'volcano' or 'hibernation' and wrong for 'colour' - keep single-word candidates to words that only ever mean this question.",
   "questions": [
     {
       "id": "sky-blue",
@@ -403,6 +404,1722 @@
         "animals"
       ],
       "answer": "Owls have enormous eyes for seeing in the dark and feathers so soft that they fly without a sound. The night is when the mice come out, so that is when owls go to work."
+    },
+    {
+      "id": "sky-dark-night",
+      "text": "Why does the sky go dark at night?",
+      "keywords": [
+        "sky",
+        "dark"
+      ],
+      "alternates": [
+        "why does it get dark",
+        "why is it dark at night",
+        "what makes it dark"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Our whole world is a giant ball that turns around and around. When your side of the ball turns away from the sun, the sunlight cannot reach you any more, and that is night."
+    },
+    {
+      "id": "where-sun-goes",
+      "text": "Where does the sun go at night?",
+      "keywords": [
+        "sun",
+        "night"
+      ],
+      "alternates": [
+        "where does the sun go",
+        "what happens to the sun at night",
+        "does the sun go to sleep"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "It does not go anywhere. The world turns, so the sun slides out of sight below the edge of the ground, and while it is night here it is daytime for children on the other side."
+    },
+    {
+      "id": "moon-changes",
+      "text": "Why does the moon change shape?",
+      "keywords": [
+        "moon",
+        "shape"
+      ],
+      "alternates": [
+        "why is the moon a different shape",
+        "why is the moon a circle sometimes",
+        "what makes the moon change"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "The moon is always round, like a ball. The sun only lights up one side of it, and as the moon travels around us we see more or less of that lit side, so it looks like it is growing and shrinking."
+    },
+    {
+      "id": "stars-twinkle",
+      "text": "Why do stars twinkle?",
+      "keywords": [
+        "star",
+        "twinkle"
+      ],
+      "alternates": [
+        "why do stars sparkle",
+        "what makes stars twinkle",
+        "why are stars blinking"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Starlight travels a very long way and then has to come down through all the moving air above us. The air wobbles the light a little on its way, and that wobble is the twinkle."
+    },
+    {
+      "id": "stars-daytime",
+      "text": "Where do the stars go in the daytime?",
+      "keywords": [
+        "star",
+        "daytime"
+      ],
+      "alternates": [
+        "where are the stars in the day",
+        "why cant i see stars in the daytime",
+        "why do stars disappear in the morning"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "They are still there, all day long. The sun is so bright that its light fills the whole sky, and the little star lights are simply too faint to see next to it."
+    },
+    {
+      "id": "clouds-float",
+      "text": "Why do clouds float?",
+      "keywords": [
+        "cloud",
+        "float"
+      ],
+      "alternates": [
+        "why dont clouds fall down",
+        "how do clouds stay up",
+        "what holds clouds up"
+      ],
+      "tags": [
+        "sky",
+        "weather"
+      ],
+      "answer": "A cloud is made of billions of water drops so tiny that the moving air underneath holds them up, the way a puff of air holds up a feather. When the drops join together and get heavy, they fall, and that is rain."
+    },
+    {
+      "id": "clouds-made-of",
+      "text": "What are clouds made of?",
+      "keywords": [
+        "cloud",
+        "made"
+      ],
+      "alternates": [
+        "what is a cloud",
+        "are clouds cotton wool",
+        "what is inside a cloud"
+      ],
+      "tags": [
+        "sky",
+        "weather"
+      ],
+      "answer": "Water. A cloud is millions and millions of tiny water drops floating together, so small you cannot see one on its own. Standing inside a cloud on a hill just feels like cold damp fog."
+    },
+    {
+      "id": "sunset-orange",
+      "text": "Why does the sky turn orange in the evening?",
+      "keywords": [
+        "sky",
+        "orange",
+        "evening"
+      ],
+      "alternates": [
+        "why is the sunset orange",
+        "why does the sky go red at sunset",
+        "what makes the sky pink in the evening"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Sunlight is all the colours mixed together. In the evening the light comes to us the long way through the air, which scatters the blues away and leaves the oranges and reds to reach your eyes."
+    },
+    {
+      "id": "sun-size",
+      "text": "How big is the sun?",
+      "keywords": [
+        "sun",
+        "big"
+      ],
+      "alternates": [
+        "is the sun bigger than the earth",
+        "how large is the sun",
+        "why does the sun look small"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Enormous. You could fit a million worlds like ours inside it. It only looks small because it is so far away that light takes eight whole minutes to travel here."
+    },
+    {
+      "id": "what-is-space",
+      "text": "What is in space?",
+      "keywords": [
+        "space"
+      ],
+      "alternates": [
+        "what is space",
+        "whats up in space",
+        "what is outside the sky"
+      ],
+      "tags": [
+        "sky"
+      ],
+      "answer": "Mostly nothing at all - a huge empty quiet with no air in it. Scattered through that emptiness are stars, and worlds going around them, and dust and rocks, very far apart."
+    },
+    {
+      "id": "seasons",
+      "text": "Why do we have summer and winter?",
+      "keywords": [
+        "summer",
+        "winter"
+      ],
+      "alternates": [
+        "why are there seasons",
+        "why is it hot in summer",
+        "what makes winter cold"
+      ],
+      "tags": [
+        "sky",
+        "weather"
+      ],
+      "answer": "Our world leans a little to one side as it travels around the sun. For half the year your side leans towards the sun and gets long warm days, and for the other half it leans away and the days are short and cold."
+    },
+    {
+      "id": "lightning",
+      "text": "What is lightning?",
+      "keywords": [
+        "lightning"
+      ],
+      "alternates": [
+        "what makes lightning",
+        "why is there lightning",
+        "where does lightning come from"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "Inside a big storm cloud, ice and water rub past each other until the cloud crackles with electricity. When enough builds up it jumps all at once in a huge bright spark, and that spark is lightning."
+    },
+    {
+      "id": "wind-from",
+      "text": "Where does wind come from?",
+      "keywords": [
+        "wind"
+      ],
+      "alternates": [
+        "what makes wind",
+        "why is it windy",
+        "how does wind start"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "The sun warms some patches of air more than others. Warm air rises and cooler air slides in underneath to take its place, and all that air moving along is what you feel as wind."
+    },
+    {
+      "id": "snow-made",
+      "text": "How is snow made?",
+      "keywords": [
+        "snow",
+        "made"
+      ],
+      "alternates": [
+        "where does snow come from",
+        "how does snow happen",
+        "what is snow"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "When a cloud is cold enough, the water in it freezes onto specks of dust instead of forming drops. Each speck grows a tiny six-sided ice crystal, and when it is heavy enough it drifts down as a snowflake."
+    },
+    {
+      "id": "what-is-fog",
+      "text": "What is fog?",
+      "keywords": [
+        "fog"
+      ],
+      "alternates": [
+        "why is it foggy",
+        "what makes fog",
+        "where does fog come from"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "A cloud that has come all the way down to the ground. When damp air cools near the ground, its water turns into tiny floating drops, and walking through them is walking through a cloud."
+    },
+    {
+      "id": "puddles-dry",
+      "text": "Where do puddles go?",
+      "keywords": [
+        "puddle"
+      ],
+      "alternates": [
+        "why do puddles dry up",
+        "where does a puddle go",
+        "why does the puddle disappear"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "Into the air. Little by little the water turns into a gas you cannot see and drifts away, and later it may become part of a cloud. That is why puddles vanish fastest on a warm windy day."
+    },
+    {
+      "id": "winter-cold",
+      "text": "Why is it cold in winter?",
+      "keywords": [
+        "cold",
+        "winter"
+      ],
+      "alternates": [
+        "why does winter get cold",
+        "what makes it cold",
+        "why is it colder in the winter"
+      ],
+      "tags": [
+        "weather"
+      ],
+      "answer": "In winter your half of the world leans away from the sun. Its light arrives slanted and spread thin, and the nights are long, so the ground has more time to lose its warmth than to gain it."
+    },
+    {
+      "id": "dew-morning",
+      "text": "Why is the grass wet in the morning?",
+      "keywords": [
+        "grass",
+        "wet",
+        "morning"
+      ],
+      "alternates": [
+        "what is dew",
+        "why is there water on the grass",
+        "why is the grass damp in the morning"
+      ],
+      "tags": [
+        "weather",
+        "nature"
+      ],
+      "answer": "At night the ground cools down, and the air touching it cannot hold on to all its water any more. The water settles out onto the grass in tiny drops. That is called dew."
+    },
+    {
+      "id": "ice-melt",
+      "text": "Why does ice melt?",
+      "keywords": [
+        "ice",
+        "melt"
+      ],
+      "alternates": [
+        "what makes ice melt",
+        "why does ice turn into water",
+        "why does my ice lolly melt"
+      ],
+      "tags": [
+        "weather",
+        "things"
+      ],
+      "answer": "Ice is water holding perfectly still in a neat pattern. Warmth makes everything jiggle, and once the jiggling is strong enough the pattern breaks apart and the water can slide around again."
+    },
+    {
+      "id": "milk-from",
+      "text": "Where does milk come from?",
+      "keywords": [
+        "milk"
+      ],
+      "alternates": [
+        "where do we get milk",
+        "how do we get milk",
+        "who makes milk"
+      ],
+      "tags": [
+        "food"
+      ],
+      "answer": "From cows, mostly - and goats and sheep too. A mother animal makes milk to feed her baby, and a farmer milks her twice a day and sends it off in a cold tanker to be bottled."
+    },
+    {
+      "id": "bread-from",
+      "text": "How is bread made?",
+      "keywords": [
+        "bread",
+        "made"
+      ],
+      "alternates": [
+        "where does bread come from",
+        "how do you make bread",
+        "what is bread made of"
+      ],
+      "tags": [
+        "food"
+      ],
+      "answer": "Wheat is grown in a field and ground into flour. The flour is mixed with water and yeast, and the yeast blows tiny bubbles through the dough, which is what makes bread soft when it bakes."
+    },
+    {
+      "id": "chocolate-from",
+      "text": "Where does chocolate come from?",
+      "keywords": [
+        "chocolate"
+      ],
+      "alternates": [
+        "how is chocolate made",
+        "what is chocolate made of",
+        "where do we get chocolate"
+      ],
+      "tags": [
+        "food"
+      ],
+      "answer": "From beans that grow in big pods on cocoa trees in hot countries. The beans are dried, roasted and ground into a paste, and sugar and milk are stirred in to make it sweet."
+    },
+    {
+      "id": "onions-cry",
+      "text": "Why do onions make you cry?",
+      "keywords": [
+        "onion",
+        "cry"
+      ],
+      "alternates": [
+        "why do i cry when cutting onions",
+        "what makes onions sting your eyes",
+        "why do onions sting"
+      ],
+      "tags": [
+        "food",
+        "body"
+      ],
+      "answer": "Cutting an onion breaks open its tiny cells, and they let out a sharp gas. The gas stings your eyes a little, so your eyes wash themselves with tears to get rid of it."
+    },
+    {
+      "id": "popcorn-pop",
+      "text": "Why does popcorn pop?",
+      "keywords": [
+        "popcorn",
+        "pop"
+      ],
+      "alternates": [
+        "what makes popcorn pop",
+        "how does popcorn work",
+        "why does corn jump"
+      ],
+      "tags": [
+        "food"
+      ],
+      "answer": "Every popcorn kernel has a drop of water locked inside a hard shell. Heat turns that water into steam, the steam pushes harder and harder, and at last the shell bursts and the inside puffs out white."
+    },
+    {
+      "id": "water-boil",
+      "text": "Why does water bubble when it is hot?",
+      "keywords": [
+        "water",
+        "bubble",
+        "hot"
+      ],
+      "alternates": [
+        "why does water boil",
+        "what are the bubbles when water boils",
+        "why does boiling water bubble"
+      ],
+      "tags": [
+        "food",
+        "things"
+      ],
+      "answer": "When water gets hot enough, some of it turns into steam right at the bottom of the pan. The steam is lighter than water, so it rises up through it in bubbles and escapes at the top."
+    },
+    {
+      "id": "fire-hot",
+      "text": "Why is fire hot?",
+      "keywords": [
+        "fire",
+        "hot"
+      ],
+      "alternates": [
+        "what makes fire hot",
+        "why does fire burn",
+        "what is fire"
+      ],
+      "tags": [
+        "things"
+      ],
+      "answer": "Fire is what you see when something joins with the air so fast that it gives out its stored energy all at once, as heat and light. That is why fire needs both something to burn and air to breathe."
+    },
+    {
+      "id": "brush-teeth",
+      "text": "Why do we brush our teeth?",
+      "keywords": [
+        "brush",
+        "teeth"
+      ],
+      "alternates": [
+        "why do i have to brush my teeth",
+        "what does toothpaste do",
+        "why do we clean our teeth"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Tiny creatures live in your mouth and eat the leftovers from your food. What they leave behind can make little holes in your teeth, and brushing sweeps them away before they get started."
+    },
+    {
+      "id": "dogs-bark",
+      "text": "Why do dogs bark?",
+      "keywords": [
+        "dog",
+        "bark"
+      ],
+      "alternates": [
+        "what does barking mean",
+        "why does my dog bark",
+        "why do dogs make noise"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Barking is how a dog says something out loud. It can mean hello, or look at this, or stay away from my garden - and a dog that is left alone sometimes barks just to see if anyone answers."
+    },
+    {
+      "id": "dogs-wag",
+      "text": "Why do dogs wag their tails?",
+      "keywords": [
+        "dog",
+        "wag",
+        "tail"
+      ],
+      "alternates": [
+        "what does a wagging tail mean",
+        "why does a dog wag its tail",
+        "why do tails wag"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A tail is how a dog shows what it is feeling. A loose swinging wag usually means happy and friendly; a stiff fast one can mean the dog is excited or unsure, so it is worth looking at the rest of the dog too."
+    },
+    {
+      "id": "dogs-pant",
+      "text": "Why do dogs pant?",
+      "keywords": [
+        "dog",
+        "pant"
+      ],
+      "alternates": [
+        "why do dogs stick their tongue out",
+        "why does my dog breathe fast",
+        "how do dogs cool down"
+      ],
+      "tags": [
+        "animals",
+        "body"
+      ],
+      "answer": "Dogs hardly sweat at all. To cool down they breathe fast over their wet tongue, and as the water there dries it carries the heat away - the same cool feeling you get stepping out of a bath."
+    },
+    {
+      "id": "cats-whiskers",
+      "text": "Why do cats have whiskers?",
+      "keywords": [
+        "cat",
+        "whisker"
+      ],
+      "alternates": [
+        "what are whiskers for",
+        "why does a cat have whiskers",
+        "do whiskers help cats"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Whiskers are feelers. They tell a cat how wide a gap is and what is moving nearby in the dark, which is why a cat can slip through a fence at night without touching it."
+    },
+    {
+      "id": "cats-sleep",
+      "text": "Why do cats sleep so much?",
+      "keywords": [
+        "cat",
+        "sleep"
+      ],
+      "alternates": [
+        "why do cats sleep all day",
+        "how much do cats sleep",
+        "why is my cat always asleep"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Cats are built for short bursts of hunting, which uses a lot of energy very quickly. Resting most of the day keeps them ready, so a cat may sleep sixteen hours and still be up at dawn."
+    },
+    {
+      "id": "cats-land-feet",
+      "text": "How do cats always land on their feet?",
+      "keywords": [
+        "cat",
+        "land",
+        "feet"
+      ],
+      "alternates": [
+        "why do cats land on their feet",
+        "how do cats turn in the air",
+        "do cats always land on their feet"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A cat has a very bendy back and a clever sense of which way is up. Falling, it twists its front half one way and its back half the other, and comes round the right way up - though not always, and not from high places."
+    },
+    {
+      "id": "birds-sing",
+      "text": "Why do birds sing?",
+      "keywords": [
+        "bird",
+        "sing"
+      ],
+      "alternates": [
+        "why do birds make noise",
+        "what are birds singing about",
+        "why do birds chirp"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Mostly to say this is my patch of garden, and to call to a mate. Dawn is the quietest, stillest time of day, so a song carries furthest then - which is why the birds are loudest early."
+    },
+    {
+      "id": "birds-nests",
+      "text": "Why do birds build nests?",
+      "keywords": [
+        "bird",
+        "nest"
+      ],
+      "alternates": [
+        "what are nests for",
+        "how do birds make a nest",
+        "why do birds make nests"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A nest is a cradle. Eggs need to be kept warm and held safely off the ground, so a bird weaves a bowl of grass and twigs and sits on it until the chicks hatch."
+    },
+    {
+      "id": "birds-winter",
+      "text": "Where do birds go in winter?",
+      "keywords": [
+        "bird",
+        "winter"
+      ],
+      "alternates": [
+        "do birds fly away in winter",
+        "why do birds leave in winter",
+        "what is migration"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Many fly a very long way to somewhere warmer where there are still insects to eat, and come back in spring. Others stay all winter and get by on seeds and berries."
+    },
+    {
+      "id": "owls-hoot",
+      "text": "Why do owls hoot?",
+      "keywords": [
+        "owl",
+        "hoot"
+      ],
+      "alternates": [
+        "what does hooting mean",
+        "why does an owl hoot",
+        "what sound does an owl make"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Hooting is how an owl calls across the dark. It says here I am, this wood is mine - and a hoot carries much further at night, when everything else is quiet."
+    },
+    {
+      "id": "bats-upside-down",
+      "text": "Why do bats hang upside down?",
+      "keywords": [
+        "bat",
+        "hang",
+        "upside"
+      ],
+      "alternates": [
+        "why do bats sleep upside down",
+        "how do bats hang",
+        "do bats sleep upside down"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Bat wings are too small and weak to push off from the ground, so a bat cannot take off standing up. Hanging means it only has to let go and it is already flying."
+    },
+    {
+      "id": "elephant-ears",
+      "text": "Why do elephants have big ears?",
+      "keywords": [
+        "elephant",
+        "ear"
+      ],
+      "alternates": [
+        "why are elephant ears so big",
+        "what are elephants ears for",
+        "why do elephants flap their ears"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "They are fans and radiators at once. An elephant's ears are full of blood vessels near the surface, so flapping them in the breeze cools the blood and cools the whole elephant."
+    },
+    {
+      "id": "giraffe-neck",
+      "text": "Why do giraffes have long necks?",
+      "keywords": [
+        "giraffe",
+        "neck"
+      ],
+      "alternates": [
+        "why is a giraffe so tall",
+        "what is a giraffes neck for",
+        "why are giraffes tall"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A long neck reaches leaves at the tops of trees that nothing else can get to, and it makes a good lookout. Strangely, a giraffe has exactly the same number of neck bones you do - just much bigger ones."
+    },
+    {
+      "id": "zebra-stripes",
+      "text": "Why do zebras have stripes?",
+      "keywords": [
+        "zebra",
+        "stripe"
+      ],
+      "alternates": [
+        "what are zebra stripes for",
+        "why is a zebra stripy",
+        "are zebras black or white"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "The stripes make a running herd hard to pick one animal out of, and they seem to put biting flies off landing. Every zebra's pattern is different, like a fingerprint."
+    },
+    {
+      "id": "frogs-jump",
+      "text": "Why do frogs jump?",
+      "keywords": [
+        "frog",
+        "jump"
+      ],
+      "alternates": [
+        "how do frogs jump so far",
+        "why do frogs hop",
+        "what makes frogs jump"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A frog's back legs are folded springs, longer than the rest of it. One push launches it away from anything hungry and straight into the water, which is the safest place a frog knows."
+    },
+    {
+      "id": "snails-shell",
+      "text": "Why do snails have shells?",
+      "keywords": [
+        "snail",
+        "shell"
+      ],
+      "alternates": [
+        "what is a snails shell for",
+        "why does a snail carry a shell",
+        "is the shell part of the snail"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "The shell is the snail's house and its skin at once - it grows as part of the snail and cannot come off. The snail tucks inside to stay safe and to keep from drying out on a sunny day."
+    },
+    {
+      "id": "caterpillar-butterfly",
+      "text": "How does a caterpillar turn into a butterfly?",
+      "keywords": [
+        "caterpillar",
+        "butterfly"
+      ],
+      "alternates": [
+        "why do caterpillars become butterflies",
+        "what happens inside a cocoon",
+        "how do butterflies grow"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "The caterpillar eats until it is fat, then builds a hard case around itself. Inside, almost all of it softens and rearranges into wings and legs and feelers, and some weeks later a butterfly climbs out."
+    },
+    {
+      "id": "ants-carry",
+      "text": "How can ants carry such big things?",
+      "keywords": [
+        "ant",
+        "carry"
+      ],
+      "alternates": [
+        "why are ants so strong",
+        "how strong is an ant",
+        "what do ants carry"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Small creatures are strong for their size, because their muscles do not have much body to lift. An ant can carry many times its own weight back to the nest, and a line of ants can shift a whole leaf."
+    },
+    {
+      "id": "ducks-float",
+      "text": "Why do ducks float?",
+      "keywords": [
+        "duck",
+        "float"
+      ],
+      "alternates": [
+        "how do ducks stay on top of the water",
+        "why dont ducks sink",
+        "do ducks get wet"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "A duck is light and full of air, and its feathers are oiled so the water rolls straight off. Underneath there is a layer of fluffy down full of trapped air, which keeps it warm and holds it up."
+    },
+    {
+      "id": "rabbit-ears",
+      "text": "Why do rabbits have long ears?",
+      "keywords": [
+        "rabbit",
+        "ear"
+      ],
+      "alternates": [
+        "what are rabbit ears for",
+        "why are rabbits ears so big",
+        "why do bunnies have big ears"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "To hear something coming long before it arrives. A rabbit can turn each ear on its own to find where a sound came from, and the big ears help it keep cool as well."
+    },
+    {
+      "id": "bears-winter",
+      "text": "Why do bears sleep all winter?",
+      "keywords": [
+        "bear",
+        "winter"
+      ],
+      "alternates": [
+        "what is hibernation",
+        "do bears sleep in winter",
+        "why do animals hibernate"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "In winter there is almost nothing for a bear to eat. So it eats all autumn, goes into a den, and slows its whole body down to a doze that uses very little food until spring."
+    },
+    {
+      "id": "worms-rain",
+      "text": "Why do worms come out when it rains?",
+      "keywords": [
+        "worm",
+        "rain"
+      ],
+      "alternates": [
+        "why are there worms on the path after rain",
+        "where do worms come from when it rains",
+        "why do worms come up"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Worms breathe through their skin, which has to stay damp. Rain makes the whole world damp enough to travel across the top, which is much faster than tunnelling - so they come up and go visiting."
+    },
+    {
+      "id": "ladybird-spots",
+      "text": "Why do ladybirds have spots?",
+      "keywords": [
+        "ladybird",
+        "spot"
+      ],
+      "alternates": [
+        "what are ladybird spots for",
+        "why is a ladybird spotty",
+        "do ladybugs have spots"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "The bright red and black is a warning: it tells birds that this beetle tastes horrible. Plenty of small creatures wear loud colours for exactly that reason."
+    },
+    {
+      "id": "penguins-cold",
+      "text": "Why are penguins not cold?",
+      "keywords": [
+        "penguin",
+        "cold"
+      ],
+      "alternates": [
+        "how do penguins stay warm",
+        "why dont penguins freeze",
+        "do penguins get cold"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Under those feathers is a thick layer of fat, and the feathers themselves overlap like roof tiles to keep the water out. They also huddle together in a great crowd and take turns standing on the windy edge."
+    },
+    {
+      "id": "camel-hump",
+      "text": "What is in a camel's hump?",
+      "keywords": [
+        "camel",
+        "hump"
+      ],
+      "alternates": [
+        "why do camels have humps",
+        "is there water in a camels hump",
+        "what is a camels hump for"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "Fat, not water. It is a packed lunch the camel carries on its back for when there is nothing to eat, and a camel with an empty hump has a floppy one."
+    },
+    {
+      "id": "fireflies-glow",
+      "text": "Why do fireflies glow?",
+      "keywords": [
+        "firefly",
+        "glow"
+      ],
+      "alternates": [
+        "how do fireflies light up",
+        "why do glow worms glow",
+        "what makes fireflies shine"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "They mix two things inside their tail that give off light without any heat, and blink it on and off in a pattern. It is how they find each other in the dark - a firefly calling with a little lamp."
+    },
+    {
+      "id": "horses-standing",
+      "text": "Do horses sleep standing up?",
+      "keywords": [
+        "horse",
+        "standing"
+      ],
+      "alternates": [
+        "why do horses sleep standing up",
+        "can horses sleep standing",
+        "do horses lie down to sleep"
+      ],
+      "tags": [
+        "animals"
+      ],
+      "answer": "They can doze standing, because their legs lock in place and hold them without any effort. For proper deep sleep they do lie down, but only for a short while, and only when they feel safe."
+    },
+    {
+      "id": "why-blink",
+      "text": "Why do we blink?",
+      "keywords": [
+        "blink"
+      ],
+      "alternates": [
+        "what does blinking do",
+        "why do i blink",
+        "why do we blink our eyes"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "A blink is a tiny window-wipe. It spreads a fresh film of tears over your eye to keep it clean and comfortable, and it happens so fast you never notice the dark."
+    },
+    {
+      "id": "why-cry",
+      "text": "Why do we cry?",
+      "keywords": [
+        "cry"
+      ],
+      "alternates": [
+        "what are tears for",
+        "why do i cry",
+        "where do tears come from"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Tears wash your eyes and keep them from stinging. When you feel something very strongly - sad, or hurt, or even very happy - your body makes extra tears, and crying helps that big feeling pass."
+    },
+    {
+      "id": "tummy-rumbles",
+      "text": "Why does my tummy rumble?",
+      "keywords": [
+        "tummy",
+        "rumble"
+      ],
+      "alternates": [
+        "why does my stomach growl",
+        "what is that noise in my tummy",
+        "why is my tummy making noises"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your tummy and the long tube below it are always squeezing, to push food along. When they are empty they are squeezing mostly air, and that is what makes the gurgle you can hear."
+    },
+    {
+      "id": "goosebumps",
+      "text": "What are goosebumps?",
+      "keywords": [
+        "goosebump"
+      ],
+      "alternates": [
+        "why do i get goose bumps",
+        "why does my skin go bumpy",
+        "what makes goosebumps"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Each little bump is one hair standing up. Furry animals fluff up their fur to trap warm air or to look bigger, and although we have hardly any fur left, our skin still does it when we are cold or startled."
+    },
+    {
+      "id": "hair-grow",
+      "text": "Why does hair grow?",
+      "keywords": [
+        "hair",
+        "grow"
+      ],
+      "alternates": [
+        "why do we have hair",
+        "does hair keep growing",
+        "what is hair for"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Hair grows out of tiny pockets in your skin that keep adding to it from below. It keeps your head warm and shades it from the sun, and the hairs in your nose and ears catch dust on its way in."
+    },
+    {
+      "id": "fingernails",
+      "text": "Why do we have fingernails?",
+      "keywords": [
+        "fingernail"
+      ],
+      "alternates": [
+        "what are nails for",
+        "why do nails grow",
+        "why do we have nails"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "They are little shields for your fingertips, which are the most useful and most easily hurt part of your hand. They also give you something firm to press against, which is what makes picking up a crumb possible."
+    },
+    {
+      "id": "why-tickle",
+      "text": "Why does a tickle make you laugh?",
+      "keywords": [
+        "tickle",
+        "laugh"
+      ],
+      "alternates": [
+        "why am i ticklish",
+        "why cant i tickle myself",
+        "what makes tickling funny"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Tickling is a surprise on your skin, and your body answers with a wriggle and a laugh. You cannot tickle yourself because you already know exactly where your fingers are going - the surprise is missing."
+    },
+    {
+      "id": "why-eat",
+      "text": "Why do we have to eat?",
+      "keywords": [
+        "eat"
+      ],
+      "alternates": [
+        "why do we need food",
+        "what does food do",
+        "why do i get hungry"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Food is where your body gets both its building material and its energy. It takes food apart into tiny pieces and uses them to grow, to mend itself and to keep you running about all day."
+    },
+    {
+      "id": "why-breathe",
+      "text": "Why do we breathe?",
+      "keywords": [
+        "breathe"
+      ],
+      "alternates": [
+        "what does breathing do",
+        "why do we need air",
+        "what is air for"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "There is a gas in the air called oxygen that every part of your body needs to work. Each breath in collects some, and each breath out gets rid of the waste gas your body has finished with."
+    },
+    {
+      "id": "why-tired",
+      "text": "Why do we get tired?",
+      "keywords": [
+        "tired"
+      ],
+      "alternates": [
+        "what makes you tired",
+        "why do i feel sleepy",
+        "why do we get sleepy at night"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Being awake and busy uses things up and makes small messes inside you, and your body keeps a clock that knows roughly when the day should end. Tiredness is it asking for time to tidy up and mend."
+    },
+    {
+      "id": "cuts-heal",
+      "text": "How do cuts get better?",
+      "keywords": [
+        "cut",
+        "better"
+      ],
+      "alternates": [
+        "how does a cut heal",
+        "why do scabs happen",
+        "what is a scab"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your blood makes a sticky plug that dries into a scab, which is a lid to keep dirt out. Underneath, new skin grows across the gap, and when it is finished the scab falls off by itself."
+    },
+    {
+      "id": "belly-button",
+      "text": "Why do we have a belly button?",
+      "keywords": [
+        "belly",
+        "button"
+      ],
+      "alternates": [
+        "what is a belly button for",
+        "where does a belly button come from",
+        "why do i have a belly button"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "It is the mark left where you were joined to your mother before you were born. A soft cord carried food and air to you there, and when you no longer needed it, it was cut and healed into that little dent."
+    },
+    {
+      "id": "why-sweat",
+      "text": "Why do we sweat?",
+      "keywords": [
+        "sweat"
+      ],
+      "alternates": [
+        "what is sweat for",
+        "why do i get hot and wet",
+        "why do we sweat when running"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Sweat is your body's way of cooling itself. Water comes out onto your skin, and as it dries it takes heat away with it - which is why a breeze on a hot day feels so good."
+    },
+    {
+      "id": "why-shiver",
+      "text": "Why do we shiver when we are cold?",
+      "keywords": [
+        "shiver",
+        "cold"
+      ],
+      "alternates": [
+        "what is shivering",
+        "why do i shake when cold",
+        "why do we shake in the cold"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Shivering is your muscles wobbling on purpose. Muscles make heat whenever they work, so your body sets them all trembling at once to warm you up until you can get somewhere warmer."
+    },
+    {
+      "id": "eye-colours",
+      "text": "Why do people have different eye colours?",
+      "keywords": [
+        "eye",
+        "colour",
+        "different"
+      ],
+      "alternates": [
+        "why are eyes different colours",
+        "what makes eyes blue",
+        "why are my eyes brown"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "The colour is a ring of paint inside your eye, and how much of it you have is passed down from your family. More of it makes brown eyes, less of it makes green or blue."
+    },
+    {
+      "id": "why-eyebrows",
+      "text": "Why do we have eyebrows?",
+      "keywords": [
+        "eyebrow"
+      ],
+      "alternates": [
+        "what are eyebrows for",
+        "why do we have hair above our eyes",
+        "do eyebrows do anything"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "They steer rain and sweat off to the sides of your face so it does not run into your eyes. They also do a great deal of talking - most of what a face says, it says with its eyebrows."
+    },
+    {
+      "id": "wrinkly-fingers",
+      "text": "Why do my fingers go wrinkly in the bath?",
+      "keywords": [
+        "finger",
+        "wrinkly",
+        "bath"
+      ],
+      "alternates": [
+        "why do fingers wrinkle in water",
+        "why does my skin go crinkly in the bath",
+        "what makes fingers prune"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your body does it on purpose. After a while in water the skin of your fingertips puckers into little ridges, which grip wet things better - like the tread on a tyre."
+    },
+    {
+      "id": "two-ears",
+      "text": "Why do we have two ears?",
+      "keywords": [
+        "two",
+        "ear"
+      ],
+      "alternates": [
+        "why do we have ears on both sides",
+        "why not just one ear",
+        "what are two ears for"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "So you can tell where a sound came from. A sound from your left reaches your left ear a whisker sooner and a little louder, and your head works out the direction from that tiny difference."
+    },
+    {
+      "id": "why-fingerprints",
+      "text": "Why do we have fingerprints?",
+      "keywords": [
+        "fingerprint"
+      ],
+      "alternates": [
+        "what are fingerprints for",
+        "why do fingers have lines",
+        "are fingerprints all different"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "The ridges help you grip and feel fine detail. No two people have quite the same pattern - not even twins - which is why a fingerprint can say who touched something."
+    },
+    {
+      "id": "why-sun-tan",
+      "text": "Why does the sun make my skin darker?",
+      "keywords": [
+        "sun",
+        "skin",
+        "darker"
+      ],
+      "alternates": [
+        "why do i get a tan",
+        "what is sunburn",
+        "why does the sun burn my skin"
+      ],
+      "tags": [
+        "body"
+      ],
+      "answer": "Your skin makes a brown colour to shade itself from the sun's strongest light. It cannot make it fast enough to keep up, though, which is why sunburn happens and why a hat and cream matter."
+    },
+    {
+      "id": "flowers-smell",
+      "text": "Why do flowers smell nice?",
+      "keywords": [
+        "flower",
+        "smell"
+      ],
+      "alternates": [
+        "why do flowers have a smell",
+        "what is the smell of flowers for",
+        "why do flowers smell sweet"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "The smell is an advertisement for bees and butterflies, calling them in for a drink of nectar. While they drink they get dusted with pollen and carry it to the next flower, which is how new seeds get made."
+    },
+    {
+      "id": "plants-grow",
+      "text": "How do plants grow?",
+      "keywords": [
+        "plant",
+        "grow"
+      ],
+      "alternates": [
+        "what do plants eat",
+        "what do plants need to grow",
+        "how does a plant get food"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "A plant makes its own food out of sunlight, air and water, in its leaves. Its roots drink water from the soil and hold it steady, and as long as it has light and a drink it keeps building itself taller."
+    },
+    {
+      "id": "what-are-seeds",
+      "text": "What is a seed?",
+      "keywords": [
+        "seed"
+      ],
+      "alternates": [
+        "what is inside a seed",
+        "how does a seed grow",
+        "what do seeds do"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "A seed is a tiny plant asleep, with a packed lunch beside it and a coat around them both. Warmth and water wake it up, it eats its lunch to push out a root and a shoot, and after that it feeds itself."
+    },
+    {
+      "id": "trees-tall",
+      "text": "Why are trees so tall?",
+      "keywords": [
+        "tree",
+        "tall"
+      ],
+      "alternates": [
+        "why do trees grow tall",
+        "how do trees get so big",
+        "why are trees big"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Trees are in a race for the light. A tree that reaches above its neighbours gets the sunshine and they get the shade, so over hundreds of years the tall ones have won."
+    },
+    {
+      "id": "mushrooms",
+      "text": "What is a mushroom?",
+      "keywords": [
+        "mushroom"
+      ],
+      "alternates": [
+        "why do mushrooms grow",
+        "where do mushrooms come from",
+        "are mushrooms plants"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "A mushroom is not a plant. It is the fruit of a great web of threads living in the soil, and it pops up to scatter dust-fine spores. Some are good to eat and some are poisonous, so never pick one to taste."
+    },
+    {
+      "id": "sea-salty",
+      "text": "Why is the sea salty?",
+      "keywords": [
+        "sea",
+        "salty"
+      ],
+      "alternates": [
+        "why is the ocean salt",
+        "where does sea salt come from",
+        "why does sea water taste salty"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Rain wears a little salt out of the rocks it runs over, and rivers carry it down to the sea. Water leaves the sea again by drifting up into the sky, but the salt cannot, so it has been collecting there for a very long time."
+    },
+    {
+      "id": "waves-move",
+      "text": "What makes waves in the sea?",
+      "keywords": [
+        "wave",
+        "sea"
+      ],
+      "alternates": [
+        "why does the sea have waves",
+        "where do waves come from",
+        "what makes the sea move"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Wind, mostly. It drags on the surface of the water and pushes it into ripples, and ripples far out at sea travel a long way and pile into waves that tumble over when they reach the shallow part."
+    },
+    {
+      "id": "what-is-sand",
+      "text": "What is sand made of?",
+      "keywords": [
+        "sand",
+        "made"
+      ],
+      "alternates": [
+        "where does sand come from",
+        "what is sand",
+        "how is sand made"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Rock, broken very small. Waves and wind and frost have been grinding cliffs and shells down for thousands of years, and every grain on a beach is a chip of something that used to be much bigger."
+    },
+    {
+      "id": "mountains",
+      "text": "How are mountains made?",
+      "keywords": [
+        "mountain",
+        "made"
+      ],
+      "alternates": [
+        "why are mountains so tall",
+        "where do mountains come from",
+        "how do mountains grow"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "The hard outside of our world is made of huge slow-moving pieces. Where two of them press against each other the ground between them crumples upwards, and a crumple that goes on for millions of years is a mountain."
+    },
+    {
+      "id": "volcano",
+      "text": "What is a volcano?",
+      "keywords": [
+        "volcano"
+      ],
+      "alternates": [
+        "why do volcanoes erupt",
+        "what comes out of a volcano",
+        "how does a volcano work"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Deep underground some rock is so hot it has melted. Where it finds a crack it pushes upwards, and a volcano is the opening where it comes out - as glowing runny rock, ash and steam."
+    },
+    {
+      "id": "rivers-flow",
+      "text": "Why do rivers flow to the sea?",
+      "keywords": [
+        "river",
+        "flow"
+      ],
+      "alternates": [
+        "where do rivers go",
+        "why do rivers run downhill",
+        "where does a river start"
+      ],
+      "tags": [
+        "nature"
+      ],
+      "answer": "Water always runs downhill, and it keeps going until there is no more downhill left. A river starts as rain on high ground, gathers every stream it passes, and stops only when it reaches the sea."
+    },
+    {
+      "id": "cars-move",
+      "text": "How do cars move?",
+      "keywords": [
+        "car",
+        "move"
+      ],
+      "alternates": [
+        "what makes a car go",
+        "how does a car work",
+        "what makes cars move"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "An engine burns fuel, or a motor uses electricity, and either way it spins a rod. That rod turns the wheels, the wheels push backwards against the road, and the road pushes the car forwards."
+    },
+    {
+      "id": "balloons-float",
+      "text": "Why do some balloons float?",
+      "keywords": [
+        "balloon",
+        "float"
+      ],
+      "alternates": [
+        "why do helium balloons go up",
+        "why does my balloon fly away",
+        "what makes balloons float"
+      ],
+      "tags": [
+        "machines",
+        "things"
+      ],
+      "answer": "Because of what is inside them. A balloon full of a very light gas called helium weighs less than the same amount of air, so the air underneath lifts it - the way a cork is pushed up through water."
+    },
+    {
+      "id": "bikes-stay-up",
+      "text": "How does a bike stay up?",
+      "keywords": [
+        "bike",
+        "stay"
+      ],
+      "alternates": [
+        "why doesnt a bike fall over",
+        "how do you balance on a bike",
+        "why does a bike not fall"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "Mostly by steering. A bike that starts to lean gets steered very slightly that way, which brings the wheels back under you, and you do it without noticing - which is why it only works while you are moving."
+    },
+    {
+      "id": "magnets",
+      "text": "Why do magnets stick?",
+      "keywords": [
+        "magnet",
+        "stick"
+      ],
+      "alternates": [
+        "how do magnets work",
+        "what do magnets stick to",
+        "why do magnets pull"
+      ],
+      "tags": [
+        "machines",
+        "things"
+      ],
+      "answer": "Every magnet is surrounded by a pull you cannot see. Iron and steel are the metals that answer it, which is why a magnet grabs a nail and ignores a spoon made of something else."
+    },
+    {
+      "id": "fridge-cold",
+      "text": "How does a fridge get cold?",
+      "keywords": [
+        "fridge",
+        "cold"
+      ],
+      "alternates": [
+        "why is a fridge cold",
+        "how does a fridge work",
+        "what makes a fridge cold"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "It moves heat out rather than making cold. A liquid inside the pipes takes warmth from the food, carries it round to the back, and lets it go - which is why the back of a fridge is warm."
+    },
+    {
+      "id": "soap-clean",
+      "text": "How does soap clean things?",
+      "keywords": [
+        "soap",
+        "clean"
+      ],
+      "alternates": [
+        "why does soap work",
+        "what does soap do",
+        "how does washing get things clean"
+      ],
+      "tags": [
+        "things"
+      ],
+      "answer": "Grease and water will not mix, so water alone slides straight past a greasy mark. Soap grabs the grease at one end and the water at the other, and lets the water carry the dirt away."
+    },
+    {
+      "id": "kites-fly",
+      "text": "How does a kite fly?",
+      "keywords": [
+        "kite",
+        "fly"
+      ],
+      "alternates": [
+        "what makes a kite go up",
+        "why does a kite stay in the air",
+        "how do you fly a kite"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "The string holds the kite leaning into the wind, so the wind slides underneath and pushes it upwards. Let the string go and the kite has nothing to lean against, and down it comes."
+    },
+    {
+      "id": "things-fall",
+      "text": "Why do things fall down?",
+      "keywords": [
+        "thing",
+        "fall"
+      ],
+      "alternates": [
+        "what is gravity",
+        "why does everything fall",
+        "why dont we float"
+      ],
+      "tags": [
+        "things"
+      ],
+      "answer": "Everything pulls on everything else, and big things pull hardest. Our world is so enormously big that its pull wins over all the others, and it pulls everything - you, the rain, the apples - towards itself."
+    },
+    {
+      "id": "mirrors",
+      "text": "How does a mirror work?",
+      "keywords": [
+        "mirror"
+      ],
+      "alternates": [
+        "why can i see myself in a mirror",
+        "what is a mirror",
+        "why do mirrors show you"
+      ],
+      "tags": [
+        "light"
+      ],
+      "answer": "Light bounces off you in all directions. A mirror is so smooth that it sends the light straight back the way it came instead of scattering it, so your eyes catch a tidy picture of you."
+    },
+    {
+      "id": "glass-see-through",
+      "text": "Why can you see through glass?",
+      "keywords": [
+        "glass",
+        "see",
+        "through"
+      ],
+      "alternates": [
+        "why is glass clear",
+        "how is glass see through",
+        "why can light go through glass"
+      ],
+      "tags": [
+        "light"
+      ],
+      "answer": "In most things light bumps into something and stops. Glass is arranged so evenly that light slips all the way through without being caught, so you see what is on the other side instead of the glass."
+    },
+    {
+      "id": "why-colours",
+      "text": "Why do we see colours?",
+      "keywords": [
+        "colour",
+        "see"
+      ],
+      "alternates": [
+        "how do we see colour",
+        "how does colour work",
+        "why are things different colours"
+      ],
+      "tags": [
+        "light"
+      ],
+      "answer": "Light is all the colours travelling together. A red jumper soaks up most of them and throws the red back at you, and the back of your eye has tiny catchers that can tell one colour from another."
+    },
+    {
+      "id": "wheels-round",
+      "text": "Why are wheels round?",
+      "keywords": [
+        "wheel",
+        "round"
+      ],
+      "alternates": [
+        "why arent wheels square",
+        "what makes a wheel work",
+        "why do wheels roll"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "Because every part of the rim is exactly the same distance from the middle, so a rolling wheel carries the axle along at a steady height. A square one would drop and climb at every corner."
+    },
+    {
+      "id": "trains-tracks",
+      "text": "Why do trains run on rails?",
+      "keywords": [
+        "train",
+        "rail"
+      ],
+      "alternates": [
+        "why do trains have tracks",
+        "what are train tracks for",
+        "why do trains not have steering"
+      ],
+      "tags": [
+        "machines"
+      ],
+      "answer": "Steel wheels on steel rails slide along with almost nothing holding them back, so one engine can pull a very heavy train. The rails do the steering, which is why a train has no steering wheel."
+    },
+    {
+      "id": "umbrella-rain",
+      "text": "How does an umbrella keep you dry?",
+      "keywords": [
+        "umbrella",
+        "dry"
+      ],
+      "alternates": [
+        "why does an umbrella work",
+        "what is an umbrella for",
+        "how do umbrellas keep rain off"
+      ],
+      "tags": [
+        "things"
+      ],
+      "answer": "Its cloth is woven so tightly, and coated so the water beads up, that the rain cannot get through. It runs down the curve instead and drips off the edge, well away from you."
+    },
+    {
+      "id": "candles-out",
+      "text": "Why does a candle go out when you blow it?",
+      "keywords": [
+        "candle",
+        "blow"
+      ],
+      "alternates": [
+        "how do you blow out a candle",
+        "why does blowing put out a flame",
+        "what puts a candle out"
+      ],
+      "tags": [
+        "things"
+      ],
+      "answer": "A flame needs hot gas from the melted wax to keep burning. Blowing sweeps that hot gas away and cools the wick below the temperature it needs, and the flame has nothing left to burn."
+    },
+    {
+      "id": "shadow-size",
+      "text": "Why does my shadow change size?",
+      "keywords": [
+        "shadow",
+        "size"
+      ],
+      "alternates": [
+        "why is my shadow long sometimes",
+        "why does my shadow get bigger",
+        "why is my shadow short"
+      ],
+      "tags": [
+        "light"
+      ],
+      "answer": "A shadow is the shape of the light you are blocking. When the sun is low the light comes at you sideways and stretches your shadow long; when it is right overhead your shadow is a small puddle at your feet."
     }
   ]
 }

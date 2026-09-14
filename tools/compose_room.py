@@ -72,7 +72,8 @@ def paste(canvas, filename, centre, height=None):
     canvas.alpha_composite(im, (round(centre[0] - im.width / 2), round(sk(centre[1]) - im.height / 2)))
 
 
-def compose(time="night"):
+def compose(time="night", owl=True):
+    """`owl=False` leaves the owl out, for a preview that puts it somewhere else."""
     room = os.path.join(ART, "room_bg.jpg")
     canvas = Image.open(room).convert("RGBA").resize((W, H), Image.LANCZOS)
 
@@ -87,8 +88,9 @@ def compose(time="night"):
     for letter, centre in zip("abc", L["blockCentres"]):
         paste(canvas, f"block_{letter}.png", (centre["x"], centre["y"]), L["blockHeight"])
 
-    owl_h = L["owlHeight"]
-    paste(canvas, "owl_base.png", (L["owlHome"]["x"], L["owlHome"]["y"] + owl_h / 2), owl_h)
+    if owl:
+        owl_h = L["owlHeight"]
+        paste(canvas, "owl_base.png", (L["owlHome"]["x"], L["owlHome"]["y"] + owl_h / 2), owl_h)
     return canvas
 
 
