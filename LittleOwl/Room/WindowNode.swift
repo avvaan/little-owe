@@ -56,21 +56,19 @@ final class WindowNode: SKNode {
 
     /// Whether this time of day has its own painted sky yet.
     static func hasPaintedSky(for time: TimeOfDay) -> Bool {
-        Bundle.main.url(forResource: "window_sky_\(time.rawValue)", withExtension: "png") != nil
+        ArtTexture.exists("window_sky_\(time.rawValue)")
     }
 
     private static func skyTexture(for time: TimeOfDay) -> SKTexture? {
         for name in ["window_sky_\(time.rawValue)", "window_sky_night"] {
-            if Bundle.main.url(forResource: name, withExtension: "png") != nil {
-                return SKTexture(imageNamed: name)
-            }
+            if let texture = ArtTexture.texture(named: name) { return texture }
         }
         assertionFailure("No window sky artwork in the bundle")
         return nil
     }
 
     private func buildWoodwork() {
-        let wood = SKSpriteNode(imageNamed: "window_woodwork")
+        let wood = ArtTexture.sprite("window_woodwork")
         wood.size = CGSize(width: radius * 2, height: radius * 2)
         wood.zPosition = RoomLayout.Z.windowWood
         addChild(wood)

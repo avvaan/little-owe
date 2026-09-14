@@ -83,15 +83,15 @@ final class WatercolourOwlRig: OwlRig {
     // MARK: Init
 
     init() {
-        let base = SKTexture(imageNamed: Frame.base.rawValue)
-        base.filteringMode = .linear
+        // Through `ArtTexture` like every other painting: `imageNamed:` assumes `.png`
+        // for a loose bundle file, and an owl frame delivered as a JPEG would be
+        // skipped in silence rather than drawn.
+        let base = ArtTexture.required(Frame.base.rawValue) ?? SKTexture()
         sprite = SKSpriteNode(texture: base)
 
         textures[.base] = base
         for frame in Frame.allCases where frame != .base {
-            guard Bundle.main.url(forResource: frame.rawValue, withExtension: "png") != nil else { continue }
-            let texture = SKTexture(imageNamed: frame.rawValue)
-            texture.filteringMode = .linear
+            guard let texture = ArtTexture.texture(named: frame.rawValue) else { continue }
             textures[frame] = texture
         }
 

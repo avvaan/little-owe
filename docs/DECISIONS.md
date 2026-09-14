@@ -628,6 +628,39 @@ build rather than a branch somebody keeps rebasing.
 
 ---
 
+## A red cross where the room should be
+
+The first build with the recorded voice went to a real iPad and showed a giant red
+cross on white, with the owl, the window and the blocks floating on it. That is what
+SpriteKit draws when a texture is missing.
+
+Every painting in `Resources/Art` is a PNG except one. The room is a full-screen
+painting and a PNG of it is six times the size of the JPEG, so the export script saves
+`room_bg.jpg`. `SKSpriteNode(imageNamed:)` goes through `UIImage(named:)`, and for a
+loose file in the bundle — as opposed to an entry in an asset catalogue — that assumes
+`.png`. So every painting loaded and the one JPEG did not.
+
+What is worth writing down is not the bug. It is that **nothing between the repository
+and the child said a word.** The build was green. The art check passed, and passed
+correctly: it compares the files on disk against what the export script produces, and
+the file was right. The tests passed. The archive validated. Apple accepted the upload.
+Every check in this project was checking that the file existed and was correct, and not
+one of them checked that the app could load it.
+
+So `ArtTexture` asks the bundle which file is actually there and loads that, with no
+guessing about extensions, and a painting that is missing now fails an assertion in a
+debug build instead of being drawn as a cross. Every painting goes through it — the
+room, the props, the window, and the owl's frames, which had the same hole: a frame
+delivered as a JPEG would have been skipped in silence.
+
+And `ArtTests` loads every painting the room cannot be assembled without, rather than
+looking for it. It also checks the room's aspect against `RoomLayout.designSize`,
+because the sprite is stretched to that size and a painting of the wrong shape would not
+fail to load — it would quietly distort, which is the same class of bug one step
+further on.
+
+---
+
 ## Open, and deliberately deferred
 
 - **The room is painted for night only.** The window follows the clock, but a bright
