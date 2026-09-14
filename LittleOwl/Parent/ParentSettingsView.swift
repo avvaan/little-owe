@@ -27,6 +27,11 @@ struct ParentSettingsView: View {
 
     @State private var showingResetConfirmation = false
 
+    #if LITTLE_OWL_AI
+    @State private var typedKey = ""
+    @State private var keyIsStored = BrainKey.isSet
+    #endif
+
     var body: some View {
         NavigationStack {
             Form {
@@ -34,6 +39,9 @@ struct ParentSettingsView: View {
                 if let pack, !pack.spokenSets.isEmpty { lampSection(pack) }
                 voiceSection
                 microphoneSection
+                #if LITTLE_OWL_AI
+                brainSection
+                #endif
                 resetSection
                 aboutSection
             }
@@ -152,6 +160,58 @@ struct ParentSettingsView: View {
             Text("Captions are the only words your child ever sees, and they only appear while the owl is speaking. The app never asks a child to read anything.")
         }
     }
+
+    // MARK: The owl answering for itself
+
+    #if LITTLE_OWL_AI
+    /// Only in a build somebody deliberately made. There is no such section in the
+    /// App Store build, because there is no such code in it.
+    private var brainSection: some View {
+        Section {
+            Toggle("Let the owl answer new questions", isOn: Binding(
+                get: { settings.brainEnabled },
+                set: { settings.brainEnabled = $0 }
+            ))
+            .disabled(!keyIsStored)
+
+            if keyIsStored {
+                LabeledContent("API key", value: "Stored on this iPad")
+                Button("Remove the key", role: .destructive) {
+                    BrainKey.set(nil)
+                    keyIsStored = false
+                    settings.brainEnabled = false
+                    typedKey = ""
+                }
+            } else {
+                SecureField("Anthropic API key", text: $typedKey)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                Button("Save the key") {
+                    if BrainKey.set(typedKey) {
+                        keyIsStored = BrainKey.isSet
+                        typedKey = ""
+                    }
+                }
+                .disabled(typedKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        } header: {
+            Text("When the owl does not know")
+        } footer: {
+            Text("""
+                The owl knows about a hundred and thirty questions by heart. \
+                Switched on, anything outside that goes to Anthropic's servers as \
+                text — the question only, never your child's voice, never anything \
+                about them, and nothing is kept between questions. Answers are \
+                checked before they are spoken, and anything that does not come back \
+                as one or two plain sentences becomes the owl's ordinary "I do not \
+                know that one. Ask your grown-up." So does no signal at all.
+
+                This is the only part of Little Owl that uses the network, it is \
+                billed to your own account, and it is off until you turn it on.
+                """)
+        }
+    }
+    #endif
 
     // MARK: Microphone
 

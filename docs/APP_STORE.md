@@ -255,3 +255,15 @@ placeholder shapes for the same reason.
 | Prayer texts | Traditional placeholders, marked `"placeholder": true` in `content/en/spoken-sets.json` |
 | Story illustrations, hero cards, answer cards | Placeholder shapes; the app works without them |
 | The lamp and the window in parent settings | Switch the mode off but stay painted in the room — see `docs/ART_BRIEF.md` |
+
+### One thing to get right before every submission
+
+The repository contains code, behind a compile flag called `LITTLE_OWL_AI`, that lets
+the owl ask a language model when a child asks something the content pack does not
+cover. **It must not be compiled into anything submitted for review**, which is why it
+is a compile flag and not a setting: without it there is no networking code in the
+binary to disable, and the description above stays literally true.
+
+The TestFlight workflow's `brain` input is off by default and a tagged release cannot
+turn it on. `docs/RELEASE.md` has the detail. A build with it on is for one iPad, through
+Internal Testing, and never goes near Beta App Review or the store.

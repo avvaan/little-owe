@@ -550,10 +550,66 @@ move without them if they do not, which is the same bargain every other frame ha
 
 ---
 
+## The owl is allowed one thing it did not read somewhere
+
+Every answer in this app is a sentence somebody wrote. That was stated as a
+non-negotiable and it was the right call: an owl that makes something up for a
+five-year-old is worse than one that admits it does not know.
+
+But there is exactly one dead end in the app, and it is in the mode built around
+curiosity. A child taps the window, asks something real, and if it is not one of the
+hundred and thirty questions in the bank the owl says "I do not know that one. Ask your
+grown-up." Which is honest, and is also the child being turned away from the one thing
+they came to do.
+
+So on a miss — and only on a miss — the owl may ask a model. The bank still answers
+first, because a written answer is better than a generated one every time.
+
+**It is a compile flag, not a setting, and that is the whole design.** `LITTLE_OWL_AI`
+off means the networking code is not in the binary: not disabled, absent. The App Store
+description tells a reviewer, in plain words, that this app has no networking code in
+it. A runtime switch would make that sentence false in every copy shipped, including the
+ones where a parent never touched the switch. A compile flag keeps it true, and keeps it
+true in the only way that can be checked — by looking at the binary.
+
+Four more things hold it up:
+
+- **`OwlAnswerGuard` is not a content filter.** A list of forbidden words would be easy
+  to write, easy to get round, and would feel like safety. What it does instead is
+  refuse anything that is not a plain spoken answer: formatting a child cannot hear,
+  emoji, links, a model explaining what it is, an unfinished sentence from a token
+  limit, more than two sentences, more than 260 characters. Subject matter is the
+  system prompt's job, and the prompt says so at length. A test asserts the prompt still
+  says it, because that is the sort of thing that gets edited away.
+- **Rejecting costs nothing.** Everything the guard throws out, every timeout, every
+  aeroplane-mode failure and every refusal becomes the `unknownQuestion` line. The worst
+  case is the behaviour the app already had, which is why the guard can afford to be
+  strict.
+- **There is no conversation.** One question out, one answer back, nothing kept between
+  them. The owl cannot be talked into anything over five turns because there are never
+  five turns.
+- **The child's voice never leaves the iPad.** Recognition is on-device and the app
+  refuses to start a task that is not; what travels is the text, which is the same text
+  the caption would have shown.
+
+The key lives in the keychain rather than `UserDefaults`, for the ordinary reason and
+for one specific to this app: the privacy manifest declares four `UserDefaults` keys
+under CA92.1, and a secret is not one of the four things that declaration describes.
+
+CI builds the flagged path as well as the default one. Code that is never compiled stops
+compiling, and the whole point of this arrangement is that the personal build is a real
+build rather than a branch somebody keeps rebasing.
+
+---
+
 ## Open, and deliberately deferred
 
 - **The room is painted for night only.** The window follows the clock, but a bright
   morning attic would need the room itself repainted; the app tints it gently instead.
+- **`LITTLE_OWL_AI` must never be compiled into a submission.** It is off by default in
+  the TestFlight workflow and a tagged release cannot turn it on, but nothing stops a
+  person ticking the box and then promoting that build. `docs/RELEASE.md` says so; no
+  check enforces it.
 - **The owl's voice is still the system synthesiser** wherever `content/en/audio/` has
   no recording. The fallback is per line rather than per build, so a half-recorded pack
   plays what exists and speaks the rest.

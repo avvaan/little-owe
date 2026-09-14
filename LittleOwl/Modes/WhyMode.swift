@@ -6,12 +6,18 @@ import SpriteKit
 /// → the owl either knows, or says it does not and sends them to a grown-up. Then it asks
 /// for another. Tapping the owl leaves.
 ///
-/// **The owl never invents an answer.** Every answer in this mode is a sentence somebody
-/// wrote, sitting in the content pack; `QuestionMatcher` picks one or picks none, and
-/// there is no third path. A miss says the `unknownQuestion` line and means it — an owl
-/// that makes something up for a five-year-old is worse than one that admits it does not
-/// know, and there is nothing in this file that could generate a sentence even if
-/// somebody wanted it to.
+/// **Every answer is a sentence somebody wrote**, sitting in the content pack;
+/// `QuestionMatcher` picks one or picks none. A miss says the `unknownQuestion` line and
+/// means it — an owl that makes something up for a five-year-old is worse than one that
+/// admits it does not know.
+///
+/// There is one exception, and it is not in the App Store build. With `LITTLE_OWL_AI`
+/// compiled in, a parent who has entered their own API key can let the owl ask a model
+/// on a miss instead of stopping there. Everything about that lives behind `OwlBrain`,
+/// including the reasoning for it; what matters here is that it changes nothing else.
+/// The bank still answers first, the guard still throws away anything that is not a
+/// plain spoken sentence, and a refusal, a timeout or no network at all lands on exactly
+/// the `unknownQuestion` line the child would have heard anyway.
 ///
 /// On a device that cannot recognise speech, the child taps one of three questions the
 /// owl reads aloud instead. They get real answers; they just cannot ask anything they
@@ -71,6 +77,16 @@ final class WhyMode: RoomMode {
     private let turn: ListeningTurn
     private let choices: SpokenChoices
 
+    /// Nil in any build without `LITTLE_OWL_AI`, and nil in one that has it until a
+    /// parent has both turned it on and entered a key. Nothing downstream of here knows
+    /// which of those it is.
+    private let brain: OwlBrain?
+
+    /// Guards against a slow answer arriving after the child has walked away, or after
+    /// they asked something else. Bumped on every question; an answer whose stamp does
+    /// not match is dropped.
+    private var askCount = 0
+
     private let backdrop = ModeBackdrop()
     private let caption = CaptionNode(maxWidth: 820, fontSize: 44)
     private let halo: SKShapeNode
@@ -97,6 +113,7 @@ final class WhyMode: RoomMode {
         self.matcher = QuestionMatcher(pack.questions)
         self.turn = ListeningTurn(recognitionLocale: pack.recognitionLocale)
         self.choices = SpokenChoices(scene: scene, voice: voice, language: pack.language)
+        self.brain = Self.makeBrain()
 
         halo = ListeningHalo.make()
 
@@ -232,7 +249,7 @@ final class WhyMode: RoomMode {
         switch outcome {
         case .heard(let heard):
             guard let question = matcher.question(for: heard) else {
-                sayUnknown()
+                handleMiss(heard)
                 return
             }
             answer(question)
@@ -259,7 +276,66 @@ final class WhyMode: RoomMode {
         speak(question.answerLine, as: .answer)
     }
 
-    /// Nothing in the bank fits. The owl says so, and sends the child to a grown-up.
+    /// Nothing in the bank fits.
+    ///
+    /// In the App Store build that is the end of it and the owl says so. In a build with
+    /// a brain and a parent who switched it on, the owl thinks about it first — and if
+    /// thinking gets it nowhere, says exactly the same thing.
+    private func handleMiss(_ heard: String) {
+        guard let brain, ParentSettings.shared.brainEnabled else {
+            sayUnknown()
+            return
+        }
+
+        phase = .talking
+        askCount += 1
+        let stamp = askCount
+
+        // The hum is not decoration: it covers the wait, so a child never sees a frozen
+        // owl while a request is out.
+        owl.transition(to: .thinking)
+        caption.clear()
+
+        Task { [weak self] in
+            let answer = await brain.answer(to: heard)
+            // Back to the main queue the way the rest of this file does it, rather than
+            // through an actor hop: everything here touches SpriteKit.
+            DispatchQueue.main.async {
+                guard let self, self.phase == .talking, self.askCount == stamp else { return }
+                guard let answer else {
+                    self.sayUnknown()
+                    return
+                }
+                self.sayGenerated(answer)
+            }
+        }
+    }
+
+    /// Built once, here, so that everything above this line is the same code in every
+    /// build and the difference is a single function that returns nil.
+    private static func makeBrain() -> OwlBrain? {
+        #if LITTLE_OWL_AI
+        guard let key = BrainKey.current else { return nil }
+        return AnthropicOwlBrain(key: key)
+        #else
+        return nil
+        #endif
+    }
+
+    /// An answer that has no recording and never will, so it is spoken rather than
+    /// played. `SpokenText` with no stem is exactly the case `OwlVoice` already falls
+    /// back on per line.
+    private func sayGenerated(_ answer: String) {
+        phase = .talking
+        caption.show(answer)
+        caption.alpha = 0
+        caption.run(.fadeIn(withDuration: 0.25))
+        owl.transition(to: .happy)
+        speak(SpokenText(id: "brain", text: answer, stem: ""), as: .answer)
+    }
+
+    /// Nothing in the bank fits and nothing else will answer. The owl says so, and sends
+    /// the child to a grown-up.
     private func sayUnknown() {
         phase = .talking
         guard let line = pack.phrase(.unknownQuestion) else {

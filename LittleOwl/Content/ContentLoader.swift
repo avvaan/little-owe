@@ -83,6 +83,11 @@ enum ContentLoader {
     /// synthesiser stands in — which is the normal state until the voice actor records.
     static func audioURL(for speakable: any Speakable, language: String, in bundle: Bundle = .main) -> URL? {
         guard let root = contentRoot(in: bundle) else { return nil }
+        // A line assembled at runtime has no stem and never will - a generated answer
+        // cannot have been recorded. Without this, the lookup asks for a file called
+        // ".m4a", which is a hidden file somebody could plausibly create by accident.
+        guard !speakable.audioName.isEmpty else { return nil }
+
         let folder = root
             .appendingPathComponent(language, isDirectory: true)
             .appendingPathComponent("audio", isDirectory: true)

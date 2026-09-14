@@ -93,6 +93,38 @@ project (`0.1` today); bump it there when you want a new version in App Store Co
   parental gate — it is built: hold the top-left corner for three seconds, then answer
   the sum.
 
+### The one switch on that form: `brain`
+
+Off by default, and a tagged release never turns it on.
+
+With it on, the archive is compiled with `LITTLE_OWL_AI` and the owl can ask a model
+when a question is outside the content pack. With it off — every other build — that code
+is not in the binary at all. Not disabled: **absent.** There is no networking code to
+disable.
+
+That distinction is the whole reason it is a compile flag rather than a setting. The
+App Store listing says, in the description a reviewer reads, that the app has no
+networking code in it. A runtime switch would make that sentence false in every copy,
+including the ones where the switch is off.
+
+So:
+
+| Build | `brain` | What it is for |
+|---|---|---|
+| Tagged release (`git tag v0.1`) | always off | App Store review and the public listing |
+| **Run workflow**, `brain` off | off | Ordinary internal testing |
+| **Run workflow**, `brain` on | on | Your own iPad, through Internal Testing only |
+
+**Never submit a `brain` build for App Store review**, and never promote one to External
+Testing — that goes through Beta App Review, which is the same problem with a smaller
+audience. The workflow prints a warning into the log when you ask for one, and App Store
+Connect will not tell the two apart, so this is on you rather than on a check.
+
+On the iPad itself the feature is still off after installing: open the grown-up settings
+(hold the top-left corner three seconds, answer the sum), paste an Anthropic API key,
+then turn the switch on. The key goes to the keychain, not to `UserDefaults`, and
+**Reset** on that screen deletes it.
+
 ---
 
 ## 5. What is already handled
