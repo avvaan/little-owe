@@ -31,6 +31,26 @@ it to `owl_base`** — same owl, same size, same place in the canvas, only the n
 feature different. The face patch is taken from a fixed box, so a frame that drifts puts
 somebody else's eyes on this owl's head.
 
+### Wanted: the swivel — `owl_turn_left`, `owl_turn_right`
+
+The one thing children wait for an owl to do. The rig performs it today by narrowing
+and rotating the whole painting, which reads as a turn because a head seen side-on *is*
+narrower — but it is foreshortening standing in for a drawing, and a drawing would be
+better.
+
+| | |
+|---|---|
+| `owl_turn_left` | The head round to the owl's left (screen left), body square on. Not a full owl 180° — about **45°**, enough that the beak is in profile and one eye is nearly hidden. |
+| `owl_turn_right` | The mirror. Paint it rather than flipping the file: a flipped watercolour flips its lighting with it, and the lamp is on one side of this room. |
+
+**Whole frame, not a face patch** — the ear tufts and the facial disc both move outside
+the base silhouette, so these are treated like `listen` and `sleepy` and cross-faded.
+The head is held for about 0.6 s at the top of the move, which is long enough for a
+child to see the drawing properly, so it is worth the detail.
+
+Neither is required. Without them the owl still swivels; it just swivels as a painting
+being turned rather than as an owl turning its head.
+
 ## 2. The room — delivered
 
 The painting, the blocks, and all four window skies (`morning`, `day`, `evening`,

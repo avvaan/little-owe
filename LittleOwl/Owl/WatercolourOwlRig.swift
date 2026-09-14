@@ -30,11 +30,18 @@ final class WatercolourOwlRig: OwlRig {
         case listen    = "owl_listen"
         case talkHalf  = "owl_talk_half"
         case talkWide  = "owl_talk_wide"
+        case turnLeft  = "owl_turn_left"
+        case turnRight = "owl_turn_right"
 
         /// Frames that replace the whole bird rather than just its face, because the
         /// ear tufts move outside the base silhouette. They change the body by a
         /// percent or two of texture, so they are cross-faded rather than cut to.
-        var isWholeBody: Bool { self == .listen || self == .sleepy }
+        var isWholeBody: Bool {
+            switch self {
+            case .listen, .sleepy, .turnLeft, .turnRight: return true
+            case .base, .blink, .happy, .talkHalf, .talkWide: return false
+            }
+        }
     }
 
     private var textures: [Frame: SKTexture] = [:]
@@ -52,6 +59,15 @@ final class WatercolourOwlRig: OwlRig {
 
     /// Everything that breathes, hops and leans. The ground shadow stays outside it.
     private let body = SKNode()
+
+    /// Where the idle moves live, between the breathing body and the painting.
+    ///
+    /// They need their own node because SpriteKit actions do not compose: a swivel that
+    /// set `xScale` on `body` would be fighting the breath for the same property, and
+    /// whichever finished last would win. Nested, the two transforms multiply and both
+    /// play in full.
+    private let gesture = SKNode()
+
     private let sprite: SKSpriteNode
 
     /// Sits exactly on top of `sprite` and is only ever visible mid-cross-fade.
@@ -136,10 +152,15 @@ final class WatercolourOwlRig: OwlRig {
 
     func play(_ accent: OwlAccent) {
         switch accent {
-        case .blink:    blink()
-        case .headTilt: headTilt()
-        case .yawn:     yawn()
-        case .nudge:    nudge()
+        case .blink:                 blink()
+        case .headTilt:              headTilt()
+        case .headTurn(let side):    headTurn(side)
+        case .doubleTake(let side):  doubleTake(side)
+        case .peer(let side):        peer(side)
+        case .bobble:                bobble()
+        case .ruffle:                ruffle()
+        case .yawn:                  yawn()
+        case .nudge:                 nudge()
         }
     }
 
@@ -154,17 +175,9 @@ final class WatercolourOwlRig: OwlRig {
             .scaleY(to: 1.000, duration: 1.7)
         ])), withKey: Key.breathe)
 
-        // `wait(forDuration:withRange:)` re-rolls on every repeat, so the blinks never
-        // settle into a rhythm a child can predict.
-        node.run(.repeatForever(.sequence([
-            .wait(forDuration: 4.2, withRange: 4.0),
-            blinkAction()
-        ])), withKey: Key.blink)
-
-        node.run(.repeatForever(.sequence([
-            .wait(forDuration: 11.0, withRange: 9.0),
-            headTiltAction()
-        ])), withKey: Key.tilt)
+        // The blinks and the swivels are not scheduled here. `OwlNode` drives them from
+        // `OwlIdleChoreography`, so what a resting owl does is behaviour that can be
+        // tested rather than three repeating actions buried in the artwork.
     }
 
     private func runListening() {
@@ -283,7 +296,157 @@ final class WatercolourOwlRig: OwlRig {
     }
 
     private func blink() { node.run(blinkAction()) }
-    private func headTilt() { node.run(headTiltAction()) }
+
+    // MARK: Idle moves
+    //
+    // All of them drive `gesture`, and all of them come home to a level, unscaled,
+    // unoffset node — a move that ended somewhere else would leave the owl leaning for
+    // the rest of the session. They share one action key for the same reason: two
+    // swivels at once is a bird having a fit.
+
+    /// The quiet one. A lean, a pause, a smaller lean back.
+    private func headTilt() {
+        let angle: CGFloat = 0.04
+        gesture.removeAction(forKey: Key.gesture)
+        gesture.run(.sequence([
+            eased(SKAction.rotate(toAngle: angle, duration: 0.35, shortestUnitArc: true)),
+            .wait(forDuration: 0.9),
+            eased(SKAction.rotate(toAngle: -angle * 0.6, duration: 0.40, shortestUnitArc: true)),
+            .wait(forDuration: 0.6),
+            eased(SKAction.rotate(toAngle: 0, duration: 0.35, shortestUnitArc: true))
+        ]), withKey: Key.gesture)
+    }
+
+    /// The swivel. The head goes round, holds long enough to be noticed, and comes back
+    /// past level before it settles.
+    ///
+    /// The narrowing is what sells it: a head seen side-on is narrower than a head seen
+    /// face-on, so `xScale` doing the work of a turn is not a trick, it is the same
+    /// thing foreshortening would do. With `owl_turn_left` in the bundle the painting
+    /// turns too and the squash becomes the easing around it.
+    private func headTurn(_ side: OwlTurn) {
+        let sign = side.sign
+        gesture.removeAction(forKey: Key.gesture)
+        gesture.run(.sequence([
+            eased(SKAction.group([
+                .rotate(toAngle: sign * 0.055, duration: 0.30, shortestUnitArc: true),
+                .scaleX(to: 0.93, duration: 0.30),
+                .moveTo(x: sign * 7, duration: 0.30)
+            ])),
+            .wait(forDuration: 0.60),
+            // A hair past level on the way home. Coming straight back reads as a hinge;
+            // overshooting reads as a head with weight in it.
+            eased(SKAction.group([
+                .rotate(toAngle: -sign * 0.018, duration: 0.30, shortestUnitArc: true),
+                .scaleX(to: 1.01, duration: 0.30),
+                .moveTo(x: 0, duration: 0.30)
+            ])),
+            eased(SKAction.group([
+                .rotate(toAngle: 0, duration: 0.22, shortestUnitArc: true),
+                .scaleX(to: 1.0, duration: 0.22)
+            ]))
+        ]), withKey: Key.gesture)
+
+        wearFrame(side == .left ? .turnLeft : .turnRight, for: 0.95)
+    }
+
+    /// Looks one way, then snaps the other, as though something went past.
+    ///
+    /// Deliberately transform-only even where the turned artwork exists: the snap is
+    /// eleven hundredths of a second and a cross-fade would smear it into a shrug. The
+    /// joke is entirely in one move being three times faster than the other.
+    private func doubleTake(_ side: OwlTurn) {
+        let sign = side.sign
+        gesture.removeAction(forKey: Key.gesture)
+        gesture.run(.sequence([
+            eased(SKAction.group([
+                .rotate(toAngle: sign * 0.05, duration: 0.26, shortestUnitArc: true),
+                .scaleX(to: 0.95, duration: 0.26)
+            ])),
+            .wait(forDuration: 0.20),
+            .group([
+                .rotate(toAngle: -sign * 0.09, duration: 0.11, shortestUnitArc: true),
+                .scaleX(to: 0.92, duration: 0.11)
+            ]),
+            .wait(forDuration: 0.45),
+            eased(SKAction.group([
+                .rotate(toAngle: 0, duration: 0.34, shortestUnitArc: true),
+                .scaleX(to: 1.0, duration: 0.34)
+            ]))
+        ]), withKey: Key.gesture)
+    }
+
+    /// The sideways lean, tipped far over and held. The one children imitate.
+    private func peer(_ side: OwlTurn) {
+        let sign = side.sign
+        gesture.removeAction(forKey: Key.gesture)
+        gesture.run(.sequence([
+            eased(SKAction.group([
+                .rotate(toAngle: sign * 0.155, duration: 0.50, shortestUnitArc: true),
+                .moveTo(x: sign * 11, duration: 0.50),
+                .scaleX(to: 0.97, duration: 0.50)
+            ])),
+            .wait(forDuration: 1.15),
+            eased(SKAction.group([
+                .rotate(toAngle: 0, duration: 0.55, shortestUnitArc: true),
+                .moveTo(x: 0, duration: 0.55),
+                .scaleX(to: 1.0, duration: 0.55)
+            ]))
+        ]), withKey: Key.gesture)
+
+        // A blink from the tipped-over pose. A long hold with the eyes open is a stare,
+        // which is a different feeling entirely.
+        node.run(.sequence([.wait(forDuration: 0.9), blinkAction()]))
+    }
+
+    /// Two quick bobs, like a bird deciding whether to come closer.
+    private func bobble() {
+        gesture.removeAction(forKey: Key.gesture)
+        let bob = SKAction.sequence([
+            .group([.moveTo(y: 12, duration: 0.13), .scaleY(to: 1.02, duration: 0.13)]),
+            .group([.moveTo(y: 0, duration: 0.14), .scaleY(to: 0.98, duration: 0.14)]),
+            .scaleY(to: 1.0, duration: 0.08)
+        ])
+        gesture.run(.sequence([bob, bob]), withKey: Key.gesture)
+    }
+
+    /// A shiver through the feathers, and they settle.
+    private func ruffle() {
+        gesture.removeAction(forKey: Key.gesture)
+        let shiver = SKAction.sequence([
+            .rotate(toAngle:  0.017, duration: 0.055, shortestUnitArc: true),
+            .rotate(toAngle: -0.017, duration: 0.055, shortestUnitArc: true)
+        ])
+        gesture.run(.sequence([
+            .group([.repeat(shiver, count: 4), .scale(to: 1.022, duration: 0.44)]),
+            eased(SKAction.group([
+                .rotate(toAngle: 0, duration: 0.26, shortestUnitArc: true),
+                .scale(to: 1.0, duration: 0.26)
+            ]))
+        ]), withKey: Key.gesture)
+    }
+
+    /// Wears a painted pose for the length of a move and puts the old one back.
+    ///
+    /// Missing artwork means the transform does the whole job on its own, which is the
+    /// point: the swivel is complete today and better the day the frame lands.
+    private func wearFrame(_ frame: Frame, for duration: TimeInterval) {
+        guard has(frame) else { return }
+        let restore = currentFrame
+        node.removeAction(forKey: Key.gestureFrame)
+        node.run(.sequence([
+            .run { [weak self] in self?.show(frame) },
+            .wait(forDuration: duration),
+            .run { [weak self] in self?.show(restore) }
+        ]), withKey: Key.gestureFrame)
+    }
+
+    /// `SKAction` is a class, so this sets the timing on the action it is handed and
+    /// passes it straight back — which keeps the move definitions readable.
+    private func eased(_ action: SKAction) -> SKAction {
+        action.timingMode = .easeInEaseOut
+        return action
+    }
 
     private func yawn() {
         guard has(.talkWide) else { return }
@@ -313,19 +476,6 @@ final class WatercolourOwlRig: OwlRig {
             guard let self, !self.eyesClosedByState else { return }
             self.show(elapsed < 0.11 ? .blink : .base)
         }
-    }
-
-    /// The whole bird leans, rather than a cut-out head turning. At these angles it
-    /// reads as a head tilt and leaves the painting intact.
-    private func headTiltAction() -> SKAction {
-        let angle: CGFloat = 0.035
-        return .run(.sequence([
-            .rotate(toAngle:  angle, duration: 0.35, shortestUnitArc: true),
-            .wait(forDuration: 0.9),
-            .rotate(toAngle: -angle * 0.6, duration: 0.40, shortestUnitArc: true),
-            .wait(forDuration: 0.6),
-            .rotate(toAngle: 0, duration: 0.35, shortestUnitArc: true)
-        ]), onChildWithName: "//\(Self.bodyNodeName)")
     }
 
     // MARK: Internals
@@ -360,6 +510,7 @@ final class WatercolourOwlRig: OwlRig {
     private func stopEverything() {
         node.removeAllActions()
         body.removeAllActions()
+        gesture.removeAllActions()
     }
 
     private func resetPose() {
@@ -368,6 +519,12 @@ final class WatercolourOwlRig: OwlRig {
         body.setScale(1)
         body.zRotation = 0
         body.position = .zero
+        // A mode starting mid-swivel must not leave the owl reading its story at a
+        // fifteen-degree lean.
+        gesture.removeAllActions()
+        gesture.setScale(1)
+        gesture.zRotation = 0
+        gesture.position = .zero
         mouthFrame = .base
     }
 
@@ -393,8 +550,9 @@ final class WatercolourOwlRig: OwlRig {
         overlay.zPosition = 1
 
         body.name = Self.bodyNodeName
-        body.addChild(sprite)
-        body.addChild(overlay)
+        gesture.addChild(sprite)
+        gesture.addChild(overlay)
+        body.addChild(gesture)
         node.addChild(body)
     }
 
@@ -404,7 +562,8 @@ final class WatercolourOwlRig: OwlRig {
         static let breathe = "owl.breathe"
         static let sway    = "owl.sway"
         static let blink   = "owl.blink"
-        static let tilt    = "owl.tilt"
+        static let gesture = "owl.gesture"
+        static let gestureFrame = "owl.gesture.frame"
         static let happy   = "owl.happy"
         static let restore = "owl.happy.restore"
         static let nudge   = "owl.nudge"

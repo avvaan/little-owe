@@ -511,14 +511,52 @@ than what it used to.
 
 ---
 
+## The owl got a repertoire
+
+An owl that leans two degrees every eleven seconds is a picture of an owl. A child aged
+three spends long stretches simply watching this screen with nothing asked of them, and
+what they are watching has to be alive.
+
+So the resting owl now has seven moves instead of two: the blink and the quiet lean it
+always had, plus a **swivel**, a **double take**, the tipped-over **peer** children
+imitate, a **bobble**, and a **ruffle** of the feathers. Which one comes next and how
+long the room stays still first is `OwlIdleChoreography` — never the same move twice
+running, the big ones kept rare by weight, the sides strictly alternating, and every
+pause re-rolled so nothing settles into a rhythm that can be predicted.
+
+Three things about how it is built, each of which was a choice:
+
+**The choice of move is behaviour; the look of it is artwork.** So the picking sits in
+`OwlNode` and is tested, and the rendering sits in `OwlRig` and is judged by watching it.
+The rig used to schedule its own blink and tilt loops; it no longer does.
+
+**It runs off the update loop, not off a repeating action.** An action that schedules its
+successor has to tear itself down to do it, which is the hazard this file already records
+twice. The scene calls `owl.update(currentTime:)` every frame anyway, and driving it from
+there also made the whole repertoire testable without a scene: feed it two minutes of
+synthetic frames and count what came out.
+
+**The moves got their own node.** SpriteKit actions do not compose — a swivel setting
+`xScale` on the breathing body would be fighting the breath for the same property, and
+whichever finished last would win. Nested, the two transforms multiply and both play.
+
+The swivel is still the whole painting narrowing and rotating rather than a head turning
+on a neck, which is the same trade this file made when it chose frame-swapping over a
+cut-up puppet: a watercolour with feather texture across every edge cannot be cut at the
+neck without leaving a seam. Narrowing is not a cheat — a head seen side-on *is*
+narrower — but a drawing would be better, so `docs/ART_BRIEF.md` now asks for
+`owl_turn_left` and `owl_turn_right`. The rig uses them if they land and performs the
+move without them if they do not, which is the same bargain every other frame has.
+
+---
+
 ## Open, and deliberately deferred
 
 - **The room is painted for night only.** The window follows the clock, but a bright
   morning attic would need the room itself repainted; the app tints it gently instead.
-- **`content/` is empty.** The schema and loader are deliverable 3.
-- **There are no tests yet.** The units worth testing — `TimeOfDay` bucketing, the tap
-  target padding maths, the idle clock, and now the turn detector — are pure and will
-  get a test target alongside deliverable 3, where the content loader makes one pay for
-  itself. `tools/simulate_turn_detection.py` stands in for the detector until then; it
-  is a real check, but it is a mirror of the Swift rather than the Swift itself, and the
-  two can drift.
+- **The owl's voice is still the system synthesiser** wherever `content/en/audio/` has
+  no recording. The fallback is per line rather than per build, so a half-recorded pack
+  plays what exists and speaks the rest.
+- **`tools/simulate_turn_detection.py` is a mirror of the Swift, not the Swift.** The
+  test target covers the rest; this one check still lives in two languages and the two
+  can drift.
