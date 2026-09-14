@@ -15,15 +15,31 @@ concurrency:
 jobs:
   build:
     name: Build and test
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show the toolchain
+      # App Store Connect refuses anything built with an older SDK, and the runner
+      # image defaults to whatever Xcode it shipped with - 16.4 as of the run that
+      # caught this, which is the iOS 18.5 SDK. Pick the newest Xcode actually
+      # installed rather than pinning a version that will age out of the image.
+      - name: Use the newest Xcode on the runner
         run: |
+          newest=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$newest" ]; then
+            sudo xcode-select -s "$newest"
+          fi
           xcodebuild -version
+
+          sdk=$(xcodebuild -showsdks | sed -n 's/.*-sdk iphoneos\([0-9][0-9.]*\).*/\1/p' | sort -V | tail -1)
+          echo "newest iOS SDK on this runner: ${sdk:-none}"
+          if [ "${sdk%%.*}" -lt 26 ] 2>/dev/null || [ -z "$sdk" ]; then
+            echo "::error::This runner's newest iOS SDK is ${sdk:-none}. App Store Connect requires 26 or later. Installed Xcodes:"
+            ls -d /Applications/Xcode*.app
+            exit 1
+          fi
           swift --version
 
       # Named simulators come and go between Xcode releases, so ask the runner what it

@@ -127,7 +127,14 @@ time this project is archived for a **device**, in Release, and signed. Those ar
 different enough that the first run may fail on something the simulator never exercised.
 That is the workflow doing its job; the archive and IPA are kept as artifacts either way.
 
-Two first-time traps that are not code:
+Three first-time traps that are not code:
+
+- **The SDK.** App Store Connect refuses anything built with an older SDK than the
+  current one, and a runner image defaults to whatever Xcode it shipped with — which
+  was 16.4, the iOS 18.5 SDK, when the first upload was attempted. Both workflows now
+  select the newest Xcode actually installed and fail early, by name, if its iOS SDK is
+  older than 26. `Build` does it too: if CI compiles with a different toolchain from the
+  one that ships, a green CI stops being evidence about the build that goes to Apple.
 
 - **Agreements.** A brand-new account often has an unaccepted Program License Agreement.
   Uploads fail with a contract error until it is accepted in App Store Connect →
