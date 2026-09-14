@@ -203,7 +203,7 @@ final class SpokenSetMode: RoomMode {
             return
         }
 
-        let picker = SpokenSetPicker(sets: sets)
+        let picker = SpokenSetPicker(sets: sets, language: pack.language)
         place(picker)
         picker.zPosition = ModeLayer.overlay
         picker.onPick = { [weak self] set in self?.startSet(set) }
