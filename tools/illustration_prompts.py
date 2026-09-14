@@ -115,6 +115,25 @@ CARD = ("A single subject alone, centred, filling most of the square with a clea
         "no other objects.")
 
 
+# Words the rules above get wrong. Small enough to write out, and writing them out is
+# cheaper than a picture of "a sand".
+IRREGULAR = {
+    "bread": "a warm crusty loaf of bread",
+    "cheese": "a wedge of cheese",
+    "ice": "a clear block of ice with frost on it",
+    "sand": "a small heap of golden sand with a few shells",
+    "sea": "the open sea with gentle waves",
+    "fire": "a small friendly campfire with warm flames, cosy and safe, not dangerous",
+    "river": "a winding river between green banks",
+    "nose": "a single friendly animal nose and whiskers, close up",
+    "one": "one single small round acorn, alone and clearly just the one",
+    # White paint on a cream card is not a picture of anything.
+    "white": "a soft rounded watercolour patch of clean white, given a faint soft grey "
+             "edge so that it reads clearly against the pale cream paper, and nothing "
+             "else at all",
+}
+
+
 def word_subject(word):
     """What to paint for one answer word.
 
@@ -123,6 +142,8 @@ def word_subject(word):
     sound games easier: the child finds the cow rather than recalling the word. For a
     three-year-old, with no score kept anywhere in this app, that is the right trade.
     """
+    if word in IRREGULAR:
+        return IRREGULAR[word]
     if word in SOUNDS:
         return SOUNDS[word]
     if word in COLOURS:
