@@ -25,6 +25,10 @@ on:
         description: "Which content pack"
         required: false
         default: "en"
+      from_run:
+        description: "Recover the clips from this run ID before recording, instead of paying to generate them again. Leave blank normally."
+        required: false
+        default: ""
 
 concurrency:
   group: voice
@@ -32,6 +36,9 @@ concurrency:
 
 permissions:
   contents: write
+  # Reading another run's artifacts, which is how `from_run` recovers clips that were
+  # generated but never committed.
+  actions: read
 
 jobs:
   record:
@@ -50,6 +57,27 @@ jobs:
             echo "::error::Missing repository secret ELEVENLABS_API_KEY"
             exit 1
           fi
+
+      # Thirty-four thousand credits were spent generating clips that a failed commit
+      # then threw away. The clips outlive the runner in the artifact, so recovering them
+      # costs nothing - and because the script skips anything already on disk, dropping
+      # them here means the run commits them and generates only what is genuinely
+      # missing. One artifact per run, so take whatever is there rather than guessing its
+      # name.
+      - name: Recover clips from an earlier run
+        if: inputs.from_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.from_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-multiple: true
+          path: content/${{ inputs.language }}/audio
+
+      - name: Say what was recovered
+        if: inputs.from_run != ''
+        run: |
+          count=$(find "content/${{ inputs.language }}/audio" -type f -name '*.mp3' | wc -l | tr -d ' ')
+          echo "recovered $count clip(s) from run ${{ inputs.from_run }}"
 
       # Always, even when nothing will be generated: the cost lands in the log where
       # somebody can see it before the bill does.
@@ -100,7 +128,24 @@ jobs:
 
           # Runs on whatever branch it was dispatched on, which is the choice made at
           # dispatch time rather than one baked in here.
-          git push origin HEAD:"${{ github.ref_name }}"
+          #
+          # Recording the whole pack takes twelve minutes, which is long enough for
+          # somebody to push to the same branch meanwhile - and that is exactly what
+          # happened, so a straight push failed and took the clips with it. Rebase onto
+          # whatever is there now and try again.
+          branch="${{ github.ref_name }}"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:"$branch"; then
+              exit 0
+            fi
+            echo "push rejected; rebasing onto origin/$branch (attempt $attempt)"
+            git fetch origin "$branch"
+            # Only this job's commit is being replayed, and it only adds files, so there
+            # is nothing here for a conflict to be about.
+            git rebase "origin/$branch"
+          done
+          echo "::error::Could not push after three attempts. The clips are in this run's artifact; recover them with the from_run input rather than recording them again."
+          exit 1
 
       # The failure above was silent, which is what made it expensive: the run went
       # green, the log said "nothing new to commit", and the clips were gone. Recorded
