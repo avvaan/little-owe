@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 45
 
     env:
-      BUNDLE_ID: com.littleowl.LittleOwl
+      BUNDLE_ID: com.syrkin.littleowl
 
     steps:
       - uses: actions/checkout@v4

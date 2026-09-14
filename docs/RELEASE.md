@@ -14,21 +14,26 @@ that needs an Apple account, and it has to be done once, by you.
 **You need the Apple Developer Program** ($99/year). TestFlight is not available on a
 free account.
 
-1. **Pick a bundle identifier you own.** The project ships with the placeholder
-   `com.littleowl.LittleOwl`. Change it to your own reverse-domain id in two places:
-   - `LittleOwl.xcodeproj/project.pbxproj` — both `PRODUCT_BUNDLE_IDENTIFIER` lines
-   - `.github/workflows/testflight.yml` — the `BUNDLE_ID` env value
+The bundle identifier is **`com.syrkin.littleowl`**, and it is already in the project
+and in the workflow. It is not a placeholder any more: a bundle id cannot be changed
+once an App Store Connect record exists for it, so treat it as fixed.
 
-2. **Register the App ID** at [developer.apple.com](https://developer.apple.com/account/resources/identifiers/list)
-   with that identifier. No capabilities are needed: the app uses the microphone, which
-   requires only the usage string it already has, and nothing else.
+1. ~~Pick a bundle identifier.~~ **Done** — `com.syrkin.littleowl`, in
+   `LittleOwl.xcodeproj/project.pbxproj` (app) and `.github/workflows/testflight.yml`.
+   The test bundle is `com.syrkin.littleowl.Tests`, which needs no App ID of its own:
+   test bundles are never distributed.
 
-3. **Create the app record** in [App Store Connect](https://appstoreconnect.apple.com)
-   → Apps → **+** → New App. Platform iOS, the bundle id from step 1, SKU anything.
+2. ~~Register the App ID.~~ **Done.** For the record: **no capabilities are enabled, and
+   none should be.** The microphone and speech recognition need only the usage strings
+   already in `Config/Info.plist` — no entitlement, no App ID capability. Nothing else
+   the app does (no push, no iCloud, no App Groups, no purchases, no network at all)
+   asks for one either.
+
+3. ~~Create the app record.~~ **Done.** Still to set on that record, in App Information:
    - **Primary category: Kids**, age band **5 and under**.
-   - Kids apps need a **privacy policy URL** before the listing can be submitted. It is
-     not needed for internal TestFlight, so it can wait — but it is required eventually,
-     and deliverable 8 drafts the text.
+   - A **privacy policy URL**. Kids listings will not pass review without one. It is not
+     needed for internal TestFlight, so the build can go up first — deliverable 8 drafts
+     the text for you to host.
 
 ---
 
