@@ -1,5 +1,6 @@
 {
   "_comment": "One story is an ordered list of pages. Each page is one illustration and one spoken line; the owl turns the page when the line finishes. A page's `audio` is a filename in audio/ — when it is absent or the file is missing, the owl speaks the text with the synthesiser instead, so a half-recorded pack still plays.",
+  "_length": "The brief asks for 60 to 120 seconds per story. At a slow bedtime reading of about 130 words a minute that is 130 to 260 words; a test asserts every story lands in that band.",
   "_gap": "The brief asks for at least six stories per hero. One per hero is here, enough to build and test Stories mode. The rest is writing, not engineering.",
 
   "stories": [
@@ -9,12 +10,16 @@
       "title": "The Lost Mitten",
       "tags": ["bedtime", "kindness"],
       "pages": [
-        { "id": "p1", "text": "One frosty morning, Fern the Fox found a little red mitten lying in the snow.", "illustration": "fox_mitten_1.png" },
-        { "id": "p2", "text": "It was much too small for her paw. Someone with very small hands must be very cold.", "illustration": "fox_mitten_2.png" },
-        { "id": "p3", "text": "So Fern set off through the quiet wood, holding the mitten carefully in her teeth.", "illustration": "fox_mitten_3.png" },
-        { "id": "p4", "text": "She asked the sleepy owl, and the owl said, try the little house under the roots.", "illustration": "fox_mitten_4.png" },
-        { "id": "p5", "text": "There sat a small mouse with one bare paw tucked under her chin.", "illustration": "fox_mitten_5.png" },
-        { "id": "p6", "text": "Fern gave back the mitten. The mouse smiled, and the whole wood felt a little warmer.", "illustration": "fox_mitten_6.png" }
+        { "id": "p1", "text": "One frosty morning, when the whole wood was quiet and white, Fern the Fox found a little red mitten lying in the snow.", "illustration": "fox_mitten_1.png" },
+        { "id": "p2", "text": "She turned it over with her nose. It was soft, and warm, and much too small for her paw.", "illustration": "fox_mitten_2.png" },
+        { "id": "p3", "text": "Somebody with very small hands, thought Fern, must be very cold indeed.", "illustration": "fox_mitten_3.png" },
+        { "id": "p4", "text": "So she picked it up carefully in her teeth and set off along the path, past the frozen stream and the old stone wall.", "illustration": "fox_mitten_4.png" },
+        { "id": "p5", "text": "She asked the rabbits under the hedge. They wriggled their noses and said they had never worn a mitten in their lives.", "illustration": "fox_mitten_5.png" },
+        { "id": "p6", "text": "She asked the sleepy owl in the oak tree. He opened one eye, thought for a long moment, and said, try the little house under the roots.", "illustration": "fox_mitten_6.png" },
+        { "id": "p7", "text": "Fern went down the slope, under the roots, to a round door no taller than her ear.", "illustration": "fox_mitten_7.png" },
+        { "id": "p8", "text": "Inside sat a small brown mouse with one paw tucked under her chin, trying very hard not to mind the cold.", "illustration": "fox_mitten_8.png" },
+        { "id": "p9", "text": "Fern set the mitten down on the doorstep. The mouse looked at it, and then at Fern, and her whiskers went quite still.", "illustration": "fox_mitten_9.png" },
+        { "id": "p10", "text": "Then she put it on, and smiled, and the whole wood felt a little warmer than before.", "illustration": "fox_mitten_10.png" }
       ]
     },
     {
@@ -23,12 +28,16 @@
       "title": "The Tallest Grass",
       "tags": ["bedtime", "patience"],
       "pages": [
-        { "id": "p1", "text": "Pip the Bunny was the smallest bunny in the whole meadow.", "illustration": "bunny_grass_1.png" },
-        { "id": "p2", "text": "The grass grew so tall that Pip could never see where he was going.", "illustration": "bunny_grass_2.png" },
-        { "id": "p3", "text": "He tried jumping. He tried standing on a stone. He still could not see.", "illustration": "bunny_grass_3.png" },
-        { "id": "p4", "text": "So Pip stopped trying to see over the grass, and looked at what was inside it.", "illustration": "bunny_grass_4.png" },
-        { "id": "p5", "text": "Down there he found beetles, and clover, and a tiny path only he could fit through.", "illustration": "bunny_grass_5.png" },
-        { "id": "p6", "text": "Being small, Pip decided, was not so bad after all.", "illustration": "bunny_grass_6.png" }
+        { "id": "p1", "text": "Pip the Bunny was the smallest bunny in the whole meadow, and the meadow was very large.", "illustration": "bunny_grass_1.png" },
+        { "id": "p2", "text": "In summer the grass grew so tall that Pip could never see where he was going.", "illustration": "bunny_grass_2.png" },
+        { "id": "p3", "text": "His brothers could see the pond. His sisters could see the hill. Pip could only see grass.", "illustration": "bunny_grass_3.png" },
+        { "id": "p4", "text": "He tried jumping, again and again, until his legs were tired and the sky had turned gold.", "illustration": "bunny_grass_4.png" },
+        { "id": "p5", "text": "He tried standing on a smooth grey stone. He still could not see over the top.", "illustration": "bunny_grass_5.png" },
+        { "id": "p6", "text": "So Pip sat down in the middle of all that grass, and stopped trying to see over it.", "illustration": "bunny_grass_6.png" },
+        { "id": "p7", "text": "And down there, close to the ground, he found a beetle in a shining green coat.", "illustration": "bunny_grass_7.png" },
+        { "id": "p8", "text": "He found clover, sweeter than anything up high, and a snail carrying his house very slowly home.", "illustration": "bunny_grass_8.png" },
+        { "id": "p9", "text": "Best of all, he found a narrow winding path that only somebody very small could ever fit through.", "illustration": "bunny_grass_9.png" },
+        { "id": "p10", "text": "Being small, Pip decided as he followed it home, was not so bad after all.", "illustration": "bunny_grass_10.png" }
       ]
     },
     {
@@ -37,12 +46,16 @@
       "title": "Slow Honey",
       "tags": ["bedtime", "patience"],
       "pages": [
-        { "id": "p1", "text": "Bramble the Bear loved honey more than anything in the world.", "illustration": "bear_honey_1.png" },
-        { "id": "p2", "text": "He found a jar on a high shelf and tipped it right over his paw.", "illustration": "bear_honey_2.png" },
-        { "id": "p3", "text": "But honey does not hurry. It moved slower than a snail on a cold day.", "illustration": "bear_honey_3.png" },
-        { "id": "p4", "text": "Bramble huffed. Bramble sighed. Bramble sat down to wait.", "illustration": "bear_honey_4.png" },
-        { "id": "p5", "text": "And while he waited, he watched the sun come through the window and the dust dance in it.", "illustration": "bear_honey_5.png" },
-        { "id": "p6", "text": "When the honey finally came, it was the sweetest thing he had ever tasted.", "illustration": "bear_honey_6.png" }
+        { "id": "p1", "text": "Bramble the Bear loved honey more than anything else in the world.", "illustration": "bear_honey_1.png" },
+        { "id": "p2", "text": "He loved it more than raspberries, more than sleeping, and very nearly more than his own mother.", "illustration": "bear_honey_2.png" },
+        { "id": "p3", "text": "One afternoon he found a round jar of it standing on a high wooden shelf.", "illustration": "bear_honey_3.png" },
+        { "id": "p4", "text": "He reached up on his toes, took it down with both paws, and tipped it carefully over.", "illustration": "bear_honey_4.png" },
+        { "id": "p5", "text": "But honey does not hurry. Honey has never hurried for anybody.", "illustration": "bear_honey_5.png" },
+        { "id": "p6", "text": "It slid down the side of the jar slower than a snail on a cold morning.", "illustration": "bear_honey_6.png" },
+        { "id": "p7", "text": "Bramble huffed. Bramble sighed. Bramble shook the jar, which did not help at all.", "illustration": "bear_honey_7.png" },
+        { "id": "p8", "text": "At last he sat down on the floor with the jar in his lap, and simply waited.", "illustration": "bear_honey_8.png" },
+        { "id": "p9", "text": "And while he waited he watched the afternoon sun come through the window, and the dust turning slowly in it.", "illustration": "bear_honey_9.png" },
+        { "id": "p10", "text": "When the honey finally reached his paw, it was the sweetest thing he had ever tasted.", "illustration": "bear_honey_10.png" }
       ]
     },
     {
@@ -51,12 +64,16 @@
       "title": "The Night Light",
       "tags": ["bedtime", "courage"],
       "pages": [
-        { "id": "p1", "text": "Tilly the Mouse did not like the dark corner behind the cupboard.", "illustration": "mouse_light_1.png" },
-        { "id": "p2", "text": "Every night she ran past it very fast with her eyes shut tight.", "illustration": "mouse_light_2.png" },
-        { "id": "p3", "text": "One night she heard a small sound from the corner. A very small sound.", "illustration": "mouse_light_3.png" },
-        { "id": "p4", "text": "Tilly took one step closer. Then another. Then she opened her eyes.", "illustration": "mouse_light_4.png" },
-        { "id": "p5", "text": "It was only a beetle, lost, looking for the way home.", "illustration": "mouse_light_5.png" },
-        { "id": "p6", "text": "Tilly showed him the way. After that, the corner was just a corner.", "illustration": "mouse_light_6.png" }
+        { "id": "p1", "text": "Tilly the Mouse lived behind the kitchen wall, in a nest of wool and paper.", "illustration": "mouse_light_1.png" },
+        { "id": "p2", "text": "She liked almost everything about her house, except for one thing.", "illustration": "mouse_light_2.png" },
+        { "id": "p3", "text": "She did not like the dark corner behind the cupboard, where the light never reached.", "illustration": "mouse_light_3.png" },
+        { "id": "p4", "text": "Every night she ran past it very fast, with her eyes shut tight and her heart going quickly.", "illustration": "mouse_light_4.png" },
+        { "id": "p5", "text": "One night, as she hurried by, she heard a sound from the corner. A very small sound.", "illustration": "mouse_light_5.png" },
+        { "id": "p6", "text": "Tilly stopped. She stood quite still in the middle of the floor and listened.", "illustration": "mouse_light_6.png" },
+        { "id": "p7", "text": "The sound came again, smaller than before, and rather sad.", "illustration": "mouse_light_7.png" },
+        { "id": "p8", "text": "So Tilly took one step closer. Then another. Then, slowly, she opened her eyes.", "illustration": "mouse_light_8.png" },
+        { "id": "p9", "text": "It was only a beetle, quite lost, turning in circles and looking for the way home.", "illustration": "mouse_light_9.png" },
+        { "id": "p10", "text": "Tilly showed him the crack under the door. And after that night, the corner was only ever a corner.", "illustration": "mouse_light_10.png" }
       ]
     },
     {
@@ -65,12 +82,16 @@
       "title": "The First Hello",
       "tags": ["bedtime", "friendship"],
       "pages": [
-        { "id": "p1", "text": "Nub the Hedgehog lived under the garden hedge, all by himself.", "illustration": "hedgehog_hello_1.png" },
-        { "id": "p2", "text": "When anybody came near, Nub rolled into a ball and waited for them to go.", "illustration": "hedgehog_hello_2.png" },
-        { "id": "p3", "text": "One evening a small voice said hello, and then it sat down and waited too.", "illustration": "hedgehog_hello_3.png" },
-        { "id": "p4", "text": "It waited a long while. Longer than anyone had ever waited for Nub.", "illustration": "hedgehog_hello_4.png" },
-        { "id": "p5", "text": "So Nub uncurled, just a little, and looked with one eye.", "illustration": "hedgehog_hello_5.png" },
-        { "id": "p6", "text": "And there was a friend, who had been there the whole time.", "illustration": "hedgehog_hello_6.png" }
+        { "id": "p1", "text": "Nub the Hedgehog lived under the garden hedge, in a heap of dry brown leaves.", "illustration": "hedgehog_hello_1.png" },
+        { "id": "p2", "text": "He liked the leaves. He liked the quiet. He was not at all sure about anybody else.", "illustration": "hedgehog_hello_2.png" },
+        { "id": "p3", "text": "Whenever somebody came near, Nub rolled himself into a tight round ball.", "illustration": "hedgehog_hello_3.png" },
+        { "id": "p4", "text": "He would stay that way, very small and very prickly, until whoever it was went away again.", "illustration": "hedgehog_hello_4.png" },
+        { "id": "p5", "text": "And they always did go away, because nobody likes waiting for a ball of spines.", "illustration": "hedgehog_hello_5.png" },
+        { "id": "p6", "text": "But one warm evening a small voice said hello, and then it did something new.", "illustration": "hedgehog_hello_6.png" },
+        { "id": "p7", "text": "It sat down in the leaves beside him, and it waited.", "illustration": "hedgehog_hello_7.png" },
+        { "id": "p8", "text": "It waited while the sun went down. It waited while the first star came out.", "illustration": "hedgehog_hello_8.png" },
+        { "id": "p9", "text": "So Nub uncurled, just a very little, and looked out with one careful eye.", "illustration": "hedgehog_hello_9.png" },
+        { "id": "p10", "text": "And there was a friend, sitting quietly in the leaves, who had been there the whole time.", "illustration": "hedgehog_hello_10.png" }
       ]
     }
   ]

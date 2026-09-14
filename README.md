@@ -4,9 +4,9 @@ An offline talking-companion app for iPad, for children aged 3–6. A cozy attic
 with a small owl who lives there: the child talks to the owl, and the owl talks back.
 A digital toy, not a chatbot.
 
-**Status: deliverable 3 of 8.** The attic room, an owl that blinks and moves its beak, a
-window that follows the clock through four painted skies, Echo — and the content packs
-every remaining mode will be built on.
+**Status: deliverable 4 of 8.** The attic room, an owl that blinks and moves its beak, a
+window that follows the clock through four painted skies, Echo, the content packs — and
+Stories, where the owl reads to the child a page at a time.
 
 ---
 
@@ -50,6 +50,20 @@ rather than asserted in a comment.
 Echo works. The other four objects route correctly — tap one and the owl hops or flies
 over and settles; tap the owl and it comes home — but those modes are not built yet.
 `RoomScene.handle(_:)` is the single seam where each one attaches.
+
+### Stories
+
+Tap the book. The room dims, five hero cards come up, and tapping one starts a story:
+the owl reads it a page at a time, turning the page itself when the line ends, with the
+caption underneath lighting up **word by word** for early readers.
+
+Word timings come from the synthesiser exactly. A recording carries none, so they are
+estimated from its duration weighted by word length — close enough to follow with a
+finger, and honestly approximate.
+
+At the end the owl asks "again?" and the book lifts above the dimming and glows. Tapping
+it replays; tapping the owl goes back to the room. Nothing times out: a child who
+wanders off mid-story comes back to the same page, waiting.
 
 ### Echo
 
@@ -147,7 +161,7 @@ LittleOwl/
   Owl/        Owl behaviour (OwlNode), the rig seam (OwlRig), the painted rig
   Audio/      Session policy, microphone permission, capture, playback, the owl's voice
   Content/    Content pack models, loader, and speech matching
-  Modes/      Echo
+  Modes/      Echo, Stories
 LittleOwlTests/ Unit tests
 content/      Content packs, one folder per language
   Support/    Palette, generated textures, sound effects, the tap-target overlay
@@ -189,8 +203,8 @@ code:
 
 1. ~~Project skeleton, room, owl idle, time-of-day window~~
 2. ~~Echo mode~~
-3. **Content pack schema and loader** ← you are here
-4. Stories
+3. ~~Content pack schema and loader~~
+4. **Stories** ← you are here
 5. Prayers and rhymes, with on-device recognition and the no-recognition fallback
 6. Word games and "Why?"
 7. Parent gate and settings

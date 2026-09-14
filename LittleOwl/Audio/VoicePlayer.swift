@@ -19,6 +19,11 @@ final class VoicePlayer {
     /// Main queue, once, when the last sample has been heard.
     var onFinished: (() -> Void)?
 
+    /// Main queue, once, when playback starts, carrying how long it will take at the
+    /// current rate. Stories use it to pace captions against a recording that carries
+    /// no word timings of its own.
+    var onStarted: ((TimeInterval) -> Void)?
+
     /// Cents. Echo sets +600 — six semitones. Zero leaves the voice alone.
     var pitchCents: Float = 0
 
@@ -74,6 +79,9 @@ final class VoicePlayer {
         }
 
         isPlaying = true
+
+        let seconds = Double(buffer.frameLength) / buffer.format.sampleRate / Double(max(rate, 0.01))
+        DispatchQueue.main.async { [weak self] in self?.onStarted?(seconds) }
 
         // `.dataPlayedBack` fires when the audio has actually been heard, not merely
         // handed to the renderer.
