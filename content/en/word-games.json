@@ -1,6 +1,6 @@
 {
   "_comment": "A task the owl sets aloud. `accepted` is matched against what on-device recognition heard, loosely — see QuestionMatcher. `reveal` is what the owl says when the answer was not on the list: it offers an answer of its own and moves on. There is no wrong, no score and no streak.",
-  "_fallback": "`choices` exists for the no-recognition path: when SFSpeechRecognizer is unavailable the child taps one of these pictures instead of speaking. The first entry is the correct one and the mode shuffles them. They are picture names, not spoken answers — tapping the cow answers 'what sound does a cow make', so `choices` and `accepted` deliberately differ.",
+  "_fallback": "`choices` is the no-recognition path: three cards the child taps instead of speaking. Because no child of three can read them and the illustrations are not drawn yet, the owl READS EACH CARD ALOUD while it lights up, and the child taps the one they heard. So a card is a spoken answer, not a picture name: for an animal-sound task the cards are sounds, not animals, because the question asked what sound it makes.",
   "games": [
     {
       "id": "animal-m",
@@ -150,9 +150,9 @@
       ],
       "reveal": "Moooo!",
       "choices": [
-        "cow",
-        "duck",
-        "cat"
+        "moo",
+        "quack",
+        "meow"
       ]
     },
     {
@@ -169,9 +169,9 @@
       ],
       "reveal": "Quack quack!",
       "choices": [
-        "duck",
-        "sheep",
-        "dog"
+        "quack",
+        "baa",
+        "woof"
       ]
     },
     {
@@ -192,9 +192,9 @@
       ],
       "reveal": "Hoo! Hoo! That's me.",
       "choices": [
-        "owl",
-        "frog",
-        "horse"
+        "hoo",
+        "ribbit",
+        "neigh"
       ]
     },
     {
@@ -254,6 +254,779 @@
         "two",
         "six"
       ]
+    },
+    {
+      "id": "animal-c",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "animals"
+      ],
+      "prompt": "Name an animal that starts with C.",
+      "accepted": [
+        "cat",
+        "cow",
+        "camel",
+        "crab",
+        "chicken",
+        "crocodile",
+        "caterpillar",
+        "cheetah",
+        "chimpanzee"
+      ],
+      "reveal": "A cat! Cats start with C.",
+      "choices": [
+        "cat",
+        "duck",
+        "horse"
+      ]
+    },
+    {
+      "id": "animal-s",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "animals"
+      ],
+      "prompt": "An animal that starts with S?",
+      "accepted": [
+        "snake",
+        "sheep",
+        "squirrel",
+        "seal",
+        "spider",
+        "swan",
+        "snail",
+        "shark",
+        "starfish"
+      ],
+      "reveal": "A snake! Ssssss.",
+      "choices": [
+        "sheep",
+        "tiger",
+        "mouse"
+      ]
+    },
+    {
+      "id": "food-b",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "food"
+      ],
+      "prompt": "Something you can eat that starts with B?",
+      "accepted": [
+        "banana",
+        "bread",
+        "butter",
+        "beans",
+        "blueberry",
+        "broccoli",
+        "biscuit",
+        "berry"
+      ],
+      "reveal": "A banana! I was thinking of a banana.",
+      "choices": [
+        "banana",
+        "apple",
+        "cheese"
+      ]
+    },
+    {
+      "id": "food-c",
+      "kind": "nameOne",
+      "tags": [
+        "letters",
+        "food"
+      ],
+      "prompt": "Something to eat that starts with C?",
+      "accepted": [
+        "carrot",
+        "cheese",
+        "cake",
+        "cherry",
+        "corn",
+        "cucumber",
+        "chocolate",
+        "chips",
+        "crisps"
+      ],
+      "reveal": "A carrot! Crunch.",
+      "choices": [
+        "carrot",
+        "potato",
+        "banana"
+      ]
+    },
+    {
+      "id": "thing-round",
+      "kind": "nameOne",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Can you name something round?",
+      "accepted": [
+        "ball",
+        "wheel",
+        "moon",
+        "sun",
+        "orange",
+        "plate",
+        "coin",
+        "button",
+        "balloon",
+        "bubble"
+      ],
+      "reveal": "A ball is round! So is the moon.",
+      "choices": [
+        "ball",
+        "box",
+        "spoon"
+      ]
+    },
+    {
+      "id": "animal-flies",
+      "kind": "nameOne",
+      "tags": [
+        "animals"
+      ],
+      "prompt": "Can you name an animal that flies?",
+      "accepted": [
+        "bird",
+        "bat",
+        "bee",
+        "butterfly",
+        "owl",
+        "eagle",
+        "fly",
+        "moth",
+        "duck",
+        "wasp",
+        "dragonfly"
+      ],
+      "reveal": "A bird! And me - I fly too.",
+      "choices": [
+        "bird",
+        "fish",
+        "cow"
+      ]
+    },
+    {
+      "id": "animal-water",
+      "kind": "nameOne",
+      "tags": [
+        "animals"
+      ],
+      "prompt": "An animal that lives in the water?",
+      "accepted": [
+        "fish",
+        "whale",
+        "dolphin",
+        "shark",
+        "frog",
+        "crab",
+        "octopus",
+        "turtle",
+        "seal",
+        "otter",
+        "penguin"
+      ],
+      "reveal": "A fish! Fish live in the water.",
+      "choices": [
+        "fish",
+        "lion",
+        "bird"
+      ]
+    },
+    {
+      "id": "colour-sun",
+      "kind": "nameOne",
+      "tags": [
+        "colours"
+      ],
+      "prompt": "What colour is the sun?",
+      "accepted": [
+        "yellow",
+        "gold",
+        "golden",
+        "orange"
+      ],
+      "reveal": "Yellow! A big warm yellow.",
+      "choices": [
+        "yellow",
+        "blue",
+        "brown"
+      ]
+    },
+    {
+      "id": "colour-snow",
+      "kind": "nameOne",
+      "tags": [
+        "colours"
+      ],
+      "prompt": "What colour is snow?",
+      "accepted": [
+        "white"
+      ],
+      "reveal": "White! White as can be.",
+      "choices": [
+        "white",
+        "black",
+        "green"
+      ]
+    },
+    {
+      "id": "name-fruit",
+      "kind": "nameOne",
+      "tags": [
+        "food"
+      ],
+      "prompt": "Can you name a fruit?",
+      "accepted": [
+        "apple",
+        "banana",
+        "orange",
+        "pear",
+        "grape",
+        "strawberry",
+        "peach",
+        "plum",
+        "melon",
+        "cherry",
+        "mango"
+      ],
+      "reveal": "An apple is a fruit! So is a pear.",
+      "choices": [
+        "apple",
+        "carrot",
+        "bread"
+      ]
+    },
+    {
+      "id": "name-farm",
+      "kind": "nameOne",
+      "tags": [
+        "animals"
+      ],
+      "prompt": "Can you name an animal on a farm?",
+      "accepted": [
+        "cow",
+        "sheep",
+        "pig",
+        "horse",
+        "chicken",
+        "duck",
+        "goat",
+        "donkey",
+        "hen",
+        "rooster",
+        "lamb"
+      ],
+      "reveal": "A cow! Cows live on farms.",
+      "choices": [
+        "cow",
+        "tiger",
+        "whale"
+      ]
+    },
+    {
+      "id": "thing-soft",
+      "kind": "nameOne",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Can you name something soft?",
+      "accepted": [
+        "pillow",
+        "teddy",
+        "blanket",
+        "cloud",
+        "cat",
+        "feather",
+        "wool",
+        "cushion",
+        "sponge",
+        "fur"
+      ],
+      "reveal": "A pillow is soft! So is a cloud.",
+      "choices": [
+        "pillow",
+        "rock",
+        "spoon"
+      ]
+    },
+    {
+      "id": "body-part",
+      "kind": "nameOne",
+      "tags": [
+        "body"
+      ],
+      "prompt": "Can you name a part of you?",
+      "accepted": [
+        "nose",
+        "ear",
+        "eye",
+        "hand",
+        "foot",
+        "knee",
+        "elbow",
+        "hair",
+        "mouth",
+        "tummy",
+        "toe",
+        "finger",
+        "leg",
+        "arm"
+      ],
+      "reveal": "Your nose! Boop.",
+      "choices": [
+        "nose",
+        "chair",
+        "apple"
+      ]
+    },
+    {
+      "id": "thing-kitchen",
+      "kind": "nameOne",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Something you find in a kitchen?",
+      "accepted": [
+        "spoon",
+        "fork",
+        "plate",
+        "cup",
+        "pan",
+        "bowl",
+        "knife",
+        "kettle",
+        "fridge",
+        "oven",
+        "sink",
+        "pot"
+      ],
+      "reveal": "A spoon! For eating soup.",
+      "choices": [
+        "spoon",
+        "tree",
+        "cloud"
+      ]
+    },
+    {
+      "id": "odd-transport",
+      "kind": "oddOneOut",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Which one doesn't belong: car, bus, banana?",
+      "accepted": [
+        "banana",
+        "the banana",
+        "a banana"
+      ],
+      "reveal": "The banana! You can't drive a banana.",
+      "choices": [
+        "banana",
+        "car",
+        "bus"
+      ]
+    },
+    {
+      "id": "odd-hat",
+      "kind": "oddOneOut",
+      "tags": [
+        "animals"
+      ],
+      "prompt": "Which one doesn't belong: dog, cat, hat?",
+      "accepted": [
+        "hat",
+        "the hat",
+        "a hat"
+      ],
+      "reveal": "The hat! A hat isn't an animal.",
+      "choices": [
+        "hat",
+        "dog",
+        "cat"
+      ]
+    },
+    {
+      "id": "odd-hot",
+      "kind": "oddOneOut",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Which one doesn't belong: fire, sun, ice?",
+      "accepted": [
+        "ice",
+        "the ice"
+      ],
+      "reveal": "The ice! Ice is cold and the others are hot.",
+      "choices": [
+        "ice",
+        "fire",
+        "sun"
+      ]
+    },
+    {
+      "id": "odd-sand",
+      "kind": "oddOneOut",
+      "tags": [
+        "nature"
+      ],
+      "prompt": "Which one doesn't belong: sea, river, sand?",
+      "accepted": [
+        "sand",
+        "the sand"
+      ],
+      "reveal": "The sand! Sand isn't wet.",
+      "choices": [
+        "sand",
+        "sea",
+        "river"
+      ]
+    },
+    {
+      "id": "odd-fly",
+      "kind": "oddOneOut",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Which one doesn't belong: bird, plane, chair?",
+      "accepted": [
+        "chair",
+        "the chair",
+        "a chair"
+      ],
+      "reveal": "The chair! Chairs stay on the ground.",
+      "choices": [
+        "chair",
+        "bird",
+        "plane"
+      ]
+    },
+    {
+      "id": "odd-round2",
+      "kind": "oddOneOut",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Which one doesn't belong: ball, wheel, book?",
+      "accepted": [
+        "book",
+        "the book",
+        "a book"
+      ],
+      "reveal": "The book! Books aren't round.",
+      "choices": [
+        "book",
+        "ball",
+        "wheel"
+      ]
+    },
+    {
+      "id": "odd-colour",
+      "kind": "oddOneOut",
+      "tags": [
+        "colours"
+      ],
+      "prompt": "Which one doesn't belong: red, blue, spoon?",
+      "accepted": [
+        "spoon",
+        "the spoon",
+        "a spoon"
+      ],
+      "reveal": "The spoon! The others are colours.",
+      "choices": [
+        "spoon",
+        "red",
+        "blue"
+      ]
+    },
+    {
+      "id": "odd-clothes",
+      "kind": "oddOneOut",
+      "tags": [
+        "things"
+      ],
+      "prompt": "Which one doesn't belong: hat, coat, apple?",
+      "accepted": [
+        "apple",
+        "the apple",
+        "an apple"
+      ],
+      "reveal": "The apple! You can't wear an apple.",
+      "choices": [
+        "apple",
+        "hat",
+        "coat"
+      ]
+    },
+    {
+      "id": "sound-dog",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a dog make?",
+      "accepted": [
+        "woof",
+        "woof woof",
+        "bow wow",
+        "ruff",
+        "arf"
+      ],
+      "reveal": "Woof woof!",
+      "choices": [
+        "woof",
+        "moo",
+        "quack"
+      ]
+    },
+    {
+      "id": "sound-cat",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a cat make?",
+      "accepted": [
+        "meow",
+        "miaow",
+        "meow meow",
+        "miaow miaow"
+      ],
+      "reveal": "Meow!",
+      "choices": [
+        "meow",
+        "baa",
+        "hoo"
+      ]
+    },
+    {
+      "id": "sound-sheep",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a sheep make?",
+      "accepted": [
+        "baa",
+        "baa baa",
+        "bah"
+      ],
+      "reveal": "Baaaa!",
+      "choices": [
+        "baa",
+        "woof",
+        "neigh"
+      ]
+    },
+    {
+      "id": "sound-pig",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a pig make?",
+      "accepted": [
+        "oink",
+        "oink oink",
+        "snort"
+      ],
+      "reveal": "Oink oink!",
+      "choices": [
+        "oink",
+        "meow",
+        "quack"
+      ]
+    },
+    {
+      "id": "sound-horse",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a horse make?",
+      "accepted": [
+        "neigh",
+        "neigh neigh",
+        "whinny"
+      ],
+      "reveal": "Neigh!",
+      "choices": [
+        "neigh",
+        "moo",
+        "baa"
+      ]
+    },
+    {
+      "id": "sound-bee",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a bee make?",
+      "accepted": [
+        "buzz",
+        "bzz",
+        "buzz buzz",
+        "bzzz"
+      ],
+      "reveal": "Bzzzz!",
+      "choices": [
+        "buzz",
+        "woof",
+        "quack"
+      ]
+    },
+    {
+      "id": "sound-frog",
+      "kind": "animalSound",
+      "tags": [
+        "animals",
+        "sounds"
+      ],
+      "prompt": "What sound does a frog make?",
+      "accepted": [
+        "ribbit",
+        "croak",
+        "ribbit ribbit"
+      ],
+      "reveal": "Ribbit!",
+      "choices": [
+        "ribbit",
+        "moo",
+        "baa"
+      ]
+    },
+    {
+      "id": "count-legs-dog",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "animals"
+      ],
+      "prompt": "How many legs does a dog have?",
+      "accepted": [
+        "four",
+        "4",
+        "four legs"
+      ],
+      "reveal": "Four! One at each corner.",
+      "choices": [
+        "four",
+        "two",
+        "eight"
+      ]
+    },
+    {
+      "id": "count-legs-bird",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "animals"
+      ],
+      "prompt": "How many legs does a bird have?",
+      "accepted": [
+        "two",
+        "2",
+        "two legs"
+      ],
+      "reveal": "Two! Just like you.",
+      "choices": [
+        "two",
+        "four",
+        "six"
+      ]
+    },
+    {
+      "id": "count-legs-spider",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "animals"
+      ],
+      "prompt": "How many legs does a spider have?",
+      "accepted": [
+        "eight",
+        "8",
+        "eight legs"
+      ],
+      "reveal": "Eight! That's a lot of shoes.",
+      "choices": [
+        "eight",
+        "six",
+        "four"
+      ]
+    },
+    {
+      "id": "count-fingers",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "body"
+      ],
+      "prompt": "How many fingers do you have?",
+      "accepted": [
+        "ten",
+        "10",
+        "ten fingers"
+      ],
+      "reveal": "Ten! Five on each hand.",
+      "choices": [
+        "ten",
+        "five",
+        "two"
+      ]
+    },
+    {
+      "id": "count-wheels-bike",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "things"
+      ],
+      "prompt": "How many wheels does a bicycle have?",
+      "accepted": [
+        "two",
+        "2",
+        "two wheels"
+      ],
+      "reveal": "Two! One behind the other.",
+      "choices": [
+        "two",
+        "four",
+        "three"
+      ]
+    },
+    {
+      "id": "count-eyes",
+      "kind": "counting",
+      "tags": [
+        "numbers",
+        "body"
+      ],
+      "prompt": "How many eyes do you have?",
+      "accepted": [
+        "two",
+        "2",
+        "two eyes"
+      ],
+      "reveal": "Two! And I have two as well.",
+      "choices": [
+        "two",
+        "one",
+        "three"
+      ]
     }
-  ]
+  ],
+  "_choicesRule": "The first entry must be an answer `accepted` would take and the other two must not - the mode shuffles the row and remembers where the first one went. Tests assert both."
 }
