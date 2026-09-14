@@ -30,8 +30,8 @@ protocol RoomMode: AnyObject {
 /// Shared rather than per-mode so the scene can lift a prop to exactly the right place
 /// without knowing which mode is running.
 enum ModeLayer {
-    /// The sheet that puts the room behind the mode.
-    static let dim: CGFloat = 200
+    /// The wash and vignette that put the room behind the mode without hiding it.
+    static let backdrop: CGFloat = 200
     /// The owl stays lit: it is doing the talking.
     static let owl: CGFloat = 210
     /// A prop raised above the dimming because tapping it means "again".

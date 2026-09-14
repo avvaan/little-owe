@@ -489,6 +489,26 @@ filled in. A 31-character subtitle is a round trip for no reason.
 them, and CI runs it. It also refuses a keyword list with a space beside a comma, which
 silently wastes one of the hundred characters each time.
 
+## A mode should look like an owl in its house, not like a dimmed screen
+
+Every mode used to put a black sheet over the whole room at two thirds opacity. It worked
+— cards and captions were legible against it — and it was wrong. The room is most of what
+this app is, and it disappeared the moment anything happened in it. A child tapping the
+book got a dark rectangle with cards on it; the lamp they had just been looking at, the
+moon in the window, the rug, all gone.
+
+So the room stays lit. `ModeBackdrop` puts a light wash over it and a vignette that
+darkens the corners, which does the same job of pulling a child's eye to the middle. It
+replaced four copies of the same sheet, one per mode.
+
+That traded one problem for another, honestly: white words on a lit wall can land across
+the shelf or a pale plank and lose their edges. `CaptionNode` now draws its own soft panel
+behind the text, sized to the words rather than to the available width — in one place
+rather than in the four modes that show captions.
+
+The preview tools mirror both, so `docs/preview/` keeps showing what the app shows rather
+than what it used to.
+
 ---
 
 ## Open, and deliberately deferred

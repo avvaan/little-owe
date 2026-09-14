@@ -22,6 +22,14 @@ final class CaptionNode: SKNode {
     private let fontName: String
 
     private var words: [Word] = []
+    private var scrim: SKShapeNode?
+
+    /// A soft dark panel behind the words.
+    ///
+    /// It earns its place only since the room stopped being blacked out behind a mode:
+    /// on a lit wall a caption can land across the shelf or a pale plank and lose its
+    /// edges. This darkens what is behind the text and nothing else.
+    var showsScrim = true
 
     /// Which word is lit, if any. Exposed so tests can assert on it without comparing
     /// colours across colour spaces, which is a losing game.
@@ -73,13 +81,40 @@ final class CaptionNode: SKNode {
         layout(pending)
         words = pending
         pending.forEach { addChild($0.label) }
+        layOutScrim()
     }
 
     func clear() {
         words.forEach { $0.label.removeFromParent() }
         words.removeAll()
+        scrim?.removeFromParent()
+        scrim = nil
         highlightedIndex = nil
         height = 0
+        usedWidth = 0
+    }
+
+    /// How wide the laid-out caption actually is — the widest line, not `maxWidth`.
+    private(set) var usedWidth: CGFloat = 0
+
+    private func layOutScrim() {
+        scrim?.removeFromParent()
+        scrim = nil
+        guard showsScrim, !words.isEmpty, height > 0, usedWidth > 0 else { return }
+
+        let padding = CGSize(width: fontSize * 0.7, height: fontSize * 0.5)
+        let panel = SKShapeNode(rectOf: CGSize(width: usedWidth + padding.width * 2,
+                                               height: height + padding.height * 2),
+                                cornerRadius: fontSize * 0.45)
+        panel.fillColor = SKColor(white: 0.02, alpha: 0.44)
+        panel.strokeColor = .clear
+        // Behind the words, which sit at this node's own z.
+        panel.zPosition = -1
+        // The caption hangs from its top edge, so the panel's middle is half a caption
+        // down from the origin.
+        panel.position = CGPoint(x: 0, y: -height / 2 + fontSize * 0.32)
+        addChild(panel)
+        scrim = panel
     }
 
     /// Lights the word covering `range`. A range that falls between words — punctuation,
@@ -163,5 +198,11 @@ final class CaptionNode: SKNode {
         }
 
         height = CGFloat(lines.filter { !$0.isEmpty }.count) * lineHeight
+        usedWidth = lines.reduce(CGFloat(0)) { widest, line in
+            guard !line.isEmpty else { return widest }
+            let width = line.reduce(CGFloat(0)) { $0 + $1.label.frame.width }
+                + spaceWidth * CGFloat(line.count - 1)
+            return max(widest, width)
+        }
     }
 }

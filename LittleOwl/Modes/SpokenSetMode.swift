@@ -72,7 +72,7 @@ final class SpokenSetMode: RoomMode {
 
     private let turn: ListeningTurn
 
-    private let dim = SKSpriteNode(color: SKColor(white: 0.03, alpha: 1), size: RoomLayout.designSize)
+    private let backdrop = ModeBackdrop()
     private let caption = CaptionNode(maxWidth: 900, fontSize: 52)
     private let halo: SKShapeNode
     private var picker: SpokenSetPicker?
@@ -115,10 +115,6 @@ final class SpokenSetMode: RoomMode {
         halo.zPosition = -1
         halo.alpha = 0
 
-        dim.position = CGPoint(x: RoomLayout.designSize.width / 2,
-                               y: RoomLayout.designSize.height / 2)
-        dim.zPosition = ModeLayer.dim
-        dim.alpha = 0
 
         caption.position = CGPoint(x: 860, y: 660)
         caption.zPosition = ModeLayer.overlay
@@ -137,9 +133,7 @@ final class SpokenSetMode: RoomMode {
 
         turn.prepare()
 
-        if dim.parent == nil { scene.addChild(dim) }
-        dim.removeAllActions()      // a pending fade-out from a quick exit and re-entry
-        dim.run(.fadeAlpha(to: 0.66, duration: 0.35))
+        backdrop.show(in: scene)
 
         owl.zPosition = ModeLayer.owl
         owl.transition(to: .listening)
@@ -174,7 +168,7 @@ final class SpokenSetMode: RoomMode {
         voice.onMouth = nil
         voice.onFinished = nil
 
-        dim.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]))
+        backdrop.hide()
         owl.zPosition = RoomLayout.Z.owl
         owl.transition(to: .idle)
         owl.returnHome()

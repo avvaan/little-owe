@@ -61,7 +61,7 @@ final class WordGameMode: RoomMode {
     private let turn: ListeningTurn
     private let choices: SpokenChoices
 
-    private let dim = SKSpriteNode(color: SKColor(white: 0.03, alpha: 1), size: RoomLayout.designSize)
+    private let backdrop = ModeBackdrop()
     private let caption = CaptionNode(maxWidth: 940, fontSize: 48)
     private let halo: SKShapeNode
 
@@ -91,10 +91,6 @@ final class WordGameMode: RoomMode {
         self.choices = SpokenChoices(scene: scene, voice: voice, language: pack.language)
 
         halo = ListeningHalo.make()
-        dim.position = CGPoint(x: RoomLayout.designSize.width / 2,
-                               y: RoomLayout.designSize.height / 2)
-        dim.zPosition = ModeLayer.dim
-        dim.alpha = 0
 
         caption.position = CGPoint(x: 830, y: 870)
         caption.zPosition = ModeLayer.overlay
@@ -112,9 +108,7 @@ final class WordGameMode: RoomMode {
         guard phase == .idle, canBegin else { return }
         turn.prepare()
 
-        if dim.parent == nil { scene.addChild(dim) }
-        dim.removeAllActions()
-        dim.run(.fadeAlpha(to: 0.66, duration: 0.35))
+        backdrop.show(in: scene)
 
         owl.zPosition = ModeLayer.owl
         if halo.parent == nil { owl.addChild(halo) }
@@ -150,7 +144,7 @@ final class WordGameMode: RoomMode {
         voice.onMouth = nil
         voice.onFinished = nil
 
-        dim.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]))
+        backdrop.hide()
         owl.zPosition = RoomLayout.Z.owl
         owl.transition(to: .idle)
         owl.returnHome()
