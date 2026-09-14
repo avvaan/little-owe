@@ -301,20 +301,18 @@ final class WatercolourOwlRig: OwlRig {
     //
     // All of them drive `gesture`, and all of them come home to a level, unscaled,
     // unoffset node — a move that ended somewhere else would leave the owl leaning for
-    // the rest of the session. They share one action key for the same reason: two
-    // swivels at once is a bird having a fit.
+    // the rest of the session.
 
     /// The quiet one. A lean, a pause, a smaller lean back.
     private func headTilt() {
         let angle: CGFloat = 0.04
-        gesture.removeAction(forKey: Key.gesture)
-        gesture.run(.sequence([
-            eased(SKAction.rotate(toAngle: angle, duration: 0.35, shortestUnitArc: true)),
-            .wait(forDuration: 0.9),
-            eased(SKAction.rotate(toAngle: -angle * 0.6, duration: 0.40, shortestUnitArc: true)),
-            .wait(forDuration: 0.6),
-            eased(SKAction.rotate(toAngle: 0, duration: 0.35, shortestUnitArc: true))
-        ]), withKey: Key.gesture)
+        let backAngle: CGFloat = -0.024
+
+        let over: SKAction = eased(SKAction.rotate(toAngle: angle, duration: 0.35, shortestUnitArc: true))
+        let back: SKAction = eased(SKAction.rotate(toAngle: backAngle, duration: 0.40, shortestUnitArc: true))
+        let level: SKAction = eased(SKAction.rotate(toAngle: 0, duration: 0.35, shortestUnitArc: true))
+
+        perform(.sequence([over, .wait(forDuration: 0.9), back, .wait(forDuration: 0.6), level]))
     }
 
     /// The swivel. The head goes round, holds long enough to be noticed, and comes back
@@ -323,30 +321,33 @@ final class WatercolourOwlRig: OwlRig {
     /// The narrowing is what sells it: a head seen side-on is narrower than a head seen
     /// face-on, so `xScale` doing the work of a turn is not a trick, it is the same
     /// thing foreshortening would do. With `owl_turn_left` in the bundle the painting
-    /// turns too and the squash becomes the easing around it.
+    /// turns too, and the squash becomes the easing around it.
     private func headTurn(_ side: OwlTurn) {
         let sign = side.sign
-        gesture.removeAction(forKey: Key.gesture)
-        gesture.run(.sequence([
-            eased(SKAction.group([
-                .rotate(toAngle: sign * 0.055, duration: 0.30, shortestUnitArc: true),
-                .scaleX(to: 0.93, duration: 0.30),
-                .moveTo(x: sign * 7, duration: 0.30)
-            ])),
-            .wait(forDuration: 0.60),
-            // A hair past level on the way home. Coming straight back reads as a hinge;
-            // overshooting reads as a head with weight in it.
-            eased(SKAction.group([
-                .rotate(toAngle: -sign * 0.018, duration: 0.30, shortestUnitArc: true),
-                .scaleX(to: 1.01, duration: 0.30),
-                .moveTo(x: 0, duration: 0.30)
-            ])),
-            eased(SKAction.group([
-                .rotate(toAngle: 0, duration: 0.22, shortestUnitArc: true),
-                .scaleX(to: 1.0, duration: 0.22)
-            ]))
-        ]), withKey: Key.gesture)
+        let roundAngle: CGFloat = sign * 0.055
+        let pastAngle: CGFloat = sign * -0.018
+        let offset: CGFloat = sign * 7
 
+        let round: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: roundAngle, duration: 0.30, shortestUnitArc: true),
+            SKAction.scaleX(to: 0.93, duration: 0.30),
+            SKAction.moveTo(x: offset, duration: 0.30)
+        ]))
+
+        // A hair past level on the way home. Coming straight back reads as a hinge;
+        // overshooting reads as a head with weight in it.
+        let past: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: pastAngle, duration: 0.30, shortestUnitArc: true),
+            SKAction.scaleX(to: 1.01, duration: 0.30),
+            SKAction.moveTo(x: 0, duration: 0.30)
+        ]))
+
+        let settle: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: 0, duration: 0.22, shortestUnitArc: true),
+            SKAction.scaleX(to: 1.0, duration: 0.22)
+        ]))
+
+        perform(.sequence([round, .wait(forDuration: 0.60), past, settle]))
         wearFrame(side == .left ? .turnLeft : .turnRight, for: 0.95)
     }
 
@@ -357,42 +358,46 @@ final class WatercolourOwlRig: OwlRig {
     /// joke is entirely in one move being three times faster than the other.
     private func doubleTake(_ side: OwlTurn) {
         let sign = side.sign
-        gesture.removeAction(forKey: Key.gesture)
-        gesture.run(.sequence([
-            eased(SKAction.group([
-                .rotate(toAngle: sign * 0.05, duration: 0.26, shortestUnitArc: true),
-                .scaleX(to: 0.95, duration: 0.26)
-            ])),
-            .wait(forDuration: 0.20),
-            .group([
-                .rotate(toAngle: -sign * 0.09, duration: 0.11, shortestUnitArc: true),
-                .scaleX(to: 0.92, duration: 0.11)
-            ]),
-            .wait(forDuration: 0.45),
-            eased(SKAction.group([
-                .rotate(toAngle: 0, duration: 0.34, shortestUnitArc: true),
-                .scaleX(to: 1.0, duration: 0.34)
-            ]))
-        ]), withKey: Key.gesture)
+        let glanceAngle: CGFloat = sign * 0.05
+        let snapAngle: CGFloat = sign * -0.09
+
+        let glance: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: glanceAngle, duration: 0.26, shortestUnitArc: true),
+            SKAction.scaleX(to: 0.95, duration: 0.26)
+        ]))
+
+        let snap: SKAction = SKAction.group([
+            SKAction.rotate(toAngle: snapAngle, duration: 0.11, shortestUnitArc: true),
+            SKAction.scaleX(to: 0.92, duration: 0.11)
+        ])
+
+        let settle: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: 0, duration: 0.34, shortestUnitArc: true),
+            SKAction.scaleX(to: 1.0, duration: 0.34)
+        ]))
+
+        perform(.sequence([glance, .wait(forDuration: 0.20), snap, .wait(forDuration: 0.45), settle]))
     }
 
     /// The sideways lean, tipped far over and held. The one children imitate.
     private func peer(_ side: OwlTurn) {
         let sign = side.sign
-        gesture.removeAction(forKey: Key.gesture)
-        gesture.run(.sequence([
-            eased(SKAction.group([
-                .rotate(toAngle: sign * 0.155, duration: 0.50, shortestUnitArc: true),
-                .moveTo(x: sign * 11, duration: 0.50),
-                .scaleX(to: 0.97, duration: 0.50)
-            ])),
-            .wait(forDuration: 1.15),
-            eased(SKAction.group([
-                .rotate(toAngle: 0, duration: 0.55, shortestUnitArc: true),
-                .moveTo(x: 0, duration: 0.55),
-                .scaleX(to: 1.0, duration: 0.55)
-            ]))
-        ]), withKey: Key.gesture)
+        let tipAngle: CGFloat = sign * 0.155
+        let offset: CGFloat = sign * 11
+
+        let tip: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: tipAngle, duration: 0.50, shortestUnitArc: true),
+            SKAction.moveTo(x: offset, duration: 0.50),
+            SKAction.scaleX(to: 0.97, duration: 0.50)
+        ]))
+
+        let upright: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: 0, duration: 0.55, shortestUnitArc: true),
+            SKAction.moveTo(x: 0, duration: 0.55),
+            SKAction.scaleX(to: 1.0, duration: 0.55)
+        ]))
+
+        perform(.sequence([tip, .wait(forDuration: 1.15), upright]))
 
         // A blink from the tipped-over pose. A long hold with the eyes open is a stare,
         // which is a different feeling entirely.
@@ -401,29 +406,42 @@ final class WatercolourOwlRig: OwlRig {
 
     /// Two quick bobs, like a bird deciding whether to come closer.
     private func bobble() {
-        gesture.removeAction(forKey: Key.gesture)
-        let bob = SKAction.sequence([
-            .group([.moveTo(y: 12, duration: 0.13), .scaleY(to: 1.02, duration: 0.13)]),
-            .group([.moveTo(y: 0, duration: 0.14), .scaleY(to: 0.98, duration: 0.14)]),
-            .scaleY(to: 1.0, duration: 0.08)
+        let up: SKAction = SKAction.group([
+            SKAction.moveTo(y: 12, duration: 0.13),
+            SKAction.scaleY(to: 1.02, duration: 0.13)
         ])
-        gesture.run(.sequence([bob, bob]), withKey: Key.gesture)
+        let down: SKAction = SKAction.group([
+            SKAction.moveTo(y: 0, duration: 0.14),
+            SKAction.scaleY(to: 0.98, duration: 0.14)
+        ])
+        let bob: SKAction = SKAction.sequence([up, down, SKAction.scaleY(to: 1.0, duration: 0.08)])
+
+        perform(.sequence([bob, bob]))
     }
 
     /// A shiver through the feathers, and they settle.
     private func ruffle() {
-        gesture.removeAction(forKey: Key.gesture)
-        let shiver = SKAction.sequence([
-            .rotate(toAngle:  0.017, duration: 0.055, shortestUnitArc: true),
-            .rotate(toAngle: -0.017, duration: 0.055, shortestUnitArc: true)
+        let shiver: SKAction = SKAction.sequence([
+            SKAction.rotate(toAngle: 0.017, duration: 0.055, shortestUnitArc: true),
+            SKAction.rotate(toAngle: -0.017, duration: 0.055, shortestUnitArc: true)
         ])
-        gesture.run(.sequence([
-            .group([.repeat(shiver, count: 4), .scale(to: 1.022, duration: 0.44)]),
-            eased(SKAction.group([
-                .rotate(toAngle: 0, duration: 0.26, shortestUnitArc: true),
-                .scale(to: 1.0, duration: 0.26)
-            ]))
-        ]), withKey: Key.gesture)
+        let shake: SKAction = SKAction.group([
+            SKAction.repeat(shiver, count: 4),
+            SKAction.scale(to: 1.022, duration: 0.44)
+        ])
+        let settle: SKAction = eased(SKAction.group([
+            SKAction.rotate(toAngle: 0, duration: 0.26, shortestUnitArc: true),
+            SKAction.scale(to: 1.0, duration: 0.26)
+        ]))
+
+        perform(.sequence([shake, settle]))
+    }
+
+    /// Runs one idle move, replacing any still going. They share a key because two
+    /// swivels at once is a bird having a fit.
+    private func perform(_ move: SKAction) {
+        gesture.removeAction(forKey: Key.gesture)
+        gesture.run(move, withKey: Key.gesture)
     }
 
     /// Wears a painted pose for the length of a move and puts the old one back.
