@@ -207,6 +207,25 @@ final class ParentTests: XCTestCase {
                              "the patch should sit above the shelf, not on it")
     }
 
+    // MARK: The version numbers reach the built app
+
+    func testTheBuildNumberIsASubstitutedNumber() throws {
+        // Info.plist asks for $(CURRENT_PROJECT_VERSION) rather than writing a number,
+        // so that the TestFlight workflow can raise it per upload. Two ways that breaks:
+        // the substitution silently not happening, which ships a literal "$(...)" that
+        // Apple rejects, and someone hard-coding it back, which makes every upload claim
+        // to be the same build and be rejected as a duplicate after the first.
+        let info = try XCTUnwrap(Bundle.main.infoDictionary)
+        let build = try XCTUnwrap(info["CFBundleVersion"] as? String)
+        let version = try XCTUnwrap(info["CFBundleShortVersionString"] as? String)
+
+        XCTAssertFalse(build.contains("$"), "CFBundleVersion was not substituted: \(build)")
+        XCTAssertFalse(version.contains("$"), "CFBundleShortVersionString was not substituted: \(version)")
+        XCTAssertNotNil(Int(build), "CFBundleVersion is not a number: \(build)")
+        XCTAssertGreaterThan(Int(build) ?? 0, 0)
+        XCTAssertFalse(version.isEmpty)
+    }
+
     // MARK: Every prop a parent is offered is a prop that exists
 
     func testTheSettingsScreenOffersExactlyTheRoomsProps() {

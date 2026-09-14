@@ -16,10 +16,18 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<!--
+	  Both come from build settings rather than being written here, so that
+	  `xcodebuild CURRENT_PROJECT_VERSION=...` actually changes the build number.
+	  Hard-coded, the TestFlight workflow's override did nothing and every upload
+	  claimed to be build 1 - which Apple accepts exactly once and then rejects as a
+	  duplicate. MARKETING_VERSION and CURRENT_PROJECT_VERSION default to 0.1 and 1
+	  in the project, so a local build still has sensible numbers.
+	-->
 	<key>CFBundleShortVersionString</key>
-	<string>0.1</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 
 	<!-- Required for App Store validation when the Info.plist is hand-written. -->
 	<key>CFBundleIconName</key>
