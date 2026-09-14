@@ -86,7 +86,8 @@ project (`0.1` today); bump it there when you want a new version in App Store Co
   minutes of processing. This is the fast path and how you should test with your own iPad.
 - **External testing** — up to 10,000 testers, but needs **Beta App Review** (usually a
   day or two). Kids-category rules are enforced here, so expect questions about the
-  parental gate, which is deliverable 7 and **not built yet**.
+  parental gate — it is built: hold the top-left corner for three seconds, then answer
+  the sum.
 
 ---
 
@@ -99,17 +100,38 @@ project (`0.1` today); bump it there when you want a new version in App Store Co
 | Export compliance | `ITSAppUsesNonExemptEncryption = false` — no per-build question |
 | Privacy manifest | `LittleOwl/Resources/PrivacyInfo.xcprivacy`, everything empty because nothing is collected |
 | Microphone usage string | Written for the parent, in `Config/Info.plist` |
+| Speech recognition usage string | Also in `Config/Info.plist`; recognition is on-device only |
+| Parental gate | Hold the corner three seconds, then a two-digit sum — `LittleOwl/Parent/` |
+| Owl poses | All six frames are in `LittleOwl/Resources/Art` and the rig swaps them |
 | iPad-only, landscape-only | `TARGETED_DEVICE_FAMILY = 2`, orientations in the plist |
 | Shared scheme | `LittleOwl.xcodeproj/xcshareddata/xcschemes/LittleOwl.xcscheme` — `xcodebuild -scheme` needs it |
 
 ## 6. What is not, and will block App Store review
 
-These do not block **internal** TestFlight, which is what you want right now.
+None of these block **internal** TestFlight, which is what you want right now.
 
-- **The parental gate** (deliverable 7). Kids-category apps must put anything that leaves
-  the app, and all parent settings, behind one. There are no such exits yet, but settings
-  are coming.
-- **A privacy policy URL** (deliverable 8).
+- **A privacy policy URL** (deliverable 8). Kids listings are refused without one.
 - **App Store metadata**: description, keywords, screenshots, age rating questionnaire.
-- **Owl state artwork**: six poses are specified in `docs/ART_BRIEF.md` and missing, so
-  the owl does not yet blink or move its beak. Testers will notice.
+- **Primary category Kids**, age band 5 and under, on the app record.
+- **Real prayer texts.** All three prayer sets are traditional placeholders marked
+  `"placeholder": true` in `content/en/spoken-sets.json`.
+- **A voice.** Every line is `AVSpeechSynthesizer` until a voice actor records them, and
+  it sounds like it. Testers will notice this first, before anything else.
+- **Illustrations**: story pages, hero cards and the answer cards are flat placeholder
+  shapes. Everything works without them.
+
+## 7. What the first upload is actually testing
+
+`Build` compiles and tests against a **simulator**, in Debug. `TestFlight` is the first
+time this project is archived for a **device**, in Release, and signed. Those are
+different enough that the first run may fail on something the simulator never exercised.
+That is the workflow doing its job; the archive and IPA are kept as artifacts either way.
+
+Two first-time traps that are not code:
+
+- **Agreements.** A brand-new account often has an unaccepted Program License Agreement.
+  Uploads fail with a contract error until it is accepted in App Store Connect →
+  **Business** → Agreements. Nothing in the build can work around it.
+- **Nothing to do by hand.** You do not create certificates or provisioning profiles.
+  `-allowProvisioningUpdates` plus the API key makes Xcode fetch or create them itself.
+  If you find yourself downloading a `.mobileprovision`, stop — something else is wrong.
