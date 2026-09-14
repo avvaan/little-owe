@@ -23,6 +23,17 @@ file already on disk is left alone, so re-running is free and safe.
 It refuses anything that is not actually an image. A CDN that has forgotten a file
 answers with an HTML error page and HTTP 200, and an HTML file saved as `.png` is a
 broken picture that every later step treats as real.
+
+**It also shrinks what it fetches, and that is not an optimisation.** A generator hands
+back a 1024-square PNG of about 2.5 MB. The card that picture is drawn on is 148 x 186
+design points. Three hundred of those shipped as they arrive is 0.8 GB inside the app,
+which is not a thing anybody can install. So a picture bound for `content/` is scaled to
+twice the size it is ever drawn at and saved as JPEG - there is no transparency in any of
+them - and the full-size original is not committed at all. The manifest holds its URL,
+so re-encoding later means re-fetching rather than re-generating.
+
+Anything bound for `art-source/` is stored exactly as it arrived, because that is where
+the sources live that other scripts cut sprites out of.
 """
 
 import argparse
@@ -35,6 +46,21 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MANIFEST = os.path.join(ROOT, "art-source", "generated.json")
 
+# The long side each kind of picture is worth keeping, being twice the size it is drawn
+# at. Past that the extra pixels are carried to the device and thrown away by the GPU.
+#
+#   set card      148 x 186 design points
+#   story panel   880 x 400 design points
+#   choice card   148 x 186 design points
+SIZE_CAP = {
+    "set_": 384,
+    "choice_": 384,
+    "game_": 384,
+    "question_": 384,
+}
+DEFAULT_CAP = 1760          # story panels, which are the only wide ones
+JPEG_QUALITY = 86
+
 # What a real picture starts with. Checked on the bytes rather than trusting the
 # extension or the content type, both of which a CDN will happily get wrong.
 MAGIC = {
@@ -46,6 +72,29 @@ MAGIC = {
 
 def looks_like_an_image(data):
     return any(data.startswith(m) for m in MAGIC)
+
+
+def shrink(data, target):
+    """Scale a fetched picture to what the app actually draws, and encode it small.
+
+    JPEG rather than PNG: every one of these is a painted scene with no transparency,
+    and PNG stores it losslessly at roughly twenty times the size for no visible gain
+    at the sizes they are shown.
+    """
+    from PIL import Image
+    import io
+
+    name = os.path.basename(target)
+    cap = next((c for prefix, c in SIZE_CAP.items() if name.startswith(prefix)), DEFAULT_CAP)
+
+    im = Image.open(io.BytesIO(data)).convert("RGB")
+    if max(im.size) > cap:
+        scale = cap / max(im.size)
+        im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
+
+    out = io.BytesIO()
+    im.save(out, "JPEG", quality=JPEG_QUALITY, optimize=True, progressive=True)
+    return out.getvalue(), im.size
 
 
 def load_manifest(path):
@@ -109,6 +158,12 @@ def main():
             head = data[:60].decode("utf-8", "replace").replace("\n", " ")
             raise SystemExit(f"{target}\n  is not an image. It starts: {head!r}")
 
+        raw = len(data)
+        size = ""
+        if target.startswith("content/"):
+            data, dimensions = shrink(data, target)
+            size = f"  {dimensions[0]}x{dimensions[1]}  from {raw // 1024} KB"
+
         path = os.path.join(ROOT, target)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         # Whole, then moved into place: an interrupted write must not leave a truncated
@@ -116,7 +171,7 @@ def main():
         with open(path + ".part", "wb") as f:
             f.write(data)
         os.replace(path + ".part", path)
-        print(f"  {index:3}/{len(missing)}  {target:56} {len(data) // 1024:5} KB", flush=True)
+        print(f"  {index:3}/{len(missing)}  {target:52} {len(data) // 1024:5} KB{size}", flush=True)
 
     print(f"\nfetched {len(missing)} pictures")
     return 0

@@ -171,8 +171,9 @@ struct SpokenSet: Decodable, Equatable {
     /// The painting on this set's card, by convention rather than by a field in the
     /// JSON — `set_prayer-morning.png`. Derived for the same reason the audio stem is:
     /// a name written down twice is a name that drifts, and a card whose painting has
-    /// not arrived falls back to its symbol rather than to nothing.
-    var illustration: String { "set_\(id).png" }
+    /// not arrived falls back to its symbol rather than to nothing. No extension: what
+    /// ships is a JPEG and `ContentLoader` asks the bundle rather than guessing.
+    var illustration: String { "set_\(id)" }
     /// True while the text is standing in for one the family will supply.
     let isPlaceholder: Bool
     let source: String?
