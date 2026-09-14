@@ -146,7 +146,11 @@ def main():
     ap.add_argument("--voice", default=DEFAULT_VOICE)
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--only", default="",
-                    help="comma-separated prefixes: phrase,set,story,game,question")
+                    help="comma-separated prefixes: phrase,set,story,game,question. "
+                         "Omitted means all of them - but note that a GitHub Actions "
+                         "input dispatched as an empty string arrives as that input's "
+                         "default, so voice.yml lists the prefixes rather than relying "
+                         "on this.")
     ap.add_argument("--limit", type=int, default=0, help="stop after this many clips")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()

@@ -11,9 +11,12 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Which lines: comma-separated prefixes (phrase,set,story,game,question). Empty means everything still missing."
+        # Not "leave it empty for everything": an input with a default that is
+        # dispatched as an empty string comes through as the default, so an empty box
+        # quietly means "phrase,set" rather than "all of it". List what you want.
+        description: "Which lines, as comma-separated prefixes. All of them: phrase,set,story,game,question"
         required: false
-        default: "phrase,set"
+        default: "phrase,set,story,game,question"
       limit:
         description: "Stop after this many clips. 0 means no limit."
         required: false
