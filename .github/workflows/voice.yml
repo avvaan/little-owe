@@ -76,7 +76,10 @@ jobs:
           # exist before, and `git diff` does not look at untracked files - so the first
           # run that actually recorded anything reported "nothing new to commit",
           # exited 0, and threw away fifty-four clips with the runner.
-          changes=$(git status --porcelain -- "content/${{ inputs.language }}/audio")
+          # -uall, or git collapses a wholly untracked directory into the single line
+          # "?? content/en/audio/" and the commit message says it recorded one line when
+          # it recorded fifty-four.
+          changes=$(git status --porcelain -uall -- "content/${{ inputs.language }}/audio")
           if [ -z "$changes" ]; then
             echo "nothing new to commit"
             exit 0
