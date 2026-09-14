@@ -77,7 +77,11 @@ uploads. The archive and IPA are kept as workflow artifacts for 14 days either w
 failed upload does not mean a lost build.
 
 The build number is the GitHub run number, so it always increases and Apple never
-rejects an upload as a duplicate. The marketing version stays `MARKETING_VERSION` in the
+rejects an upload as a duplicate. That only became true after the first successful
+upload: `Config/Info.plist` had the build number written into it as a literal `1`, so
+the workflow's `CURRENT_PROJECT_VERSION` override did nothing and every build would have
+been number 1. It now asks for `$(CURRENT_PROJECT_VERSION)`, and a test fails if that
+substitution stops happening or if someone writes a number back in. The marketing version stays `MARKETING_VERSION` in the
 project (`0.1` today); bump it there when you want a new version in App Store Connect.
 
 ### Then, in App Store Connect
