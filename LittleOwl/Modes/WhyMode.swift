@@ -49,8 +49,9 @@ final class WhyMode: RoomMode {
     /// Up at the window, which is where the mode lives.
     var askingSpot = RoomLayout.approachPoint(for: .window)
 
-    /// The question cards go low and left, clear of the owl at the window.
-    var choicesCentre = CGPoint(x: 560, y: 260)
+    /// The question cards go low, clear of the owl up at the window and off the side
+    /// table at the left edge.
+    var choicesCentre = CGPoint(x: 640, y: 255)
 
     /// How many questions the no-recognition path offers at a time.
     var choiceCount = 3
