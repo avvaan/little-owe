@@ -61,9 +61,10 @@ SETTINGS = {
         "warm sunlight, soft blue sky with a few clouds. No snow, no autumn anywhere in "
         "this story",
     "bear-slow-honey":
-        "Late summer throughout: a warm sunlit woodland of oaks and birches, dappled "
-        "green shade, bees and long golden light. No snow, no winter anywhere in this "
-        "story",
+        "A warm afternoon inside a cosy wooden cottage: honey-coloured plank walls and "
+        "floor, a tall wooden shelf, a window with long low afternoon sunlight coming "
+        "through it and dust turning in the light. Almost every page of this story is "
+        "indoors. No snow, no night",
     "mouse-night-light":
         "Night throughout, mostly inside an old cottage: a dim warm kitchen and the "
         "dusty space behind its wall, lit by moonlight through a window and a single "
