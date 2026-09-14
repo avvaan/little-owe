@@ -94,34 +94,64 @@ def story_prompts(language):
     return out
 
 
-def game_prompts(language):
-    """(target, prompt) for every word-game answer card.
+# The answer cards are named by the word, not by the game and slot: the app asks for
+# `choice_apple`, and the same apple is meant to be the same apple wherever it appears.
+# Seventy-four distinct words fill a hundred and forty-one card slots.
+#
+# They are not all the same kind of thing, and painting them as if they were is how you
+# get a picture of the written word "moo".
+SOUNDS = {
+    "moo": "a friendly cow", "quack": "a friendly duck", "woof": "a friendly dog",
+    "meow": "a friendly cat", "baa": "a friendly sheep", "neigh": "a friendly horse",
+    "oink": "a friendly pig", "ribbit": "a friendly frog", "buzz": "a friendly bee",
+    "hoo": "a friendly owl",
+}
+COLOURS = {"red", "blue", "green", "yellow", "black", "white", "brown", "orange", "purple"}
+NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+           "six": 6, "eight": 8, "ten": 10}
 
-    A card is one thing on a plain ground, not a scene: it is 148 x 186 points and a
-    child picks between three of them at a glance.
+CARD = ("A single subject alone, centred, filling most of the square with a clear even "
+        "margin, painted on a plain soft cream background with no scene, no shadow and "
+        "no other objects.")
+
+
+def word_subject(word):
+    """What to paint for one answer word.
+
+    A sound is painted as the animal that makes it - there is no painting of the noise
+    "moo", and a child who cannot read needs something on the card. That does make the
+    sound games easier: the child finds the cow rather than recalling the word. For a
+    three-year-old, with no score kept anywhere in this app, that is the right trade.
     """
-    out = []
-    for game in load(language, "word-games.json")["games"]:
-        for index, choice in enumerate(game.get("choices", [])):
-            prompt = (
-                f"{STYLE} A single subject alone, centred, filling most of the square "
-                f"with clear margin, painted on a plain soft cream background with no "
-                f"scene and no other objects. The subject: {choice}."
-            )
-            out.append((f"content/{language}/illustrations/game_{game['id']}_choice_{index}.jpg",
-                        prompt))
-    return out
+    if word in SOUNDS:
+        return SOUNDS[word]
+    if word in COLOURS:
+        return (f"a soft rounded watercolour patch of clear {word} colour, like a wash "
+                f"of {word} paint on paper, and nothing else at all")
+    if word in NUMBERS:
+        n = NUMBERS[word]
+        return (f"exactly {n} identical small round acorns arranged clearly and evenly "
+                f"so a child can count them, {n} and no more")
+    article = "an" if word[0] in "aeiou" else "a"
+    return f"{article} {word}"
+
+
+def game_prompts(language):
+    """(target, prompt) for every distinct answer word across the word games."""
+    words = sorted({c for game in load(language, "word-games.json")["games"]
+                    for c in game.get("choices", [])})
+    return [(f"content/{language}/illustrations/choice_{w}.jpg",
+             f"{STYLE} {CARD} The subject: {word_subject(w)}.")
+            for w in words]
 
 
 def question_prompts(language):
-    """(target, prompt) for the cards the owl offers when it asks rather than answers."""
+    """(target, prompt) for the cards the owl offers when a child does not speak."""
     out = []
     for question in load(language, "questions.json")["questions"]:
-        prompt = (
-            f"{STYLE} A single simple subject, centred, filling most of the square with "
-            f"clear margin, painted on a plain soft cream background. It illustrates "
-            f"this question for a child who cannot read it: {question['text']}"
-        )
+        prompt = (f"{STYLE} {CARD} It illustrates this question for a child who cannot "
+                  f"read it, so paint what the question is *about* rather than the "
+                  f"answer: {question['text']}")
         out.append((f"content/{language}/illustrations/question_{question['id']}.jpg", prompt))
     return out
 
