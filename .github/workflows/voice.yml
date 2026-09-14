@@ -72,12 +72,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet -- "content/${{ inputs.language }}/audio"; then
+          # `git status --porcelain`, not `git diff`. Every clip is a file that did not
+          # exist before, and `git diff` does not look at untracked files - so the first
+          # run that actually recorded anything reported "nothing new to commit",
+          # exited 0, and threw away fifty-four clips with the runner.
+          changes=$(git status --porcelain -- "content/${{ inputs.language }}/audio")
+          if [ -z "$changes" ]; then
             echo "nothing new to commit"
             exit 0
           fi
 
-          count=$(git status --porcelain -- "content/${{ inputs.language }}/audio" | wc -l | tr -d ' ')
+          count=$(printf '%s\n' "$changes" | wc -l | tr -d ' ')
+          echo "committing $count file(s)"
           git add "content/${{ inputs.language }}/audio"
           git commit -m "Record ${count} more lines of content/${{ inputs.language }}
 
@@ -89,6 +95,21 @@ jobs:
           # Runs on whatever branch it was dispatched on, which is the choice made at
           # dispatch time rather than one baked in here.
           git push origin HEAD:"${{ github.ref_name }}"
+
+      # The failure above was silent, which is what made it expensive: the run went
+      # green, the log said "nothing new to commit", and the clips were gone. Recorded
+      # clips that are not in the branch is now a failure with a name.
+      - name: Every clip that was recorded is in the branch
+        run: |
+          on_disk=$(find "content/${{ inputs.language }}/audio" -type f \
+                      \( -name '*.mp3' -o -name '*.m4a' -o -name '*.caf' -o -name '*.wav' \) \
+                      2>/dev/null | wc -l | tr -d ' ')
+          tracked=$(git ls-files "content/${{ inputs.language }}/audio" | wc -l | tr -d ' ')
+          echo "$on_disk on disk, $tracked tracked"
+          if [ "$on_disk" -ne "$tracked" ]; then
+            echo "::error::$on_disk clips were recorded but $tracked are in the branch. They are in the run artifact; do not re-record before working out why."
+            exit 1
+          fi
 
       - name: Keep the clips as an artifact too
         if: always()
