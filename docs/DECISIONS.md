@@ -316,6 +316,73 @@ widget and have to come back into the repository by hand.
 Nothing in the app depends on them: the rig falls back to the base pose, which is why the
 missing-frames design above matters more than it looked at the time.
 
+## Prayers listen, but the mode does not need to hear
+
+Recognition is a bonus laid on top of a mode that works without it. Four things can take
+it away — no recogniser for the pack's language, no on-device model on this iPad, no
+microphone permission, no speech-recognition permission — and every one of them lands on
+the same path: the owl says the line, waits a pause scaled to the line, praises, and
+moves on. That is the brief's "fixed pause", and it is the floor rather than an error
+case. A child on a device that cannot hear gets the whole prayer, said the same way; the
+device just listens while it happens.
+
+`SFSpeechAudioBufferRecognitionRequest.requiresOnDeviceRecognition` is set to true and a
+task is **never started without it**. There is deliberately no server fallback to take,
+because a server fallback is a network call.
+
+## The microphone prompt stays on the owl
+
+The brief puts the microphone prompt on the first tap of the owl and nowhere else, so
+Prayers does not ask for it. A child who has never played Echo gets the pause instead of
+a permission alert on the lamp. Speech recognition is a second, separate permission, and
+it is only ever asked for once the microphone is already granted — so it reaches a parent
+who has already said yes once, rather than a cold first tap.
+
+## `RepeatJudge` counts words and nothing else
+
+The brief is explicit that recognition detects *that the child said something of roughly
+the right length*, never whether they said it correctly. So the judge looks at how many
+words came back and at nothing else — not which words, not their order. "Banana banana
+banana" against "Now I lay me down to sleep," is a pass, and that is the design working.
+
+The bar is a third of the line, capped at four words however long the line is: long lines
+are the ones a small child most needs help with, so they must not also be the hardest to
+pass. Across the shipped pack no line asks for more than 40% of itself, and the longest
+asks for three words out of nine.
+
+There is exactly one thing it guards against: a cough, a sibling or a television reading
+as the child. One stray word against a fourteen-word line is not enough, and the owl says
+the line again — which is the same gentle path silence takes.
+
+## The gentle repeat happens once
+
+"If the child is silent for 8 seconds, the owl gently repeats the line once, then moves
+on." The owl nudges ("Let's try it together."), says the line again, and opens one more
+turn. If that one passes in silence too, it moves to the next line without comment. There
+is no third attempt and no "you didn't say it": a toy that waits a three-year-old out is
+a toy that has stopped being fun.
+
+## No set title is ever shown to a child
+
+The cards are symbols — a sun, a moon, a bowl, a star. A three-year-old cannot read
+"Before meals", but they know the bowl, and after two evenings they reach for the same
+card without looking. That is also why the cards keep the pack's order rather than the
+order a parent happened to tick them in, and why a test fails if two sets on the lamp
+share a symbol.
+
+## Two bugs the sibling code found
+
+Writing the set picker turned up the same mistake already shipped in the hero picker: the
+cards' hit areas are in each card's own space, but the tap was tested against a point in
+the row's space. Only a card sitting exactly on the picker's origin was reachable, so
+choosing a hero worked for the middle card and silently did nothing for the other four.
+Both pickers now subtract the card's position, and a test taps every card in both.
+
+The story's "tap the book again" offer had the same shape of problem. The book and the
+lamp are painted into the room and have no artwork of their own, so a prop node is a hit
+area plus a glow held at alpha 0 — and the offer was breathing the *node's* alpha, which
+changed nothing a child could see. `RoomObject.setOffering` now breathes the glow itself.
+
 ---
 
 ## Open, and deliberately deferred

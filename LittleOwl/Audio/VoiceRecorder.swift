@@ -35,8 +35,20 @@ final class VoiceRecorder {
     var onLevel: ((Float) -> Void)?
 
     /// Always delivered on the main queue. `recording` is nil for every reason except
-    /// `.silence` and `.maxDuration`.
+    /// `.silence` and `.maxDuration` — and, deliberately, whenever `retainsAudio` is off.
     var onFinished: ((Recording?, StopReason) -> Void)?
+
+    /// Every captured buffer, live, on the engine's own tap queue. Nothing here is kept
+    /// by the recorder; it exists so on-device recognition can see the audio as it
+    /// arrives without a second `AVAudioEngine` fighting for the same input node.
+    var onBuffer: ((AVAudioPCMBuffer) -> Void)?
+
+    /// Whether the captured audio is kept so it can be played back.
+    ///
+    /// Echo needs it: replaying the child is the entire mode. Prayers does not — it only
+    /// needs to know *that* the child spoke — so it turns this off and no buffer is ever
+    /// copied or held at all. Turn-taking works exactly the same either way.
+    var retainsAudio = true
 
     // MARK: Tuning
     //
@@ -120,7 +132,7 @@ final class VoiceRecorder {
 
         switch reason {
         case .silence, .maxDuration:
-            finish(assembleRecording(), reason)
+            finish(retainsAudio ? assembleRecording() : nil, reason)
         default:
             stateLock.lock()
             captured.removeAll()
@@ -134,9 +146,27 @@ final class VoiceRecorder {
     /// Runs on the engine's tap queue.
     private func consume(_ buffer: AVAudioPCMBuffer) {
         let level = buffer.meanSquareLevel()
-        let seconds = Double(buffer.frameLength) / buffer.format.sampleRate
+        let frames = buffer.frameLength
+        let seconds = Double(frames) / buffer.format.sampleRate
 
-        guard let copy = buffer.copied() else { return }
+        stateLock.lock()
+        let capturing = isCapturing
+        stateLock.unlock()
+        guard capturing else { return }
+
+        // Outside the lock: a consumer of live audio must never be able to deadlock the
+        // tap against the main queue.
+        onBuffer?(buffer)
+
+        // The tap hands out a buffer it reuses immediately, so anything kept has to be
+        // copied. When nothing is kept, nothing is copied either.
+        let copy: AVAudioPCMBuffer?
+        if retainsAudio {
+            guard let made = buffer.copied() else { return }
+            copy = made
+        } else {
+            copy = nil
+        }
 
         stateLock.lock()
         guard isCapturing else {
@@ -168,7 +198,7 @@ final class VoiceRecorder {
             noiseFloor += (level - noiseFloor) * (level < noiseFloor ? 0.25 : 0.002)
         }
 
-        captured.append(copy)
+        if let copy { captured.append(copy) }
 
         if isSpeech {
             heardSpeech = true
@@ -176,7 +206,7 @@ final class VoiceRecorder {
         } else {
             silenceRun += seconds
             if !heardSpeech {
-                framesBeforeSpeech += copy.frameLength
+                framesBeforeSpeech += frames
             }
         }
 

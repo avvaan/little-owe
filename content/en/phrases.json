@@ -33,6 +33,20 @@
     "storyAgain": [
       { "id": "again-1", "text": "Again?" },
       { "id": "again-2", "text": "Shall we read it once more?" }
+    ],
+
+    "_comment_repeatInvite": "Said once at the top of a prayer or rhyme. It is the only explanation a child gets of what that mode is, so it has to say what to do without asking anyone to read.",
+    "repeatInvite": [
+      { "id": "invite-1", "text": "Say it with me." },
+      { "id": "invite-2", "text": "Listen, then say it back to me." },
+      { "id": "invite-3", "text": "Let's say this one together. You go after me." }
+    ],
+
+    "_comment_setAgain": "Offered when a prayer or rhyme is finished and the lamp is glowing.",
+    "setAgain": [
+      { "id": "set-again-1", "text": "Again?" },
+      { "id": "set-again-2", "text": "Shall we say it once more?" },
+      { "id": "set-again-3", "text": "That was lovely. Once more?" }
     ]
   }
 }

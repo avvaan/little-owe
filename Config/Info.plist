@@ -62,11 +62,19 @@
 	<string>Little Owl uses the microphone only while your child is talking to the owl, so the owl can repeat what they said in a funny voice. Nothing is recorded, saved or sent anywhere — the sound is kept in memory for a few seconds and then deleted.</string>
 
 	<!--
+	  Asked for on the first tap of the lamp, and only once the microphone has already
+	  been allowed. Recognition is used to notice that the child spoke, never to grade
+	  what they said, and it runs entirely on the device: the request sets
+	  requiresOnDeviceRecognition and is never started without it.
+	-->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>When your child says a prayer or rhyme back to the owl, the owl listens just long enough to notice that they spoke, so it can praise them and move on. It never checks whether they said it correctly. Everything happens on this iPad — nothing is recorded, saved or sent anywhere.</string>
+
+	<!--
 	  Deliberately absent, and they must stay absent:
 	    * NSAppTransportSecurity      - the app makes no network calls of any kind
 	    * any third-party SDK keys    - there are no third-party SDKs
 	    * NSUserTrackingUsageDescription - nothing is tracked
-	  NSSpeechRecognitionUsageDescription arrives with Prayers (deliverable 5).
 	-->
 </dict>
 </plist>
