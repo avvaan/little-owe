@@ -21,7 +21,7 @@ part that is not settled yet, and it is deliberately the longest.
 | `content/en/*.json` | The stories, the questions and their answers, the owl's stock lines | Written for this project | Owned outright |
 | The four rhymes | Twinkle Twinkle, Humpty Dumpty, Hey Diddle Diddle, Row Row Row Your Boat | Public domain — see below | Public domain |
 | The three prayers | **Still placeholder text** | Placeholder | Nothing shipped yet — see below |
-| `content/en/audio/*.mp3` | 601 recorded lines | ElevenLabs text-to-speech, voice `cgSgspJ2msm6clMCkdW9` | ElevenLabs paid-plan commercial licence — **to confirm** |
+| `content/en/audio/*.mp3` | 601 recorded lines | ElevenLabs text-to-speech, voice `cgSgspJ2msm6clMCkdW9`, all on 14 September 2026 | ElevenLabs paid-plan commercial licence — plan confirmed paid |
 | `content/en/illustrations/*.jpg` | 260 paintings — story pages, set cards, answer cards, question cards | Higgsfield, model `gpt_image_2_5`, all on 14 September 2026 | Higgsfield output terms — **to confirm** |
 | `Resources/Art/owl_*.png`, `window_sky_{morning,day,evening}.png` | The owl's six expression frames and three of the four skies | Higgsfield | Same as above |
 | `Resources/Art/corner_basket.png` | The basket in the corner | Higgsfield | Same as above |
@@ -69,7 +69,8 @@ product in the App Store is publishing, whatever the download costs. Releasing a
 does not move this into the free tier's allowance — if anything it is the paid-plan
 licence that makes it fine.
 
-**Two things this file cannot settle** — see the open list below.
+**One thing this file still cannot settle** — which voice this is exactly. See the open
+list below.
 
 ## Higgsfield — the paintings
 
@@ -104,7 +105,8 @@ them ever changes.
 
 Everything above this line is either certain or quoted. Everything below is a real gap,
 listed because a licensing page that only contains good news is not worth showing to
-anybody.
+anybody. Items are struck through as they are answered, rather than deleted — what was
+once unknown, and who settled it, is part of what this page is for.
 
 **1. I could not read either vendor's terms first-hand.** This session's network proxy
 blocks `elevenlabs.io` and `higgsfield.ai` outright. What is summarised above came from
@@ -114,15 +116,19 @@ been read at the source.* Open the two links in each section and check the wordi
 against what is written here. This takes about five minutes and is the single most
 valuable thing on this list.
 
-**2. Was the ElevenLabs account on a paid plan when the 601 clips were recorded?** This
-is the hinge the whole voice question turns on, and it cannot be seen from the
-repository — the API key lives in a GitHub secret and the plan lives in the dashboard.
-If any clip was generated on the free tier it is not licensed for this use and must be
-re-recorded, not merely attributed.
+**2. Was the ElevenLabs account on a paid plan when the 601 clips were recorded?**
+~~Open.~~ **Answered on 15 September 2026 by the account holder: the account has been on
+a paid plan throughout.**
 
-This one is easier than it sounds: **every one of the 601 clips was recorded on
-14 September 2026**, in four runs of the Voice workflow on that single day. So it is one
-date to check in the billing history, not a range.
+Every one of the 601 clips was recorded on 14 September 2026, in four runs of the Voice
+workflow on that single day, so this is a single date rather than a range — and a paid
+plan on that date carries the perpetual commercial licence described above.
+
+Recorded here because it is the hinge the whole voice question turns on and it cannot be
+seen from the repository: the API key lives in a GitHub secret and the plan lives in the
+dashboard. If it ever has to be *proved* rather than stated, the document is the billing
+history for 14 September 2026 — worth saving a copy of that invoice somewhere that is not
+a subscription you might one day cancel.
 
 **3. Is voice `cgSgspJ2msm6clMCkdW9` an ElevenLabs premade voice, or one shared through
 the Voice Library?** It is labelled "Jessica — Playful, Bright, Warm" in
