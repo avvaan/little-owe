@@ -799,6 +799,23 @@ including the Echo turn that had just asked for the microphone in the first plac
 `.categoryChange` is no longer a loss, and `apply` marks a change of its own in flight so
 a route change it causes under another reason is ignored too.
 
+### And a watchdog, because the fix only works if the guess was right
+
+The cause above was found by reading, not by reproducing: there is no Mac in this
+project's loop and the failure lives inside an audio engine on a device. So the fix rests
+on a diagnosis, and a diagnosis can be wrong.
+
+`OwlVoice` now arms a watchdog with every line — however long the line should take, plus
+four seconds. If nothing has reported the line finished by then, it reports it itself.
+Any other way for a line to go silent, including ones nobody has found yet, now costs a
+pause instead of the app.
+
+This does not make the brief's "nothing times out" untrue, and the distinction is worth
+being exact about. Nothing the **child** does is on a clock: they take as long as they
+like to answer, to choose, to wander off mid-story and come back to the same page. The
+watchdog is on the **owl's own sentence**, and the only sentence it can cut short is one
+that is not being said.
+
 ### What is tested and what is not
 
 `VoiceContractTests` holds the promise: the player says no when it cannot play, a line
@@ -810,6 +827,11 @@ What is **not** tested is the failure itself. Making `engine.start()` throw on d
 means a fake audio engine, and the bug was never in the engine — it was in believing a
 function that had not been asked whether it succeeded. The test that would have caught it
 is the one that now exists: ask, and check the answer.
+
+The test that matters most asks for a line and waits for `onFinished`, and passes whether
+the recording played, the synthesiser spoke, or the watchdog had to step in. That is the
+promise stated the way a mode actually needs it: not *how* the line was said, but that
+somebody always says when it is over.
 
 ---
 

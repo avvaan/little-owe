@@ -80,6 +80,48 @@ final class VoiceContractTests: XCTestCase {
         voice.stop()
     }
 
+    /// The promise itself, end to end: ask the owl to say something and `onFinished`
+    /// arrives, whichever path delivers it.
+    ///
+    /// This passes if the recording plays, if the synthesiser speaks, **and** if neither
+    /// does and the watchdog has to report the line over — which is the whole point. A
+    /// mode does not care how the line was said. It cares that it is told when to do the
+    /// next thing, and before this existed there was a way for that to never happen.
+    func testAskingTheOwlToSpeakAlwaysComesBack() throws {
+        let voice = OwlVoice(pack: try pack())
+        voice.watchdogMargin = 0.4
+
+        let spoken = expectation(description: "the owl reported its line finished")
+        voice.onFinished = { spoken.fulfill() }
+        voice.say(SpokenText(id: "promise", text: "Hello.", stem: "no-such-recording"))
+
+        wait(for: [spoken], timeout: 10)
+        XCTAssertFalse(voice.isSpeaking)
+    }
+
+    /// And the rescue must not be a hair trigger. A line that is genuinely being said
+    /// reports itself, once.
+    func testTheLineIsReportedOnceAndOnlyOnce() throws {
+        let voice = OwlVoice(pack: try pack())
+        voice.watchdogMargin = 0.4
+
+        var count = 0
+        let spoken = expectation(description: "finished")
+        voice.onFinished = {
+            count += 1
+            if count == 1 { spoken.fulfill() }
+        }
+        voice.say(SpokenText(id: "once", text: "Hello.", stem: "no-such-recording"))
+        wait(for: [spoken], timeout: 10)
+
+        // Long enough for a watchdog that had not been cancelled to fire again.
+        let settled = expectation(description: "settled")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { settled.fulfill() }
+        wait(for: [settled], timeout: 5)
+
+        XCTAssertEqual(count, 1, "the line reported finishing more than once")
+    }
+
     /// Every mode that speaks drives itself from `onFinished`. Listed here so that a new
     /// one is a deliberate addition rather than a surprise — and so the count in the
     /// doc comment above stays true.

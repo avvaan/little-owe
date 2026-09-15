@@ -50,6 +50,25 @@ final class OwlVoice: NSObject {
     private var mouthReset: DispatchWorkItem?
     private var wordSchedule: [DispatchWorkItem] = []
 
+    /// Fires `finish()` if nothing else has, so a line can be silent but never endless.
+    ///
+    /// Every talking mode decides what happens next when `onFinished` arrives and none
+    /// of them polls, so a line that never reports finishing is a mode frozen where it
+    /// stands — an owl that opened its beak and then stopped being an app. That has
+    /// happened once already (see docs/DECISIONS.md) and the cause was two layers down
+    /// in an audio engine that declined to start.
+    ///
+    /// This does not make the brief's "nothing times out" untrue. Nothing the *child*
+    /// does is on a clock: they can take as long as they like to answer, to choose, to
+    /// wander off mid-story and come back. This is the owl's own sentence, and the only
+    /// thing it can cut short is a sentence that is not being said.
+    private var watchdog: DispatchWorkItem?
+
+    /// Added to however long the line should take. Generous on purpose — it must never
+    /// clip a slow recording, only rescue one that is not playing at all. Settable so a
+    /// test can watch the rescue happen without waiting four seconds for it.
+    var watchdogMargin: TimeInterval = 4
+
     init(pack: ContentPack, bundle: Bundle = .main) {
         self.language = pack.language
         self.speechLocale = pack.speechLocale
@@ -71,9 +90,15 @@ final class OwlVoice: NSObject {
         stop()
         isSpeaking = true
 
+        // Armed from the text before anything starts, so a path that never calls back at
+        // all is still covered. A recording re-arms it against its real length below.
+        armWatchdog(for: estimatedSpokenLength(of: line.text))
+
         if let url = ContentLoader.audioURL(for: line, language: language, in: bundle) {
             player.onStarted = { [weak self] duration in
-                self?.scheduleEstimatedWordRanges(for: line.text, over: duration)
+                guard let self else { return }
+                self.armWatchdog(for: duration)
+                self.scheduleEstimatedWordRanges(for: line.text, over: duration)
             }
             if player.play(contentsOf: url) {
                 isUsingSynthesiser = false
@@ -94,6 +119,8 @@ final class OwlVoice: NSObject {
     }
 
     func stop() {
+        watchdog?.cancel()
+        watchdog = nil
         mouthReset?.cancel()
         mouthReset = nil
         wordSchedule.forEach { $0.cancel() }
@@ -113,11 +140,33 @@ final class OwlVoice: NSObject {
     private func finish() {
         guard isSpeaking else { return }
         isSpeaking = false
+        watchdog?.cancel()
+        watchdog = nil
         mouthReset?.cancel()
         wordSchedule.forEach { $0.cancel() }
         wordSchedule.removeAll()
         onMouth?(0)
         onFinished?()
+    }
+
+    private func armWatchdog(for length: TimeInterval) {
+        watchdog?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self, self.isSpeaking else { return }
+            // Nothing reported this line ending, so it is not being said. Report it
+            // ended rather than leaving whoever asked for it waiting for ever.
+            self.finish()
+        }
+        watchdog = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + length + watchdogMargin, execute: item)
+    }
+
+    /// Roughly how long a line takes to say aloud, for a path that cannot tell us.
+    /// Deliberately long: this only sets the watchdog, and an over-estimate costs a
+    /// pause where an under-estimate would cut the owl off mid-word.
+    private func estimatedSpokenLength(of text: String) -> TimeInterval {
+        let words = max(OwlVoice.wordRanges(in: text).count, 1)
+        return max(2, Double(words) * 0.7)
     }
 
     /// Spreads the line's words across a recording's duration, giving each a share
