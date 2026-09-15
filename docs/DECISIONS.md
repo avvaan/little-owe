@@ -438,16 +438,410 @@ minute, and that list dies when the child leaves. Nothing counts right answers, 
 or on disk, because a three-year-old who gets one wrong should not then be a three-year-old
 with a number attached.
 
+## The privacy manifest had left itself a note, and the note had expired
+
+It said, in a comment: *"Parent settings (deliverable 7) will add UserDefaults, which
+needs NSPrivacyAccessedAPICategoryUserDefaults with reason CA92.1. Add it when that code
+lands, not before."*
+
+Deliverable 7 landed two PRs ago. `ParentSettings` reads and writes `UserDefaults`, the
+manifest still declared nothing, and Apple rejects a build that touches a required-reason
+API without declaring it — with a message that names the API category rather than the code
+that called it.
+
+Declared now, with `CA92.1`: "information accessible only to the app itself", which is the
+literal truth — four keys, no app group, no shared container, nothing about the child. A
+sweep for the other required-reason categories found nothing: no file timestamps, no
+disk-space APIs, no system boot time, no active-keyboard API.
+
+Two tests hold it. One asserts the manifest still promises that nothing is tracked and
+nothing is collected — the day somebody adds analytics is the day that test fails, which
+is the entire point of having it. The other asserts the UserDefaults reason is there.
+
+## Nothing is collected, and the manifest is how that is said in Apple's language
+
+`NSPrivacyCollectedDataTypes` is empty and must stay empty. Worth writing down why the
+microphone does not belong in it: under Apple's definition, using the microphone is not
+collection unless the audio is stored or transmitted. It is neither — one in-memory
+buffer, released when playback ends, never a file. Speech recognition is the same: the
+request sets `requiresOnDeviceRecognition` and the app refuses to start a task without it,
+so nothing reaches a server.
+
+That means the App Privacy answer in App Store Connect is a single **No**, and the listing
+shows **Data Not Collected**.
+
+## The review notes are load-bearing
+
+The parental gate is deliberately invisible: a small target in a corner that shows nothing
+until it is held for three seconds. That is right for a three-year-old and wrong for a
+reviewer, who will not find it and cannot check the settings they are required to check.
+
+So `docs/APP_STORE.md` carries review notes that say exactly where the gate is and what it
+asks for, alongside where each permission prompt appears and what happens when it is
+declined. A Kids submission where the reviewer cannot reach the parent settings is a
+rejection about something that works.
+
+## A script measures the listing, because Apple measures it at the worst moment
+
+App Store Connect enforces field limits one at a time, at submission, after the form is
+filled in. A 31-character subtitle is a round trip for no reason.
+`tools/check_metadata.py` reads the fenced blocks out of the metadata draft and measures
+them, and CI runs it. It also refuses a keyword list with a space beside a comma, which
+silently wastes one of the hundred characters each time.
+
+## A mode should look like an owl in its house, not like a dimmed screen
+
+Every mode used to put a black sheet over the whole room at two thirds opacity. It worked
+— cards and captions were legible against it — and it was wrong. The room is most of what
+this app is, and it disappeared the moment anything happened in it. A child tapping the
+book got a dark rectangle with cards on it; the lamp they had just been looking at, the
+moon in the window, the rug, all gone.
+
+So the room stays lit. `ModeBackdrop` puts a light wash over it and a vignette that
+darkens the corners, which does the same job of pulling a child's eye to the middle. It
+replaced four copies of the same sheet, one per mode.
+
+That traded one problem for another, honestly: white words on a lit wall can land across
+the shelf or a pale plank and lose their edges. `CaptionNode` now draws its own soft panel
+behind the text, sized to the words rather than to the available width — in one place
+rather than in the four modes that show captions.
+
+The preview tools mirror both, so `docs/preview/` keeps showing what the app shows rather
+than what it used to.
+
+---
+
+## The owl got a repertoire
+
+An owl that leans two degrees every eleven seconds is a picture of an owl. A child aged
+three spends long stretches simply watching this screen with nothing asked of them, and
+what they are watching has to be alive.
+
+So the resting owl now has seven moves instead of two: the blink and the quiet lean it
+always had, plus a **swivel**, a **double take**, the tipped-over **peer** children
+imitate, a **bobble**, and a **ruffle** of the feathers. Which one comes next and how
+long the room stays still first is `OwlIdleChoreography` — never the same move twice
+running, the big ones kept rare by weight, the sides strictly alternating, and every
+pause re-rolled so nothing settles into a rhythm that can be predicted.
+
+Three things about how it is built, each of which was a choice:
+
+**The choice of move is behaviour; the look of it is artwork.** So the picking sits in
+`OwlNode` and is tested, and the rendering sits in `OwlRig` and is judged by watching it.
+The rig used to schedule its own blink and tilt loops; it no longer does.
+
+**It runs off the update loop, not off a repeating action.** An action that schedules its
+successor has to tear itself down to do it, which is the hazard this file already records
+twice. The scene calls `owl.update(currentTime:)` every frame anyway, and driving it from
+there also made the whole repertoire testable without a scene: feed it two minutes of
+synthetic frames and count what came out.
+
+**The moves got their own node.** SpriteKit actions do not compose — a swivel setting
+`xScale` on the breathing body would be fighting the breath for the same property, and
+whichever finished last would win. Nested, the two transforms multiply and both play.
+
+The swivel is still the whole painting narrowing and rotating rather than a head turning
+on a neck, which is the same trade this file made when it chose frame-swapping over a
+cut-up puppet: a watercolour with feather texture across every edge cannot be cut at the
+neck without leaving a seam. Narrowing is not a cheat — a head seen side-on *is*
+narrower — but a drawing would be better, so `docs/ART_BRIEF.md` now asks for
+`owl_turn_left` and `owl_turn_right`. The rig uses them if they land and performs the
+move without them if they do not, which is the same bargain every other frame has.
+
+---
+
+## The owl was allowed one thing it did not read somewhere, and then it was not
+
+Every answer in this app is a sentence somebody wrote. That was stated as a
+non-negotiable and it was the right call: an owl that makes something up for a
+five-year-old is worse than one that admits it does not know.
+
+But there is exactly one dead end in the app, and it is in the mode built around
+curiosity. A child taps the window, asks something real, and if it is not one of the
+hundred and thirty questions in the bank the owl says "I do not know that one. Ask your
+grown-up." Which is honest, and is also the child being turned away from the one thing
+they came to do.
+
+So on a miss — and only on a miss — the owl may ask a model. The bank still answers
+first, because a written answer is better than a generated one every time.
+
+**It is a compile flag, not a setting, and that is the whole design.** `LITTLE_OWL_AI`
+off means the networking code is not in the binary: not disabled, absent. The App Store
+description tells a reviewer, in plain words, that this app has no networking code in
+it. A runtime switch would make that sentence false in every copy shipped, including the
+ones where a parent never touched the switch. A compile flag keeps it true, and keeps it
+true in the only way that can be checked — by looking at the binary.
+
+Four more things hold it up:
+
+- **`OwlAnswerGuard` is not a content filter.** A list of forbidden words would be easy
+  to write, easy to get round, and would feel like safety. What it does instead is
+  refuse anything that is not a plain spoken answer: formatting a child cannot hear,
+  emoji, links, a model explaining what it is, an unfinished sentence from a token
+  limit, more than two sentences, more than 260 characters. Subject matter is the
+  system prompt's job, and the prompt says so at length. A test asserts the prompt still
+  says it, because that is the sort of thing that gets edited away.
+- **Rejecting costs nothing.** Everything the guard throws out, every timeout, every
+  aeroplane-mode failure and every refusal becomes the `unknownQuestion` line. The worst
+  case is the behaviour the app already had, which is why the guard can afford to be
+  strict.
+- **There is no conversation.** One question out, one answer back, nothing kept between
+  them. The owl cannot be talked into anything over five turns because there are never
+  five turns.
+- **The child's voice never leaves the iPad.** Recognition is on-device and the app
+  refuses to start a task that is not; what travels is the text, which is the same text
+  the caption would have shown.
+
+The key lives in the keychain rather than `UserDefaults`, for the ordinary reason and
+for one specific to this app: the privacy manifest declares four `UserDefaults` keys
+under CA92.1, and a secret is not one of the four things that declaration describes.
+One key per service, so switching between them does not mean typing the other one back
+in from an iPad keyboard.
+
+**Two services, and the parent picks.** Claude or DeepSeek, chosen on the settings
+screen. `OwlBrain` was a protocol for exactly this, so the second one cost one branch in
+three places — the URL, how the key is presented, and whether the system prompt is a
+field or a message — and changed nothing about the prompt, the guard, or the mode.
+
+They are not interchangeable, and the screen says so rather than pretending. The guard
+checks the *shape* of an answer, never its subject; what keeps the subject right for a
+five-year-old is entirely how closely a model follows "do not answer that one at all",
+and models differ at that. The other difference a parent is entitled to know without
+reading the source is where the question goes — Anthropic in the United States, DeepSeek
+in China — so `BrainProvider` carries that sentence and the screen prints it.
+
+Reading the reply moved out of the networking into `BrainReply`, which is compiled and
+tested in every build including the ones with no networking in them. That is where this
+breaks quietly: a socket either opens or times out, but a document whose shape somebody
+else decides just starts returning nil. Both shapes have fixtures, including each
+service's error body and each other's reply, because the one thing that must never
+happen is an error message being read aloud to a child.
+
+The brain is built per unanswered question rather than once when the room loads. Once
+was wrong in the first way anybody would meet it: a parent opens settings, types a key,
+closes settings, and the owl carries on saying it does not know until the app is
+restarted. It is a keychain read, and the `URLSession` is shared.
+
+CI built the flagged path as well as the default one, because code that is never
+compiled stops compiling.
+
+**And then it was taken out again.** Not because any of the above turned out to be
+wrong — it held up, and a build without the flag genuinely had no networking in it — but
+because the feature was not worth what it cost to keep honest. Every document in this
+folder had to carry a paragraph about it. Every submission needed somebody to remember
+not to tick a box. The App Store description's plainest sentence, that there is no
+networking code in this app, was true only because of a compile flag a person had to
+keep getting right.
+
+The owl says "I do not know that one. Ask your grown-up." again, and that was always the
+better answer to a question nobody wrote down.
+
+It is in the history if it is ever wanted: `OwlBrain`, `OwlAnswerGuard` and `BrainReply`
+were the interesting parts, and `OwlAnswerGuard`'s reasoning — that a word list is not
+safety, that rejecting must cost nothing — is worth reading before anybody builds this
+again.
+
+---
+
+## A red cross where the room should be
+
+The first build with the recorded voice went to a real iPad and showed a giant red
+cross on white, with the owl, the window and the blocks floating on it. That is what
+SpriteKit draws when a texture is missing.
+
+Every painting in `Resources/Art` is a PNG except one. The room is a full-screen
+painting and a PNG of it is six times the size of the JPEG, so the export script saves
+`room_bg.jpg`. `SKSpriteNode(imageNamed:)` goes through `UIImage(named:)`, and for a
+loose file in the bundle — as opposed to an entry in an asset catalogue — that assumes
+`.png`. So every painting loaded and the one JPEG did not.
+
+What is worth writing down is not the bug. It is that **nothing between the repository
+and the child said a word.** The build was green. The art check passed, and passed
+correctly: it compares the files on disk against what the export script produces, and
+the file was right. The tests passed. The archive validated. Apple accepted the upload.
+Every check in this project was checking that the file existed and was correct, and not
+one of them checked that the app could load it.
+
+So `ArtTexture` asks the bundle which file is actually there and loads that, with no
+guessing about extensions, and a painting that is missing now fails an assertion in a
+debug build instead of being drawn as a cross. Every painting goes through it — the
+room, the props, the window, and the owl's frames, which had the same hole: a frame
+delivered as a JPEG would have been skipped in silence.
+
+And `ArtTests` loads every painting the room cannot be assembled without, rather than
+looking for it. It also checks the room's aspect against `RoomLayout.designSize`,
+because the sprite is stretched to that size and a painting of the wrong shape would not
+fail to load — it would quietly distort, which is the same class of bug one step
+further on.
+
+## The window and the basket are two halves, not one mode with a fallback
+
+The window was doing both jobs. A child taps it, the owl says "ask me anything you like",
+and on a device that can hear, that is exactly right. On a device that cannot — no
+microphone, permission declined, an iPad in a house where nobody said yes — the same tap
+put up three cards instead, and for a long while those cards were coloured rectangles
+with nothing on them. What a child actually saw was: I tapped the window and got three
+empty boxes.
+
+So the two halves were separated. The window keeps its own job and only its own job: the
+child asks out loud and the owl answers. The basket in the near corner is the other
+direction — the owl offers three questions as pictures, says what each one is while that
+card lights, and tells you about whichever you tap. Same bank of questions, same written
+answers, opposite way round.
+
+Three things follow from that and all three are better than the arrangement they replace:
+
+- **The corner needs no microphone at all.** A child on an iPad that cannot hear now has
+  a whole half of Why that is not a fallback for something else, and does not feel like
+  one.
+- **The cards are the mode rather than a consolation.** They had to stop being
+  rectangles, so every one of the 129 questions was painted. `question_sky-blue` is a
+  child looking up at a blue sky — a three-year-old can tell three of those apart at a
+  glance and then remember which one the owl named.
+- **A parent's toggle list says what the two are for.** "Why questions" and "The owl's
+  own questions" are two lines, and the footer says which needs a microphone.
+
+The window keeps its card fallback. Removing it would mean a child with no microphone
+taps the window and nothing happens, and a dead prop is worse than a duplicated one.
+
+The basket is also the first prop that is **not in the painting**, which makes it the
+first prop that can be missing — so `RoomBuilder.makeBasket()` returns nil when its
+painting is not in the bundle and the room is simply built without that corner. See the
+red cross below for why that is not paranoia.
+
+## The night wash put the room out
+
+The room came back from a real iPad almost black. Not a mode, not a missing texture —
+the main screen, between nine at night and five in the morning, which is when a bedtime
+app is most likely to be opened.
+
+`Palette.ambientWash` lays one tinted sprite over the whole room for the time of day.
+Three of the four were `.add` and one — night — was `.multiplyX2`. Under `.add`, alpha
+is a strength knob: none of it at 0, all of it at 1. **Under any multiply blend it is
+not.** SpriteKit premultiplies a node's colour by its alpha, so a low alpha means a
+*dark* source, and the room multiplied by a nearly-black source is a nearly-black room.
+Night at `alpha 0.10` left the painting at **nine percent** of its brightness.
+
+The worst part is the direction. An earlier commit called "the ambient wash was turned
+down" lowered every alpha, night from 0.22 to 0.10 — and halved the night brightness
+while believing it was making the tint gentler. The number that reads as "barely there"
+was the one doing the most damage.
+
+Night is now a deep blue at `alpha 0.30` with plain `.alpha` blending: the room at 92%,
+cooled, the lamp still the warmest thing in it. Every entry now uses a blend where alpha
+means one thing, which also fixes a second bug nobody had hit yet — `applyTimeOfDay`
+animates this node's alpha, so a dusk crossfade into a multiply wash would have dipped
+through a black screen on the way.
+
+**Why nothing caught it.** The same shape as the red cross below, one layer further in.
+`docs/preview/` composites the painting and the sprites and stopped there, so the one
+thing the *code* draws over the room was the one thing the previews never showed. The
+art check compares exported files, not rendered frames. No test mentioned `Palette` at
+all. It was invisible to every check in the project and obvious within a second of
+opening the app at night.
+
+So two things now look at it. `tools/compose_room.py` composites the wash last, exactly
+as `RoomScene` layers it, and prints what each one does to the room — the four previews
+in `docs/preview/` are rendered through it. And `PaletteTests` does the blend arithmetic
+on a mid-tone of the attic's wood and asserts the room survives: luminance between 60%
+and 145% of the painting for every time of day, night cooler than bare and the warm ones
+not, and every blend mode one whose alpha runs from none to all. The value that shipped
+scores 0.094 against a floor of 0.6.
+
+Both are mirrors of what SpriteKit does rather than SpriteKit, the same caveat
+`tools/simulate_turn_detection.py` carries. That is a fair objection to a test of a
+subtle blending difference. It is not a fair objection to this one: a wash that
+multiplies the room by nearly zero is wrong under any correct implementation of the
+formula.
+
+## A line that never finished froze the mode waiting for it
+
+Reported as: the owl goes to the window, seems to start asking, and switches off. The
+same at the basket in the corner.
+
+`OwlVoice.onFinished` is the spine of every talking mode. Each one says a line and
+decides what happens next when that fires — the story turns the page, the window opens
+the child's turn, the basket lays out its three cards. Nothing polls and nothing times
+out, which is right: a child who wanders off mid-story should come back to the same page
+waiting, not to a mode that gave up.
+
+That only works if the callback always comes. **It did not.**
+
+`VoicePlayer.play(contentsOf:)` read the file, handed the buffer to `play(_:)`, and
+returned `true` — unconditionally, including when `engine.start()` threw. On that path
+nothing was scheduled and nothing played, so no completion ever arrived. The `catch`
+called `finish()`, which looks like it covers exactly this, and does not: `isPlaying` is
+still `false` at that point, so `finish()` returns at its first line. `OwlVoice` set
+`isSpeaking = true`, believed a recording was playing, and waited. The mode waited with
+it, for the rest of the session, with nothing on screen and no way out but tapping the
+owl.
+
+The two modes where it shows worst are the two that speak the moment they open. Stories
+and prayers put a picker up first, so a frozen voice still leaves a child something to
+tap; the window and the basket have nothing on screen until the first line ends.
+
+Both halves are now fixed at the seam rather than in the callers. `play` returns `false`
+when the engine refuses, so `OwlVoice` falls through to the synthesiser exactly as it
+does for a line with no recording at all — the per-line fallback that already exists,
+now covering one more way for a line to have no audio. Echo, the one other caller, ends
+its turn itself instead of waiting.
+
+### And the app was interrupting itself
+
+Found while reading the same path, not reported. `AudioSession.handleRouteChange`
+treated `.categoryChange` as the system taking the audio away, and
+`RoomScene.onAudioLost` responds by cancelling Echo and telling **every running mode to
+leave**. But an app's session category is only ever changed by that app, and the only
+thing that changes it here is `prepareForRecording`. So the first time the owl needed the
+microphone, the app told itself it had lost the audio and shut down whatever was running,
+including the Echo turn that had just asked for the microphone in the first place.
+
+`.categoryChange` is no longer a loss, and `apply` marks a change of its own in flight so
+a route change it causes under another reason is ignored too.
+
+### And a watchdog, because the fix only works if the guess was right
+
+The cause above was found by reading, not by reproducing: there is no Mac in this
+project's loop and the failure lives inside an audio engine on a device. So the fix rests
+on a diagnosis, and a diagnosis can be wrong.
+
+`OwlVoice` now arms a watchdog with every line — however long the line should take, plus
+four seconds. If nothing has reported the line finished by then, it reports it itself.
+Any other way for a line to go silent, including ones nobody has found yet, now costs a
+pause instead of the app.
+
+This does not make the brief's "nothing times out" untrue, and the distinction is worth
+being exact about. Nothing the **child** does is on a clock: they take as long as they
+like to answer, to choose, to wander off mid-story and come back to the same page. The
+watchdog is on the **owl's own sentence**, and the only sentence it can cut short is one
+that is not being said.
+
+### What is tested and what is not
+
+`VoiceContractTests` holds the promise: the player says no when it cannot play, a line
+with no recording still reaches the synthesiser, and stopping always leaves the owl
+quiet. It also lists the callers that hang on `onFinished`, so a new mode is a deliberate
+addition rather than a surprise.
+
+What is **not** tested is the failure itself. Making `engine.start()` throw on demand
+means a fake audio engine, and the bug was never in the engine — it was in believing a
+function that had not been asked whether it succeeded. The test that would have caught it
+is the one that now exists: ask, and check the answer.
+
+The test that matters most asks for a line and waits for `onFinished`, and passes whether
+the recording played, the synthesiser spoke, or the watchdog had to step in. That is the
+promise stated the way a mode actually needs it: not *how* the line was said, but that
+somebody always says when it is over.
+
 ---
 
 ## Open, and deliberately deferred
 
 - **The room is painted for night only.** The window follows the clock, but a bright
   morning attic would need the room itself repainted; the app tints it gently instead.
-- **`content/` is empty.** The schema and loader are deliverable 3.
-- **There are no tests yet.** The units worth testing — `TimeOfDay` bucketing, the tap
-  target padding maths, the idle clock, and now the turn detector — are pure and will
-  get a test target alongside deliverable 3, where the content loader makes one pay for
-  itself. `tools/simulate_turn_detection.py` stands in for the detector until then; it
-  is a real check, but it is a mirror of the Swift rather than the Swift itself, and the
-  two can drift.
+- **The owl's voice is still the system synthesiser** wherever `content/en/audio/` has
+  no recording. The fallback is per line rather than per build, so a half-recorded pack
+  plays what exists and speaks the rest.
+- **`tools/simulate_turn_detection.py` is a mirror of the Swift, not the Swift.** The
+  test target covers the rest; this one check still lives in two languages and the two
+  can drift.

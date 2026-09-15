@@ -71,7 +71,7 @@ final class WhyMode: RoomMode {
     private let turn: ListeningTurn
     private let choices: SpokenChoices
 
-    private let dim = SKSpriteNode(color: SKColor(white: 0.03, alpha: 1), size: RoomLayout.designSize)
+    private let backdrop = ModeBackdrop()
     private let caption = CaptionNode(maxWidth: 820, fontSize: 44)
     private let halo: SKShapeNode
 
@@ -99,10 +99,6 @@ final class WhyMode: RoomMode {
         self.choices = SpokenChoices(scene: scene, voice: voice, language: pack.language)
 
         halo = ListeningHalo.make()
-        dim.position = CGPoint(x: RoomLayout.designSize.width / 2,
-                               y: RoomLayout.designSize.height / 2)
-        dim.zPosition = ModeLayer.dim
-        dim.alpha = 0
 
         caption.position = CGPoint(x: 470, y: 820)
         caption.zPosition = ModeLayer.overlay
@@ -121,9 +117,7 @@ final class WhyMode: RoomMode {
         turn.prepare()
         turn.patience = patience
 
-        if dim.parent == nil { scene.addChild(dim) }
-        dim.removeAllActions()
-        dim.run(.fadeAlpha(to: 0.62, duration: 0.35))
+        backdrop.show(in: scene)
 
         owl.zPosition = ModeLayer.owl
         if halo.parent == nil { owl.addChild(halo) }
@@ -159,7 +153,7 @@ final class WhyMode: RoomMode {
         voice.onMouth = nil
         voice.onFinished = nil
 
-        dim.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]))
+        backdrop.hide()
         owl.zPosition = RoomLayout.Z.owl
         owl.transition(to: .idle)
         owl.returnHome()

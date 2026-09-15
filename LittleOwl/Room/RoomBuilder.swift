@@ -14,7 +14,7 @@ enum RoomBuilder {
     // MARK: Room
 
     static func makeRoom() -> SKSpriteNode {
-        let room = SKSpriteNode(imageNamed: "room_bg")
+        let room = ArtTexture.sprite("room_bg")
         room.size = RoomLayout.designSize
         room.position = CGPoint(x: RoomLayout.designSize.width / 2,
                                 y: RoomLayout.designSize.height / 2)
@@ -46,7 +46,7 @@ enum RoomBuilder {
     /// offset whose wall best continues the wall around the book — the planking here runs
     /// diagonally, so a fixed sideways or upward offset would break the grain.
     static func makeBookPatch() -> SKSpriteNode {
-        let patch = SKSpriteNode(imageNamed: "patch_book")
+        let patch = ArtTexture.sprite("patch_book")
         patch.size = RoomLayout.bookPatchSize
         patch.position = RoomLayout.bookPatchCentre
         patch.zPosition = RoomLayout.Z.patch
@@ -73,7 +73,7 @@ enum RoomBuilder {
     static func makeBlocks() -> RoomObject {
         let content = SKNode()
         for (index, centre) in RoomLayout.blockCentres.enumerated() {
-            let block = SKSpriteNode(imageNamed: "block_\(["a","b","c"][index])")
+            let block = ArtTexture.sprite("block_\(["a","b","c"][index])")
             let height = RoomLayout.blockHeight
             block.size = CGSize(width: height * block.size.width / block.size.height, height: height)
             // Positions are absolute in the painting; the group node sits at the middle
@@ -92,6 +92,33 @@ enum RoomBuilder {
             feedback: .squash
         )
         object.position = RoomLayout.blocksTapCentre
+        object.zPosition = RoomLayout.Z.props
+        return object
+    }
+
+    /// The basket in the near corner: the one prop that is not in the painting.
+    ///
+    /// Nil when its painting is not in the bundle, and the room is then built without it
+    /// — the same rule the second character follows. A missing texture is drawn by
+    /// SpriteKit as a red cross, and one of those has already reached a child's iPad
+    /// once; see `ArtTexture`.
+    static func makeBasket() -> RoomObject? {
+        guard let texture = ArtTexture.texture(named: "corner_basket") else { return nil }
+
+        let sprite = SKSpriteNode(texture: texture)
+        let height = RoomLayout.basketSize.height
+        sprite.size = CGSize(width: height * sprite.size.width / sprite.size.height,
+                             height: height)
+
+        let object = RoomObject(
+            id: .basket,
+            content: sprite,
+            localBounds: CGRect(origin: .zero, size: RoomLayout.basketSize)
+                .offsetBy(dx: -RoomLayout.basketSize.width / 2,
+                          dy: -RoomLayout.basketSize.height / 2),
+            feedback: .squash
+        )
+        object.position = RoomLayout.basketCentre
         object.zPosition = RoomLayout.Z.props
         return object
     }

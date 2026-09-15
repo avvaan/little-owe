@@ -45,11 +45,16 @@ rather than asserted in a comment.
 | Open book on the shelf | Stories | 4 |
 | Lamp on the side table | Prayers and rhymes | 5 |
 | Letter blocks on the rug | Word games | 6 |
-| Round window | "Why?" questions | 6 |
+| Round window | "Why?" questions — the child asks | 6 |
+| Basket in the near corner | "Why?" questions — the owl asks | 8 |
 
-Echo works. The other four objects route correctly — tap one and the owl hops or flies
-over and settles; tap the owl and it comes home — but those modes are not built yet.
 `RoomScene.handle(_:)` is the single seam where each one attaches.
+
+The window and the basket are the same bank of questions from opposite ends. At the
+window a child asks out loud and the owl answers. At the basket the owl lays out three
+questions as paintings, says what each one is while that card lights up, and tells you
+about whichever one is tapped — so it works on an iPad that cannot hear, and is not a
+fallback for anything.
 
 ### Stories
 
@@ -106,9 +111,15 @@ That trims and normalises the cut-outs, downscales each sprite to twice the size
 actually drawn at, and splits the window glass into a sky and the wooden muntins that
 cross it — so the sky can follow the device clock behind unchanged woodwork.
 
-Only three things are separate sprites: the window's sky, the three letter blocks, and
-the owl. Everything else — shelf, book, lamp, table, stump, rug — is one painting, which
-is why the book and the lamp answer a tap with a bloom of light rather than a squash.
+Only four things are separate sprites: the window's sky, the three letter blocks, the
+owl, and the basket in the corner. Everything else — shelf, book, lamp, table, stump,
+rug — is one painting, which is why the book and the lamp answer a tap with a bloom of
+light rather than a squash.
+
+The basket is the only one that is not cut out of that painting: the near right-hand
+corner was bare floorboards, which is why there was room for it. It is keyed off a flat
+card the way the puppy is, and it carries its own soft shadow, because every other
+prop's shadow is painted into the picture and without one it floats.
 
 `docs/preview/` is rendered from the app's own layout constants, so it cannot quietly
 drift from what SpriteKit draws:
@@ -122,6 +133,10 @@ python3 tools/compose_room.py --grid    # plus the measuring grid and every tap 
 
 The owl has seven painted frames and the window has four skies. How each is derived,
 and what a replacement frame has to match, is in `docs/ART_BRIEF.md`.
+
+Where every picture, recording and line of text in the app came from, and on what basis
+it is allowed to be there, is in **`docs/LICENSING.md`** — including the handful of
+things that are not settled yet.
 
 ---
 

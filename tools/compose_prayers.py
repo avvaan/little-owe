@@ -140,12 +140,35 @@ def layer():
 
 
 def dimmed_room(owl=True):
-    """The room behind a running mode. `owl=False` for a screen that moves the owl."""
+    """The room behind a running mode. `owl=False` for a screen that moves the owl.
+
+    Mirrors ModeBackdrop: a light wash so white text has something to sit on, and a
+    vignette that darkens the corners. The room stays lit - the point of it is that a
+    mode should look like an owl in its house, not like a dimmed screen.
+    """
     canvas = compose("night", owl=owl)
     # Pillow's ImageDraw overwrites pixels on an RGBA image rather than blending them, so
     # anything translucent has to be its own layer and composited.
-    sheet = Image.new("RGBA", (W, H), (8, 8, 8, 168))    # the mode's dimming layer
-    canvas.alpha_composite(sheet)
+    canvas.alpha_composite(Image.new("RGBA", (W, H), (10, 7, 20, round(255 * 0.28))))
+
+    # The vignette, drawn as concentric rings because Pillow has no radial gradient.
+    import math
+    over = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(over, "RGBA")
+    span = max(W, H) * 1.25 / 2
+    steps = 96
+    for i in range(steps, 0, -1):
+        t = i / steps                       # 0 at the centre, 1 at the rim
+        if t <= 0.42:
+            a = 0.0
+        elif t <= 0.78:
+            a = 0.55 * (t - 0.42) / (0.78 - 0.42)
+        else:
+            a = 0.55 + (0.92 - 0.55) * (t - 0.78) / 0.22
+        r = span * t
+        d.ellipse([W / 2 - r, H / 2 - r, W / 2 + r, H / 2 + r],
+                  fill=(0, 0, 0, round(255 * a * 0.85)))
+    canvas.alpha_composite(over)
     return canvas
 
 

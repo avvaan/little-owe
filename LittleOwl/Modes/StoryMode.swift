@@ -61,7 +61,7 @@ final class StoryMode: RoomMode {
     private let pack: ContentPack
     private let voice: OwlVoice
 
-    private let dim = SKSpriteNode(color: SKColor(white: 0.03, alpha: 1), size: RoomLayout.designSize)
+    private let backdrop = ModeBackdrop()
     private var picker: HeroPicker?
     private var pageNode: StoryPageNode?
 
@@ -77,11 +77,6 @@ final class StoryMode: RoomMode {
         self.owl = owl
         self.pack = pack
         self.voice = voice
-
-        dim.position = CGPoint(x: RoomLayout.designSize.width / 2,
-                               y: RoomLayout.designSize.height / 2)
-        dim.zPosition = Z.dim
-        dim.alpha = 0
     }
 
     // MARK: Starting and stopping
@@ -94,8 +89,7 @@ final class StoryMode: RoomMode {
             return
         }
 
-        if dim.parent == nil { scene.addChild(dim) }
-        dim.run(.fadeAlpha(to: 0.62, duration: 0.35))
+        backdrop.show(in: scene)
 
         // The owl is lit while it reads: it sits above the dimming, not behind it. It
         // stays on its perch for now, so the cards get the full width of the room.
@@ -128,7 +122,7 @@ final class StoryMode: RoomMode {
         voice.onMouth = nil
         voice.onFinished = nil
 
-        dim.run(.sequence([.fadeOut(withDuration: 0.3), .removeFromParent()]))
+        backdrop.hide()
         owl.run(.scale(to: 1.0, duration: 0.4))
         owl.zPosition = RoomLayout.Z.owl
         owl.transition(to: .idle)
@@ -291,7 +285,6 @@ final class StoryMode: RoomMode {
     }
 
     private enum Z {
-        static let dim = ModeLayer.dim
         static let owl = ModeLayer.owl
         static let overlay = ModeLayer.overlay
 

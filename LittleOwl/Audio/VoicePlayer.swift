@@ -54,6 +54,9 @@ final class VoicePlayer {
 
     /// Reads a file into memory and plays it. Used for the owl's recorded content lines,
     /// which are short enough that streaming would buy nothing.
+    ///
+    /// False if the file could not be read **or the engine would not start**. A caller
+    /// that hears false has not been given a line and must do something else with it.
     @discardableResult
     func play(contentsOf url: URL) -> Bool {
         guard let file = try? AVAudioFile(forReading: url),
@@ -61,11 +64,20 @@ final class VoicePlayer {
                                             frameCapacity: AVAudioFrameCount(file.length)),
               (try? file.read(into: buffer)) != nil,
               buffer.frameLength > 0 else { return false }
-        play(buffer)
-        return true
+        return play(buffer)
     }
 
-    func play(_ buffer: AVAudioPCMBuffer) {
+    /// False if the engine would not start, in which case nothing was played, nothing
+    /// is playing, and `onFinished` will not fire.
+    ///
+    /// This used to return nothing and the file-playing overload above returned `true`
+    /// regardless, so a failed `engine.start()` looked exactly like a line playing
+    /// normally — and since no audio was ever scheduled, the completion never came.
+    /// `OwlVoice` sat with `isSpeaking` true forever, and every mode that waits on
+    /// `onFinished` to decide what happens next waited forever with it. See
+    /// docs/DECISIONS.md.
+    @discardableResult
+    func play(_ buffer: AVAudioPCMBuffer) -> Bool {
         stop()
 
         timePitch.pitch = pitchCents
@@ -83,9 +95,11 @@ final class VoicePlayer {
             engine.prepare()
             try engine.start()
         } catch {
+            // Not `finish()`: `isPlaying` is still false here, so it would do nothing,
+            // and calling it reads as if a completion had been delivered. Say no
+            // instead and let the caller pick another way to say the line.
             removeLevelTap()
-            finish()
-            return
+            return false
         }
 
         isPlaying = true
@@ -99,6 +113,7 @@ final class VoicePlayer {
             DispatchQueue.main.async { self?.finish() }
         }
         player.play()
+        return true
     }
 
     func stop() {

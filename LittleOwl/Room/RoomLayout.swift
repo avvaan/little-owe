@@ -66,6 +66,22 @@ enum RoomLayout {
     static let bookPatchCentre = CGPoint(x: 263, y: 807)
     static let bookPatchSize   = CGSize(width: 249, height: 150)
 
+    /// The basket in the near right-hand corner, where the owl goes to ask rather than
+    /// answer. Unlike everything else in this list it was not measured off the painting:
+    /// the painting has nothing there, which is exactly why the corner was free. The
+    /// numbers are the empty floorboards between the right edge of the rug (x 1125) and
+    /// the right edge of the room.
+    ///
+    /// `.aspectFill` takes 63 points off the bottom on the narrowest supported iPad, so
+    /// the basket is set high enough that only its very foot can be lost, and the padded
+    /// tap target never is.
+    /// `basketSize` is the whole sprite, shadow and all — the basket is not painted into
+    /// the room like everything else, so it brings its own shade with it and the two are
+    /// one picture. `tools/export_art.py` prints the aspect it produced; these two must
+    /// agree with it or the basket is drawn narrower than the place a child taps.
+    static let basketCentre = CGPoint(x: 1238, y: 176)
+    static let basketSize   = CGSize(width: 160, height: 200)
+
     /// The rug, for reference — painted in, not tappable.
     static let rugCentre = CGPoint(x: 700, y: 176)
     static let rugSize   = CGSize(width: 850, height: 235)
@@ -87,6 +103,9 @@ enum RoomLayout {
         case .lamp:   return CGPoint(x: 330, y: 440)
         case .blocks: return CGPoint(x: 500, y: 200)
         case .window: return CGPoint(x: 1035, y: 470)
+        // Behind the basket rather than on top of it, and far enough right that the
+        // three cards the owl lays out have the rest of the room to themselves.
+        case .basket: return CGPoint(x: 1215, y: 285)
         }
     }
 

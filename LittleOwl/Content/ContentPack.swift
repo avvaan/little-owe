@@ -167,6 +167,13 @@ struct SpokenSet: Decodable, Equatable {
     let symbol: String
     /// Six hex digits for the card behind the symbol.
     let colour: String?
+
+    /// The painting on this set's card, by convention rather than by a field in the
+    /// JSON — `set_prayer-morning.png`. Derived for the same reason the audio stem is:
+    /// a name written down twice is a name that drifts, and a card whose painting has
+    /// not arrived falls back to its symbol rather than to nothing. No extension: what
+    /// ships is a JPEG and `ContentLoader` asks the bundle rather than guessing.
+    var illustration: String { "set_\(id)" }
     /// True while the text is standing in for one the family will supply.
     let isPlaceholder: Bool
     let source: String?
@@ -303,6 +310,10 @@ enum PhraseGroup: String, CaseIterable {
     case askInvite
     /// Said before the tap-to-choose cards on a device that cannot hear.
     case chooseInvite
+    /// The owl at the basket, offering a question of its own rather than waiting for
+    /// one. It is the only explanation a child gets of what that corner is, so like
+    /// `repeatInvite` it has to say what to do without asking anybody to read.
+    case wonderInvite
 }
 
 struct Phrase: Decodable, Equatable, Speakable {

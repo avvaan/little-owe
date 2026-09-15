@@ -31,6 +31,26 @@ it to `owl_base`** — same owl, same size, same place in the canvas, only the n
 feature different. The face patch is taken from a fixed box, so a frame that drifts puts
 somebody else's eyes on this owl's head.
 
+### Wanted: the swivel — `owl_turn_left`, `owl_turn_right`
+
+The one thing children wait for an owl to do. The rig performs it today by narrowing
+and rotating the whole painting, which reads as a turn because a head seen side-on *is*
+narrower — but it is foreshortening standing in for a drawing, and a drawing would be
+better.
+
+| | |
+|---|---|
+| `owl_turn_left` | The head round to the owl's left (screen left), body square on. Not a full owl 180° — about **45°**, enough that the beak is in profile and one eye is nearly hidden. |
+| `owl_turn_right` | The mirror. Paint it rather than flipping the file: a flipped watercolour flips its lighting with it, and the lamp is on one side of this room. |
+
+**Whole frame, not a face patch** — the ear tufts and the facial disc both move outside
+the base silhouette, so these are treated like `listen` and `sleepy` and cross-faded.
+The head is held for about 0.6 s at the top of the move, which is long enough for a
+child to see the drawing properly, so it is worth the detail.
+
+Neither is required. Without them the owl still swivels; it just swivels as a painting
+being turned rather than as an owl turning its head.
+
 ## 2. The room — delivered
 
 The painting, the blocks, and all four window skies (`morning`, `day`, `evening`,
@@ -41,6 +61,33 @@ sit behind the identical painted frame.
 The room itself is still lit for night: a lit lamp, a warm pool on the floor. The app
 tints it gently for the time of day, but a genuinely bright morning attic would need the
 room repainted. Nice-to-have, not a blocker.
+
+### The basket in the corner
+
+The one prop that is not in the room painting. The near right-hand corner is bare
+floorboards, which is why there was room for a fifth object there at all.
+
+It is delivered the way the puppy is — the whole subject painted on a **flat card of one
+colour**, cool blue against warm straw, and keyed out by `export_corner()`. That is what
+an image generator gives you, and the key recovers the colour under each soft edge
+rather than leaving a rim of card around the weave.
+
+Two things are worth knowing before replacing it:
+
+- **It brings its own shadow.** Every other prop's shadow is painted into the room, and
+  a cut-out standing on painted floorboards with no shade under it floats. The export
+  adds a blurred ellipse at its foot and leaves room below for the blur to fade out in;
+  `RoomLayout.basketSize` is the whole sprite, shadow included, and a test checks that
+  the sprite's aspect and that constant agree.
+- **It is painted in daylight and stands in the far corner from the lamp**, so a flat
+  warm multiply (`CORNER_LIGHT`) takes it down to the light it is standing in. Not
+  lighting — just enough that it does not read as a sticker.
+
+What it has to say without a word on it: *the owl keeps things in here that it wonders
+about.* Something a child would pick up and put in a basket. Five were painted and four
+thrown away; the two that failed were finely detailed botanical studies, sharp and
+saturated, and next to the ABC blocks and the rag rug they read as pasted in. The room
+is flat soft shapes, very little interior detail, muted and dusty.
 
 ## 3. Voice — not art, but the same hand-off
 

@@ -22,12 +22,28 @@
 	<array/>
 
 	<!--
-	  Required-reason APIs. None are used yet. Parent settings (deliverable 7) will
-	  add UserDefaults, which needs:
-	      NSPrivacyAccessedAPICategoryUserDefaults  with reason  CA92.1
-	  Add it when that code lands, not before.
+	  Required-reason APIs. One, and Apple rejects a build that uses one of these
+	  without declaring it.
+
+	  UserDefaults is read and written by ParentSettings, and by nothing else in the
+	  app. CA92.1 is the reason for "information accessible only to the app itself" —
+	  which is the literal truth here: four keys, no app group, no shared container,
+	  nothing read by anyone else and nothing about the child.
+
+	  Anything added to this list needs the code to justify it. As of this build the
+	  app touches no file timestamps, no disk-space APIs, no system boot time and no
+	  active-keyboard API, so those four categories are absent rather than empty.
 	-->
 	<key>NSPrivacyAccessedAPITypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -72,9 +72,21 @@ def wrap(d, text, f, max_width):
 
 
 def draw_caption(d, text, centre, max_width, size, lit=False):
+    """Mirrors CaptionNode, scrim included: on a lit wall the words need a panel."""
     f = font(size)
-    y = sk(centre[1])
-    for line in wrap(d, text, f, max_width):
+    lines = wrap(d, text, f, max_width)
+    used = max((d.textlength(l, font=f) for l in lines), default=0)
+    height = len(lines) * size * 1.34
+    top = sk(centre[1])
+
+    pad_x, pad_y = size * 0.7, size * 0.5
+    d.rounded_rectangle(
+        [centre[0] - used / 2 - pad_x, top - pad_y + size * 0.32,
+         centre[0] + used / 2 + pad_x, top + height + pad_y - size * 0.32],
+        radius=size * 0.45, fill=(5, 5, 5, 112))
+
+    y = top
+    for line in lines:
         width = d.textlength(line, font=f)
         d.text((centre[0] - width / 2, y), line, font=f,
                fill=(255, 230, 176, 255) if lit else (240, 240, 240, 190))

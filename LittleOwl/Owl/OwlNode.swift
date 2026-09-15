@@ -7,7 +7,10 @@ import SpriteKit
 /// the rig.
 final class OwlNode: SKNode, Tappable {
 
-    private let rig: OwlRig
+    private var rig: OwlRig
+
+    /// Which animal is on screen. Changing it swaps the paintings and nothing else.
+    var character: Character { rig.character }
 
     private(set) var state: OwlState = .idle
 
@@ -24,10 +27,22 @@ final class OwlNode: SKNode, Tappable {
     var sleepyAfter: TimeInterval = 75
     private var lastInteraction: TimeInterval = 0
 
+    // MARK: Idle repertoire
+
+    /// What the resting owl does with itself. Driven from the same update loop as the
+    /// sleepy clock rather than from a repeating action, because an action that
+    /// schedules its own successor has to tear itself down to do it.
+    private var choreography = OwlIdleChoreography()
+    private var nextBeat: OwlIdleChoreography.Beat?
+    private var nextBeatAt: TimeInterval = 0
+    private var randomness: OwlRandomness
+
     // MARK: Init
 
-    init(rig: OwlRig = WatercolourOwlRig()) {
+    init(rig: OwlRig = WatercolourOwlRig(),
+         randomness: RandomNumberGenerator = SystemRandomNumberGenerator()) {
         self.rig = rig
+        self.randomness = OwlRandomness(randomness)
         super.init()
         name = RoomObjectID.owl.rawValue
         position = homePosition
@@ -36,6 +51,26 @@ final class OwlNode: SKNode, Tappable {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("Not supported") }
+
+    // MARK: Changing character
+
+    /// Puts a different set of paintings on the same bird.
+    ///
+    /// The node itself is not rebuilt, and that is the point: every mode holds a
+    /// reference to this `OwlNode`, so replacing it would mean rebuilding the room.
+    /// Only the rig changes, and the new one is handed the state the old one was in —
+    /// a child who swaps character mid-sentence gets the same character mid-sentence,
+    /// not one that has forgotten what it was doing.
+    func wear(_ newRig: OwlRig) {
+        let pose = state
+        rig.node.removeFromParent()
+        rig = newRig
+        addChild(newRig.node)
+        newRig.enter(pose)
+        // The idle repertoire is timed against nothing in particular, but a swap is an
+        // interaction: give the new animal a moment before it starts fidgeting.
+        nextBeat = nil
+    }
 
     // MARK: State
 
@@ -107,6 +142,8 @@ final class OwlNode: SKNode, Tappable {
 
     /// Called from the scene's update loop.
     func update(currentTime: TimeInterval) {
+        updateIdleMoves(currentTime: currentTime)
+
         // Only resting counts towards the sleepy idle. Anything else — a mode, a hop,
         // the sleepy pose itself — keeps resetting the clock.
         guard state == .idle, !isTravelling else {
@@ -120,6 +157,31 @@ final class OwlNode: SKNode, Tappable {
         if currentTime - lastInteraction >= sleepyAfter {
             transition(to: .sleepy)
         }
+    }
+
+    /// A blink, a swivel, a shiver. Only while the owl is resting: a mode has the owl
+    /// listening or reading, and a bird that starts idly looking around mid-sentence is
+    /// a bird that is not paying attention.
+    private func updateIdleMoves(currentTime: TimeInterval) {
+        guard state == .idle, !isTravelling else {
+            // Disarmed rather than paused, so the wait starts over on the way back and
+            // the owl does not swivel the instant a story ends.
+            nextBeat = nil
+            return
+        }
+        guard let beat = nextBeat else {
+            armNextBeat(from: currentTime)
+            return
+        }
+        guard currentTime >= nextBeatAt else { return }
+        play(beat.accent)
+        armNextBeat(from: currentTime)
+    }
+
+    private func armNextBeat(from currentTime: TimeInterval) {
+        let beat = choreography.next(using: &randomness)
+        nextBeat = beat
+        nextBeatAt = currentTime + beat.pause
     }
 
     /// Resets the idle clock and brings the owl out of the sleepy pose.

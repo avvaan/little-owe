@@ -226,6 +226,42 @@ final class ParentTests: XCTestCase {
         XCTAssertFalse(version.isEmpty)
     }
 
+    // MARK: The privacy manifest says what the app actually does
+
+    func testThePrivacyManifestShipsAndPromisesNothingIsCollected() throws {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"),
+                                "PrivacyInfo.xcprivacy is not in the bundle")
+        let manifest = try XCTUnwrap(
+            try PropertyListSerialization.propertyList(
+                from: Data(contentsOf: url), format: nil) as? [String: Any])
+
+        // These four are the whole privacy story, and each one is a promise made in the
+        // App Store listing. A day someone adds analytics is a day this test fails, which
+        // is the point of it.
+        XCTAssertEqual(manifest["NSPrivacyTracking"] as? Bool, false)
+        XCTAssertEqual((manifest["NSPrivacyTrackingDomains"] as? [Any])?.count, 0,
+                       "the app makes no network connections at all")
+        XCTAssertEqual((manifest["NSPrivacyCollectedDataTypes"] as? [Any])?.count, 0,
+                       "nothing is collected; if that changed, the listing is now wrong too")
+    }
+
+    func testEveryRequiredReasonAPITheAppUsesIsDeclared() throws {
+        // Apple rejects a build that touches one of these without a declared reason, and
+        // the rejection names the category rather than the code that caused it.
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"))
+        let manifest = try XCTUnwrap(
+            try PropertyListSerialization.propertyList(
+                from: Data(contentsOf: url), format: nil) as? [String: Any])
+        let declared = try XCTUnwrap(manifest["NSPrivacyAccessedAPITypes"] as? [[String: Any]])
+
+        let userDefaults = declared.first {
+            $0["NSPrivacyAccessedAPIType"] as? String == "NSPrivacyAccessedAPICategoryUserDefaults"
+        }
+        XCTAssertNotNil(userDefaults, "ParentSettings uses UserDefaults; the manifest must say so")
+        XCTAssertEqual(userDefaults?["NSPrivacyAccessedAPITypeReasons"] as? [String], ["CA92.1"],
+                       "CA92.1 is 'accessible only to the app itself', which is what these four keys are")
+    }
+
     // MARK: Every prop a parent is offered is a prop that exists
 
     func testTheSettingsScreenOffersExactlyTheRoomsProps() {

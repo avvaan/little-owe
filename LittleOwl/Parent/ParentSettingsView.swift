@@ -72,7 +72,7 @@ struct ParentSettingsView: View {
         } header: {
             Text("In the room")
         } footer: {
-            Text("Turning one off takes it out of the room and your child cannot open it any more. The owl itself is always there — tapping it is how your child talks to it, and how they come back from anything.")
+            Text("Turning one off takes it out of the room and your child cannot open it any more. The owl itself is always there — tapping it is how your child talks to it, and how they come back from anything.\n\nThe window and the basket are the two halves of the same thing: at the window your child asks the owl a question out loud, and at the basket the owl offers questions as pictures to tap. The basket needs no microphone.")
         }
     }
 
@@ -85,7 +85,7 @@ struct ParentSettingsView: View {
             return "Still painted on the table — it is what lights that corner of the room. It just doesn't do anything now."
         case .window:
             return "Still painted on the wall, and it stops following the time of day. It just doesn't do anything now."
-        case .book, .blocks, .owl:
+        case .book, .blocks, .basket, .owl:
             return nil
         }
     }
@@ -239,6 +239,7 @@ extension RoomObjectID {
         case .lamp:   return "The lamp"
         case .blocks: return "The letter blocks"
         case .window: return "The window"
+        case .basket: return "The basket in the corner"
         }
     }
 }

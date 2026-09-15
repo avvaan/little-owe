@@ -7,6 +7,7 @@ import Combine
 /// played — just the handful of choices a parent makes behind the gate. Five keys in
 /// `UserDefaults`, all of them written from one screen, and a fresh install starts with
 /// every one of them unset.
+
 ///
 /// It is an `ObservableObject` because the settings screen is SwiftUI, and every setter
 /// writes straight through to `UserDefaults` so a parent closing the app mid-change does
@@ -27,6 +28,7 @@ final class ParentSettings: ObservableObject {
         static let hiddenObjects = "parent.hiddenObjects"
         static let captions = "parent.captions"
         static let voiceVolume = "parent.voiceVolume"
+        static let character = "parent.character"
     }
 
     // MARK: What is in the room
@@ -125,16 +127,40 @@ final class ParentSettings: ObservableObject {
         }
     }
 
+    // MARK: Who lives in the attic
+
+    /// The owl unless somebody chose otherwise.
+    ///
+    /// The one setting here a **child** sets rather than a parent: it is changed by
+    /// tapping the badge in the corner of the room, not from this screen. It is kept
+    /// here anyway because it is a preference that has to survive the app closing, and
+    /// this is where preferences live. A character whose paintings are not in the
+    /// bundle falls back to the owl rather than leaving the room empty.
+    var character: Character {
+        get {
+            guard let raw = defaults.string(forKey: Key.character),
+                  let character = Character(rawValue: raw),
+                  character.isAvailable else { return .fallback }
+            return character
+        }
+        set {
+            objectWillChange.send()
+            defaults.set(newValue.rawValue, forKey: Key.character)
+        }
+    }
+
     // MARK: Reset
 
     /// Puts every setting back to its default.
     ///
     /// Note what this does **not** do, because it is the whole point: there is no child
     /// data to clear. Nothing was ever kept about what the child said, asked, answered or
-    /// played, so a reset has nothing to erase but these four keys.
+    /// played, so a reset has nothing to erase but these five preferences — and,
+    /// in a build that has one, the parent's own API key.
     func resetToDefaults() {
         objectWillChange.send()
-        for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions, Key.voiceVolume] {
+        for key in [Key.enabledSpokenSets, Key.hiddenObjects, Key.captions,
+                    Key.voiceVolume, Key.character] {
             defaults.removeObject(forKey: key)
         }
     }

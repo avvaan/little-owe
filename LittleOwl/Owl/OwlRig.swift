@@ -7,8 +7,13 @@ import SpriteKit
 /// would change. Nothing above this protocol may know how the owl is drawn.
 protocol OwlRig: AnyObject {
 
-    /// Added to the scene by `OwlNode`. Laid out so that (0, 0) is between the owl's feet.
+    /// Added to the scene by `OwlNode`. Laid out so that (0, 0) is between the feet.
     var node: SKNode { get }
+
+    /// Which animal this rig paints. The only thing a rig knows that the behaviour
+    /// above it may ask about — and it may ask only to show the *other* one in the
+    /// corner, never to behave differently.
+    var character: Character { get }
 
     /// Roughly how tall the owl stands, in design points. Used for hit areas and for
     /// working out where to land after a hop.

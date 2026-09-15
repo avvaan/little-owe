@@ -1,4 +1,5 @@
 import SpriteKit
+import UIKit
 
 /// The cards a child taps to choose which prayer or rhyme they want.
 ///
@@ -42,7 +43,7 @@ final class SpokenSetPicker: SKNode {
     /// picker in the clear band below the owl however many sets a parent has left on.
     private(set) var contentHeight: CGFloat = 0
 
-    init(sets: [SpokenSet]) {
+    init(sets: [SpokenSet], language: String = "en") {
         super.init()
 
         let layout = SpokenSetPicker.rows(for: sets.count)
@@ -56,7 +57,8 @@ final class SpokenSetPicker: SKNode {
         for rowCount in layout {
             var x = -SpokenSetPicker.rowWidth(rowCount) / 2 + SpokenSetPicker.cardSize.width / 2
             for _ in 0..<rowCount {
-                let card = SpokenSetCard(set: sets[index], size: SpokenSetPicker.cardSize)
+                let card = SpokenSetCard(set: sets[index], size: SpokenSetPicker.cardSize,
+                                         language: language)
                 card.position = CGPoint(x: x, y: y)
                 // A short stagger, so the cards arrive as a group rather than a wall.
                 card.alpha = 0
@@ -113,7 +115,7 @@ final class SpokenSetCard: SKNode {
 
     private let content = SKNode()
 
-    init(set: SpokenSet, size: CGSize) {
+    init(set: SpokenSet, size: CGSize, language: String = "en") {
         self.set = set
         self.hitArea = CGRect(x: -size.width / 2, y: -size.height / 2,
                               width: size.width, height: size.height)
@@ -126,10 +128,45 @@ final class SpokenSetCard: SKNode {
         card.lineWidth = 4
         content.addChild(card)
 
-        let symbol = SKShapeNode(path: SetSymbol.path(for: set.symbol, height: size.height * 0.52))
-        symbol.fillColor = SKColor(white: 1, alpha: 0.86)
-        symbol.strokeColor = .clear
-        content.addChild(symbol)
+        if let picture = Self.picture(for: set, size: size, language: language) {
+            content.addChild(picture)
+        } else {
+            // Until the painting for this set arrives. A flat white shape is plainly a
+            // placeholder rather than a broken picture, and it still tells a child which
+            // card is which once the owl has named them.
+            let symbol = SKShapeNode(path: SetSymbol.path(for: set.symbol, height: size.height * 0.52))
+            symbol.fillColor = SKColor(white: 1, alpha: 0.86)
+            symbol.strokeColor = .clear
+            content.addChild(symbol)
+        }
+    }
+
+    /// The painting for this set, cropped to fill the card and rounded to its corners.
+    ///
+    /// Filled rather than fitted: a painting letterboxed inside a coloured rectangle
+    /// looks like a mistake, and these are cards a three-year-old picks between at a
+    /// glance. The crop is centred, which is why the pictures are painted with their
+    /// subject in the middle.
+    private static func picture(for set: SpokenSet, size: CGSize, language: String) -> SKNode? {
+        guard let url = ContentLoader.illustrationURL(named: set.illustration, language: language),
+              let image = UIImage(contentsOfFile: url.path) else { return nil }
+
+        let texture = SKTexture(image: image)
+        let sprite = SKSpriteNode(texture: texture)
+
+        let scale = max(size.width / texture.size().width, size.height / texture.size().height)
+        sprite.size = CGSize(width: texture.size().width * scale,
+                             height: texture.size().height * scale)
+
+        // Rounded to the card's own corners, so the painting cannot poke out of them.
+        let mask = SKShapeNode(rectOf: size, cornerRadius: 22)
+        mask.fillColor = .white
+        mask.strokeColor = .clear
+
+        let crop = SKCropNode()
+        crop.maskNode = mask
+        crop.addChild(sprite)
+        return crop
     }
 
     @available(*, unavailable)

@@ -440,6 +440,150 @@ def export_all():
     export_generated_skies(shipped)
     export_owl_frames()
     export_patches(room)
+    export_dog()
+    export_corner()
+
+
+# ----------------------------------------------------------------- the puppy
+
+# The second character. Generated as a whole animal on a flat card of one colour,
+# rather than as a layer with alpha, because that is what an image generator gives you.
+DOG_CARD = os.path.join(SRC, "dog-raw", "dog_base_card.png")
+
+# How far a pixel must be from the card colour before it is the animal at all, and how
+# far before it is the animal completely. The gap between them is the soft edge: fur is
+# mostly soft edge, and a single threshold turns it into a cut-out with scissors.
+DOG_KEY_LO, DOG_KEY_HI = 26, 78
+
+
+def _key_flat_card(rgb):
+    """Alpha and un-fringed colour for a subject painted on a card of one flat colour.
+
+    Two things happen here and only the first is obvious. The easy half is the alpha
+    ramp. The half that decides whether this looks painted or cut out is recovering the
+    colour underneath: a half-transparent pixel of fur on a blue card *is* half blue,
+    and leaving it that way rims the whole animal in blue against the warm room. So the
+    card is subtracted back out of every partial pixel.
+    """
+    a = np.asarray(rgb).astype(np.float64)
+    # The card is uniform, so any corner is the card. Take the median of all four to be
+    # safe against a stray speck.
+    corners = np.array([a[4, 4], a[4, -5], a[-5, 4], a[-5, -5]])
+    card = np.median(corners, axis=0)
+
+    dist = np.abs(a - card).sum(axis=2)
+    alpha = np.clip((dist - DOG_KEY_LO) / (DOG_KEY_HI - DOG_KEY_LO), 0.0, 1.0)
+
+    # c = alpha*F + (1-alpha)*card  ->  F = (c - (1-alpha)*card) / alpha
+    safe = np.maximum(alpha, 1e-3)[..., None]
+    front = (a - (1.0 - alpha)[..., None] * card) / safe
+    front = np.clip(front, 0, 255)
+
+    out = np.dstack([front, alpha * 255.0]).astype("uint8")
+    return Image.fromarray(out, "RGBA")
+
+
+def export_dog():
+    """The puppy, cut off its card and scaled into the owl's place.
+
+    Its silhouette is 0.55 wide to tall against the owl's 0.58, so at the same height it
+    is eleven points narrower and drops into the same spot with nothing in `RoomLayout`
+    changed. That is luck rather than design, and worth checking again if the painting
+    is ever redone.
+    """
+    if not os.path.exists(DOG_CARD):
+        print("  (no dog card yet; skipping the puppy)")
+        return
+
+    keyed = _key_flat_card(Image.open(DOG_CARD).convert("RGB"))
+
+    a = np.array(keyed)
+    ys, xs = np.where(a[..., 3] > 6)
+    keyed = keyed.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+
+    target = round(layout_value("owlHeight") * 2)     # 2x the size it is ever drawn at
+    if keyed.height > target:
+        keyed = keyed.resize((round(keyed.width * target / keyed.height), target),
+                             Image.LANCZOS)
+
+    path = os.path.join(OUT, "dog_base.png")
+    keyed.save(path, optimize=True)
+    print(f"  {'dog_base.png':<24} {keyed.size[0]}x{keyed.size[1]}  "
+          f"{os.path.getsize(path)//1024}KB")
+
+
+# ------------------------------------------------------------- the corner
+
+# The basket the owl goes to when it wants to ask rather than answer. Like the puppy it
+# comes back as a subject on a flat card, because that is what an image generator gives
+# you, and it is keyed with the same code.
+#
+# Unlike everything else in Resources/Art it is not in the room painting and never was:
+# the near right-hand corner is bare floorboards, which is exactly why there was room
+# for a fifth prop there.
+BASKET_CARD = os.path.join(SRC, "corner-raw", "basket_c_card.png")
+
+# Everything else in the room has its shadow painted into the picture. This one has to
+# bring its own or it floats a little way above the floor, which a three-year-old will
+# not name but will see. Fractions of the basket's own size.
+SHADOW_SPREAD = 0.94
+SHADOW_HEIGHT = 0.17
+SHADOW_BLUR = 0.045
+SHADOW_ALPHA = 0.30
+
+# The basket is painted in daylight on a blue card and stands in the far corner from the
+# lamp, so it arrives brighter and cooler than the floor it is standing on. A flat warm
+# multiply is not lighting, but it is enough to stop it reading as a sticker.
+CORNER_LIGHT = (0.93, 0.89, 0.84)
+
+
+def export_corner():
+    """The basket, keyed off its card and given a shadow to stand on."""
+    if not os.path.exists(BASKET_CARD):
+        print("  (no basket card yet; skipping the corner)")
+        return
+
+    keyed = _key_flat_card(Image.open(BASKET_CARD).convert("RGB"))
+
+    a = np.array(keyed)
+    ys, xs = np.where(a[..., 3] > 6)
+    keyed = keyed.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+
+    # Twice the size it is ever drawn at, the same rule the puppy follows.
+    target = round(layout_value("basketSize")[1] * 2)
+    # The skirt is the half-height of the shadow ellipse. It is left below the basket
+    # *and* below the ellipse: the first is where the shade falls, and the second is room
+    # for the blur to fade out in. Without the second the shadow ends in a straight line
+    # across the bottom of the sprite.
+    skirt = round(target * SHADOW_HEIGHT / 2)
+    body = target - 2 * skirt
+    width = round(keyed.width * body / keyed.height)
+    keyed = keyed.resize((width, body), Image.LANCZOS)
+
+    lit = np.array(keyed).astype(np.float64)
+    lit[..., :3] *= np.array(CORNER_LIGHT)
+    keyed = Image.fromarray(np.clip(lit, 0, 255).astype("uint8"), "RGBA")
+
+    canvas = Image.new("RGBA", (width, target), (0, 0, 0, 0))
+
+    # An ellipse under the foot of the basket, drawn large and blurred down: a hard edge
+    # here reads as a second object rather than as shade.
+    shadow = Image.new("L", (width, target), 0)
+    draw = ImageDraw.Draw(shadow)
+    half = width * SHADOW_SPREAD / 2
+    draw.ellipse([width / 2 - half, body - skirt,
+                  width / 2 + half, body + skirt],
+                 fill=round(255 * SHADOW_ALPHA))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(target * SHADOW_BLUR))
+    canvas.paste(Image.new("RGBA", canvas.size, (58, 40, 26, 255)), (0, 0), shadow)
+
+    canvas.alpha_composite(keyed, (0, 0))
+
+    path = os.path.join(OUT, "corner_basket.png")
+    canvas.save(path, optimize=True)
+    print(f"  {'corner_basket.png':<24} {canvas.size[0]}x{canvas.size[1]}  "
+          f"{os.path.getsize(path)//1024}KB   "
+          f"aspect {canvas.size[0] / canvas.size[1]:.3f}")
 
 
 def compare(fresh_dir):

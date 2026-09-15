@@ -183,15 +183,28 @@ final class EchoMode {
             // two reads as two separate events rather than one performance.
             after(length * 0.85) { [weak self] in
                 guard let self, self.phase == .speaking else { return }
-                self.player.play(recording.buffer)
+                self.replay(recording)
             }
 
         case .after:
             giggleAfterSpeaking = true
-            player.play(recording.buffer)
+            replay(recording)
 
         case .none:
-            player.play(recording.buffer)
+            replay(recording)
+        }
+    }
+
+    /// Plays the child back, and ends the turn itself if the player could not start.
+    ///
+    /// `onFinished` only comes from audio that actually played, so a refused engine
+    /// would otherwise leave Echo in `.speaking` with nothing running and no way out
+    /// but tapping the owl. The child gets silence either way; the difference is
+    /// whether the owl is still listening a moment later.
+    private func replay(_ recording: VoiceRecorder.Recording) {
+        guard player.play(recording.buffer) else {
+            speakingFinished()
+            return
         }
     }
 
