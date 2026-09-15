@@ -43,7 +43,7 @@ final class PaletteTests: XCTestCase {
             return (wood.r * (1 - a) + src.r * a,
                     wood.g * (1 - a) + src.g * a,
                     wood.b * (1 - a) + src.b * a)
-        case .multiply, .multiplyX2, .multiplyX2Alpha:
+        case .multiply, .multiplyX2:
             // SpriteKit premultiplies the source colour by the node's alpha. Written out
             // rather than left to be assumed, because assuming otherwise is the bug.
             let doubled = spec.blend == .multiply ? 1.0 : 2.0

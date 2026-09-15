@@ -79,7 +79,7 @@ def apply_wash(canvas, time):
         v = d + s * alpha
     elif blend == "alpha":
         v = d * (1 - alpha) + s * alpha
-    elif blend in ("multiply", "multiplyX2", "multiplyX2Alpha"):
+    elif blend in ("multiply", "multiplyX2"):
         # SpriteKit premultiplies the source by the node's alpha, so a low alpha is a
         # dark source and the room goes dark with it. Modelled rather than assumed.
         v = d * s * alpha * (1.0 if blend == "multiply" else 2.0)
