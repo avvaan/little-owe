@@ -19,6 +19,12 @@ final class AudioSession {
     private(set) var isRecordingCapable = false
     private var isObserving = false
 
+    /// True while a category change of our own is in flight. Setting the category posts
+    /// a route change, and reporting that back as "the system took the audio away" made
+    /// the app interrupt itself: the first time the owl needed the microphone, every
+    /// running mode was told to leave.
+    private var isChangingCategory = false
+
     func configure() {
         apply(category: .playback, options: [])
         observeSystemEvents()
@@ -38,6 +44,14 @@ final class AudioSession {
     }
 
     private func apply(category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions) {
+        isChangingCategory = true
+        // Cleared after one turn of the main queue rather than at the end of this
+        // function: the route change this causes is delivered on some other queue and
+        // `notifyAudioLost` hops to main, so clearing it here would clear it too early.
+        defer {
+            DispatchQueue.main.async { [weak self] in self?.isChangingCategory = false }
+        }
+
         let session = AVAudioSession.sharedInstance()
         do {
             try session.setCategory(category, mode: .default, options: options)
@@ -91,10 +105,16 @@ final class AudioSession {
               let reason = AVAudioSession.RouteChangeReason(rawValue: raw) else { return }
 
         switch reason {
-        case .oldDeviceUnavailable, .newDeviceAvailable, .override, .categoryChange:
+        case .oldDeviceUnavailable, .newDeviceAvailable, .override:
             // The input format can change with the route, which invalidates a capture
             // already in flight.
             notifyAudioLost()
+        case .categoryChange:
+            // Never the system: an app's audio session category is only ever changed by
+            // that app, and the only thing here that changes it is `prepareForRecording`.
+            // Treating our own switch as a loss meant the first time the owl needed the
+            // microphone it cancelled whatever was already running, including itself.
+            break
         default:
             break
         }
@@ -108,7 +128,8 @@ final class AudioSession {
 
     private func notifyAudioLost() {
         DispatchQueue.main.async { [weak self] in
-            self?.onAudioLost?()
+            guard let self, !self.isChangingCategory else { return }
+            self.onAudioLost?()
         }
     }
 }

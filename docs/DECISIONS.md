@@ -754,6 +754,63 @@ subtle blending difference. It is not a fair objection to this one: a wash that
 multiplies the room by nearly zero is wrong under any correct implementation of the
 formula.
 
+## A line that never finished froze the mode waiting for it
+
+Reported as: the owl goes to the window, seems to start asking, and switches off. The
+same at the basket in the corner.
+
+`OwlVoice.onFinished` is the spine of every talking mode. Each one says a line and
+decides what happens next when that fires — the story turns the page, the window opens
+the child's turn, the basket lays out its three cards. Nothing polls and nothing times
+out, which is right: a child who wanders off mid-story should come back to the same page
+waiting, not to a mode that gave up.
+
+That only works if the callback always comes. **It did not.**
+
+`VoicePlayer.play(contentsOf:)` read the file, handed the buffer to `play(_:)`, and
+returned `true` — unconditionally, including when `engine.start()` threw. On that path
+nothing was scheduled and nothing played, so no completion ever arrived. The `catch`
+called `finish()`, which looks like it covers exactly this, and does not: `isPlaying` is
+still `false` at that point, so `finish()` returns at its first line. `OwlVoice` set
+`isSpeaking = true`, believed a recording was playing, and waited. The mode waited with
+it, for the rest of the session, with nothing on screen and no way out but tapping the
+owl.
+
+The two modes where it shows worst are the two that speak the moment they open. Stories
+and prayers put a picker up first, so a frozen voice still leaves a child something to
+tap; the window and the basket have nothing on screen until the first line ends.
+
+Both halves are now fixed at the seam rather than in the callers. `play` returns `false`
+when the engine refuses, so `OwlVoice` falls through to the synthesiser exactly as it
+does for a line with no recording at all — the per-line fallback that already exists,
+now covering one more way for a line to have no audio. Echo, the one other caller, ends
+its turn itself instead of waiting.
+
+### And the app was interrupting itself
+
+Found while reading the same path, not reported. `AudioSession.handleRouteChange`
+treated `.categoryChange` as the system taking the audio away, and
+`RoomScene.onAudioLost` responds by cancelling Echo and telling **every running mode to
+leave**. But an app's session category is only ever changed by that app, and the only
+thing that changes it here is `prepareForRecording`. So the first time the owl needed the
+microphone, the app told itself it had lost the audio and shut down whatever was running,
+including the Echo turn that had just asked for the microphone in the first place.
+
+`.categoryChange` is no longer a loss, and `apply` marks a change of its own in flight so
+a route change it causes under another reason is ignored too.
+
+### What is tested and what is not
+
+`VoiceContractTests` holds the promise: the player says no when it cannot play, a line
+with no recording still reaches the synthesiser, and stopping always leaves the owl
+quiet. It also lists the callers that hang on `onFinished`, so a new mode is a deliberate
+addition rather than a surprise.
+
+What is **not** tested is the failure itself. Making `engine.start()` throw on demand
+means a fake audio engine, and the bug was never in the engine — it was in believing a
+function that had not been asked whether it succeeded. The test that would have caught it
+is the one that now exists: ask, and check the answer.
+
 ---
 
 ## Open, and deliberately deferred
