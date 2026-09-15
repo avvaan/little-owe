@@ -20,9 +20,10 @@ import re
 import sys
 
 try:
+    import numpy as np
     from PIL import Image, ImageDraw
 except ImportError:
-    sys.exit("This needs Pillow:  pip install Pillow")
+    sys.exit("This needs Pillow and numpy:  pip install Pillow numpy")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAYOUT = os.path.join(ROOT, "LittleOwl", "Room", "RoomLayout.swift")
@@ -49,7 +50,50 @@ def parse_layout():
     return L
 
 
+def parse_wash():
+    """The ambient wash, read out of Palette.swift.
+
+    The preview used to stop at the painting and the sprites, so the one layer the code
+    lays *over* the room was the one nobody could see outside a device - which is how a
+    night wash that blacked the room out reached a real iPad. It is composited here now.
+    """
+    text = open(os.path.join(ROOT, "LittleOwl", "Support", "Palette.swift")).read()
+    found = re.findall(
+        r"case \.(\w+):\s*return \(SKColor\(hex: 0x([0-9A-Fa-f]{6})\),\s*([\d.]+),\s*\.(\w+)\)",
+        text)
+    return {name: (hexv, float(alpha), blend) for name, hexv, alpha, blend in found}
+
+
+def apply_wash(canvas, time):
+    spec = WASH.get(time)
+    if spec is None:
+        print(f"  (no wash for {time} in Palette.swift - skipped)")
+        return canvas
+    hexv, alpha, blend = spec
+    src = [int(hexv[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+
+    d = np.asarray(canvas.convert("RGB"), dtype=float) / 255.0
+    s = np.array(src)
+
+    if blend == "add":
+        v = d + s * alpha
+    elif blend == "alpha":
+        v = d * (1 - alpha) + s * alpha
+    elif blend in ("multiply", "multiplyX2", "multiplyX2Alpha"):
+        # SpriteKit premultiplies the source by the node's alpha, so a low alpha is a
+        # dark source and the room goes dark with it. Modelled rather than assumed.
+        v = d * s * alpha * (1.0 if blend == "multiply" else 2.0)
+    else:
+        raise SystemExit(f"compose_room.py does not model blend mode .{blend}")
+
+    out = Image.fromarray((np.clip(v, 0, 1) * 255).round().astype("uint8"), "RGB")
+    print(f"  wash .{blend} {hexv} @ {alpha}: room at {v.mean() / d.mean() * 100:.0f}% "
+          f"of the painting")
+    return out.convert("RGBA")
+
+
 L = parse_layout()
+WASH = parse_wash()
 W = int(L["designSize"]["width"])
 H = int(L["designSize"]["height"])
 
@@ -97,7 +141,9 @@ def compose(time="night", owl=True):
     if owl:
         owl_h = L["owlHeight"]
         paste(canvas, "owl_base.png", (L["owlHome"]["x"], L["owlHome"]["y"] + owl_h / 2), owl_h)
-    return canvas
+
+    # Last, over everything, exactly as RoomScene layers it.
+    return apply_wash(canvas, time)
 
 
 def draw_grid(canvas):

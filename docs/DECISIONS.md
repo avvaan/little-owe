@@ -709,6 +709,51 @@ first prop that can be missing — so `RoomBuilder.makeBasket()` returns nil whe
 painting is not in the bundle and the room is simply built without that corner. See the
 red cross below for why that is not paranoia.
 
+## The night wash put the room out
+
+The room came back from a real iPad almost black. Not a mode, not a missing texture —
+the main screen, between nine at night and five in the morning, which is when a bedtime
+app is most likely to be opened.
+
+`Palette.ambientWash` lays one tinted sprite over the whole room for the time of day.
+Three of the four were `.add` and one — night — was `.multiplyX2`. Under `.add`, alpha
+is a strength knob: none of it at 0, all of it at 1. **Under any multiply blend it is
+not.** SpriteKit premultiplies a node's colour by its alpha, so a low alpha means a
+*dark* source, and the room multiplied by a nearly-black source is a nearly-black room.
+Night at `alpha 0.10` left the painting at **nine percent** of its brightness.
+
+The worst part is the direction. An earlier commit called "the ambient wash was turned
+down" lowered every alpha, night from 0.22 to 0.10 — and halved the night brightness
+while believing it was making the tint gentler. The number that reads as "barely there"
+was the one doing the most damage.
+
+Night is now a deep blue at `alpha 0.30` with plain `.alpha` blending: the room at 92%,
+cooled, the lamp still the warmest thing in it. Every entry now uses a blend where alpha
+means one thing, which also fixes a second bug nobody had hit yet — `applyTimeOfDay`
+animates this node's alpha, so a dusk crossfade into a multiply wash would have dipped
+through a black screen on the way.
+
+**Why nothing caught it.** The same shape as the red cross below, one layer further in.
+`docs/preview/` composites the painting and the sprites and stopped there, so the one
+thing the *code* draws over the room was the one thing the previews never showed. The
+art check compares exported files, not rendered frames. No test mentioned `Palette` at
+all. It was invisible to every check in the project and obvious within a second of
+opening the app at night.
+
+So two things now look at it. `tools/compose_room.py` composites the wash last, exactly
+as `RoomScene` layers it, and prints what each one does to the room — the four previews
+in `docs/preview/` are rendered through it. And `PaletteTests` does the blend arithmetic
+on a mid-tone of the attic's wood and asserts the room survives: luminance between 60%
+and 145% of the painting for every time of day, night cooler than bare and the warm ones
+not, and every blend mode one whose alpha runs from none to all. The value that shipped
+scores 0.094 against a floor of 0.6.
+
+Both are mirrors of what SpriteKit does rather than SpriteKit, the same caveat
+`tools/simulate_turn_detection.py` carries. That is a fair objection to a test of a
+subtle blending difference. It is not a fair objection to this one: a wash that
+multiplies the room by nearly zero is wrong under any correct implementation of the
+formula.
+
 ---
 
 ## Open, and deliberately deferred
