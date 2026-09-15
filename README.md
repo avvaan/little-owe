@@ -134,6 +134,10 @@ python3 tools/compose_room.py --grid    # plus the measuring grid and every tap 
 The owl has seven painted frames and the window has four skies. How each is derived,
 and what a replacement frame has to match, is in `docs/ART_BRIEF.md`.
 
+Where every picture, recording and line of text in the app came from, and on what basis
+it is allowed to be there, is in **`docs/LICENSING.md`** — including the handful of
+things that are not settled yet.
+
 ---
 
 ## Content

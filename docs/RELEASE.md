@@ -116,6 +116,9 @@ None of these block **internal** TestFlight, which is what you want right now.
 
 - **A privacy policy URL.** Kids listings are refused without one. The text is written —
   `docs/PRIVACY_POLICY.md` — and needs hosting anywhere public and stable.
+- **Provenance**: `docs/LICENSING.md` lists where every asset came from and what permits
+  it. Its "Not settled" section has items that want answering **before** the first public
+  release, not after — most of them are five minutes in a vendor dashboard.
 - **App Store metadata**: drafted in `docs/APP_STORE.md`, ready to paste, with the review
   notes that tell a reviewer how to open the parental gate. They will not find it
   otherwise, and a reviewer who cannot reach the settings is a rejection.
